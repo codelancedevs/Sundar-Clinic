@@ -1,50 +1,25 @@
 {
   "name": "sundar-clinic",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@emotion/react": "^11.7.1",
-    "@emotion/styled": "^11.6.0",
-    "@mui/icons-material": "^5.2.5",
-    "@mui/material": "^5.2.8",
-    "@testing-library/jest-dom": "^5.16.1",
-    "@testing-library/react": "^12.1.2",
-    "@testing-library/user-event": "^13.5.0",
-    "bcryptjs": "^2.4.3",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-error-boundary": "^3.1.4",
-    "react-redux": "^7.2.6",
-    "react-router-dom": "^6.2.1",
-    "react-scripts": "5.0.0",
-    "redux": "^4.1.2",
-    "web-vitals": "^2.1.3"
+  "version": "1.0.0",
+  "description": "Sundar Clinic Website created by Codelance Devs. Created Using the MERN Stack.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codelancedevs/Sundar-Clinic.git"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm start\" ",
+    "install-backend": "cd backend && npm i",
+    "install-frontend": "cd frontend && npm i"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "keywords": [],
+  "author": "Kunal Keshan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/codelancedevs/Sundar-Clinic/issues"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
+  "homepage": "https://github.com/codelancedevs/Sundar-Clinic#readme",
+  "dependencies": {},
   "devDependencies": {
-    "mini-css-extract-plugin": "2.4.5"
+    "concurrently": "^7.0.0"
   }
 }

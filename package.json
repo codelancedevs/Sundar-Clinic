@@ -2,6 +2,11 @@
   "name": "sundar-clinic-frontend",
   "version": "0.1.0",
   "private": true,
+  "description": "Sundar Clinic Frontend application built using React",
+  "keywords": [
+    "React",
+    "MERN"
+  ],
   "dependencies": {
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",

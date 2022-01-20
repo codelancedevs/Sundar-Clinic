@@ -2,8 +2,11 @@
 
 require("dotenv").config();
 
+const developmentEnviroNment = process.env.NODE_ENV;
+const isProduction = developmentEnviroNment === "production"; 
 module.exports = {
     port: process.env.PORT,
+    isProduction,
     expireDurations: {
         tokenExpireAt: 8.64e+7,
         verificationExpireAt: 8.64e+7 * 3,
@@ -20,5 +23,6 @@ module.exports = {
         passwordResetSecret: process.env.PASSWORD_RESET_SECRET,
         deleteAccountSecret: process.env.DELETE_ACCOUNT_SECRET,
         cookieSecret: process.env.COOKIE_SECRET,
-    }
+        saltRounds: parseInt(process.env.SALT_ROUNDS, 10),
+    },
 }

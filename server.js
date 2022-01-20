@@ -16,6 +16,9 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser(cookieSecret));
 
+// Connecting to MongoDB
+require("./src/helper/database");
+
 // Using App Router
 app.use(appRouter);
 

@@ -5,9 +5,13 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build": "babel src -d build"
   },
-  "keywords": [],
+  "keywords": [
+    "Express",
+    "MERN"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -16,7 +20,11 @@
     "cors": "^2.8.5",
     "dotenv": "^14.2.0",
     "express": "^4.17.2",
-    "mongoose": "^6.1.7"
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.1.7",
+    "nanoid": "^3.2.0",
+    "nodemailer": "^6.7.2",
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

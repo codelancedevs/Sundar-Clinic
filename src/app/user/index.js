@@ -1,8 +1,8 @@
 'use strict';
 
 const Router = require('express').Router();
-const adminRouter = require('./routes');
+const userRouter = require('./routes');
 
-Router.use(adminRouter);
+Router.use(userRouter);
 
 module.exports = Router;

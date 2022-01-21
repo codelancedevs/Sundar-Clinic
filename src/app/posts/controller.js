@@ -1,6 +1,6 @@
 'use strict';
 
-const Posts = require('./model');
+const Post = require('./model');
 
 /* ================================
     UNAUTHENTICATED CONTROLLERS
@@ -14,8 +14,80 @@ exports.fetchPost = async (req, res) => {};
     AUTHENTICATED CONTROLLERS
 ================================ */
 
-exports.createPost = async (req, res) => {};
+/** 
+* @description Create a new Post
+* @route POST /api/post/create
+* @data {title, body, type} of post in the Request Body
+* @access Only Admin
+*/
+exports.createPost = async (req, res) => {
+	const { admin } = req.admin;
+	const { title, body, type } = req.body;
+	try {
+		// TODO: Error handling here
+		const post = new Post({ title, body, type, createdBy: admin._id });
+		await post.save();
+		return res.status(200).json({
+			message: 'Post Successfully Created',
+			data: {
+				post: post.toObject(),
+			},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
-exports.editPost = async (req, res) => {};
+/**
+* @description Edit Post
+* @route PATCH /api/post/edit
+* @data {title, body, type, _id} of post in Request body
+* @access Only Admins
+*/
+exports.editPost = async (req, res) => {
+	const { admin } = req.admin;
+	const { title, body, type, _id } = req.body;
+	try {
+		// TODO: Error Handling here
+		const post = await Post.findById(_id);
+		if (!post) throw new Error('Unable to Find Post');
+		await post.update({ title, body, type });
+		return res.status(200).json({
+			message: 'Post Edited Successfully',
+			data: {
+				post: post.toObject(),
+			},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
-exports.deletePost = async (req, res) => {};
+exports.deletePost = async (req, res) => {
+	const { admin } = req.admin;
+	const { _id } = req.body;
+	try {
+        // TODO: Error Handling here
+        const post = await Post.findById(_id);
+        if(!post) throw new Error("Unable to find Post");
+        await post.delete();
+		return res.status(200).json({
+			message: 'Post Deleted Successfully',
+			data: {},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};

@@ -8,6 +8,7 @@ module.exports = {
 	port: process.env.PORT,
 	isProduction,
 	reactAppUrl: process.env.REACT_APP_URL,
+	backendAppUrl: process.env.BACKEND_APP_URL,
 	expireDurations: {
 		tokenExpireAt: 8.64e7,
 		verificationExpireAt: 8.64e7 * 3,
@@ -26,4 +27,8 @@ module.exports = {
 		cookieSecret: process.env.COOKIE_SECRET,
 		saltRounds: parseInt(process.env.SALT_ROUNDS, 10),
 	},
+	mail: {
+		email: process.env.MAIL_EMAIL,
+		password: process.env.MAIL_PASSWORD,
+	}
 };

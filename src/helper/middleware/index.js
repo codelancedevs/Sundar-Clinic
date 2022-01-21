@@ -32,7 +32,7 @@ exports.authPatient = async (req, res, next) => {
 		const decoded = jwt.verify(token, patientSecret);
 		const patient = await Patient.findById(decoded._id);
 		if (!patient) throw new Error('Unable to find Patient');
-		req.patient = patient.toObject;
+		req.patient = patient.toObject();
 		next();
 	} catch (error) {
 		console.log(error);

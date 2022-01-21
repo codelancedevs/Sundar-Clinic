@@ -55,7 +55,7 @@ const userSchema = new Schema(
 	{
 		timestamps: true,
 		strict: true,
-		discriminatorKey: 'type'
+		discriminatorKey: 'role'
 	}
 );
 

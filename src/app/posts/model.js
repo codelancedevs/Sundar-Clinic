@@ -1,7 +1,9 @@
 'use strict';
 
-const { Schema, model } = require('mongoose');
+// Importing Packages
+const { Schema, model, SchemaTypes } = require('mongoose');
 
+// Creating Posts schema
 const postsSchema = new Schema(
 	{
 		title: {
@@ -30,8 +32,12 @@ const postsSchema = new Schema(
 			],
 			default: 'General',
 		},
-		isPublished: Boolean,
+		isPublished: {
+			type: Boolean,
+			default: false,
+		},
 		publishedAt: Date,
+		createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
 	},
 	{
 		timestamps: true,
@@ -39,6 +45,8 @@ const postsSchema = new Schema(
 	}
 );
 
+// Creating Model from Schema
 const Posts = model('Posts', postsSchema);
 
+// Exporting Model
 module.exports = Posts;

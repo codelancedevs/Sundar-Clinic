@@ -4,6 +4,8 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const path = require('path');
+const logger = require('morgan');
 const {
 	port,
 	secrets: { cookieSecret },
@@ -20,7 +22,9 @@ const app = express();
 // Using Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser(cookieSecret));
+app.use(logger(isProduction ? 'combined' : 'dev'));
 app.use(
 	cors({
 		origin: isProduction ? reactAppUrl : `http://localhost:${port}`,

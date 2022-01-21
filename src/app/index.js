@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-const Router = require("express").Router();
+const Router = require('express').Router();
 
-const routerHub = require("./routes");
+const routerHub = require('./routes');
 
-Router.use("/api", routerHub);
+Router.use('/', routerHub);
 
 module.exports = Router;

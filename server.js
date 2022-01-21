@@ -36,7 +36,9 @@ app.use(appRouter);
 
 // Handling 404 Error
 app.use((req, res, next) => {
-	const error = new Error('This Request does not exist! ❌');
+	const error = new Error(
+		`Can't find Request: '${req.originalUrl}' on the server! ❌`
+	);
 	error.status = 404;
 	next(error);
 });
@@ -46,7 +48,7 @@ app.use((error, req, res, next) => {
 	console.log(error.stack);
 	const status = error.status || 500;
 	const message = error.message || 'Internal Server Error! 🚫';
-	res.status(status).json({ error: { message } });
+	res.status(status).json({ error: { message }, success: false });
 });
 
 // Run Server

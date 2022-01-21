@@ -13,9 +13,9 @@ exports.authAdmin = async (req, res, next) => {
 	try {
 		if (!token) throw new Error('Not Authorized');
 		const decoded = jwt.verify(token, adminSecret);
-		const admin = await Admin.findById({ _id: decoded._id });
+		const admin = await Admin.findById(decoded._id);
 		if (!admin) throw new Error('Unable to find Admin');
-		req.admin = admin;
+		req.admin = admin.toObject();
 		next();
 	} catch (error) {
 		console.log(error);
@@ -30,9 +30,9 @@ exports.authPatient = async (req, res, next) => {
 	try {
 		if (!token) throw new Error('Not Authorized');
 		const decoded = jwt.verify(token, patientSecret);
-		const patient = await Patient.findById({ _id: decoded._id });
+		const patient = await Patient.findById(decoded._id);
 		if (!patient) throw new Error('Unable to find Patient');
-		req.patient = patient;
+		req.patient = patient.toObject;
 		next();
 	} catch (error) {
 		console.log(error);

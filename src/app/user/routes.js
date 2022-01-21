@@ -1,17 +1,15 @@
 'use strict';
 
-// Importing Packages
 const Router = require('express').Router();
-const { authAdmin } = require('../../helper/middleware');
-const adminController = require('./controller');
+const userController = require('./controller');
 
 /* ================================
     UNAUTHENTICATED ROUTES
 ================================ */
 
-Router.post('/create', adminController.createAdmin);
+Router.get('/isEmailUnique', userController.isEmailUnique);
 
-Router.post('/login', adminController.loginAdmin);
+Router.get('/isUsernameUnique', userController.isUsernameUnique);
 
 /* ================================
     AUTHENTICATED ROUTES

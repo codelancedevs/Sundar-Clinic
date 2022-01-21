@@ -109,6 +109,13 @@ userSchema.methods.authenticatePassword = async function ({ password }) {
 	}
 };
 
+// Sanitize User Details 
+userSchema.methods.sanitizeAndReturnUser = function () {
+	const user = this.toObject();
+	delete user.password;
+	return user;
+}
+
 // Authenticate a User Token using Model Method
 userSchema.statics.authenticateAdminAuthToken = async function ({ token }) {
 	const secret = this.role === 'admin' ? adminSecret : patientSecret;
@@ -116,7 +123,7 @@ userSchema.statics.authenticateAdminAuthToken = async function ({ token }) {
 	try {
 		user = await jwt.verify(token, secret, async (err, decoded) => {
 			if (err) throw err;
-			user = await this.findById({ _id: decoded._id });
+			user = await this.findById(decoded._id);
 			if (!user) console.log('Unable to Find User');
 			return user;
 		});

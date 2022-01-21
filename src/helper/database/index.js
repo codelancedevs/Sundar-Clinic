@@ -9,11 +9,11 @@ const connectionUri = isProduction
 
 const connectToDatabase = async () => {
 	try {
-		await mongoose.connect(connectionUri);
-		console.log('Connected to Database!', {
+		await mongoose.connect(connectionUri, {
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
 		});
+		console.log('Connected to Database!');
 	} catch (error) {
 		console.log(error);
 	}

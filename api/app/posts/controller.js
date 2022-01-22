@@ -71,6 +71,12 @@ exports.editPost = async (req, res) => {
 	}
 };
 
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+*/
 exports.deletePost = async (req, res) => {
 	const { admin } = req.admin;
 	const { _id } = req.body;

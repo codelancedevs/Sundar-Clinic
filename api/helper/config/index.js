@@ -9,6 +9,7 @@ module.exports = {
 	isProduction,
 	reactAppUrl: process.env.REACT_APP_URL,
 	backendAppUrl: process.env.BACKEND_APP_URL,
+	appId: process.env.MONGODB_APP_ID,
 	expireDurations: {
 		tokenExpireAt: 8.64e7,
 		verificationExpireAt: 8.64e7 * 3,
@@ -25,10 +26,11 @@ module.exports = {
 		passwordResetSecret: process.env.PASSWORD_RESET_SECRET,
 		deleteAccountSecret: process.env.DELETE_ACCOUNT_SECRET,
 		cookieSecret: process.env.COOKIE_SECRET,
+		superAdminSecret: process.env.SUPER_ADMIN_SECRET,
 		saltRounds: parseInt(process.env.SALT_ROUNDS, 10),
 	},
 	mail: {
 		email: process.env.MAIL_EMAIL,
 		password: process.env.MAIL_PASSWORD,
-	}
+	},
 };

@@ -11,10 +11,10 @@ const {
 	secrets: { cookieSecret },
 	reactAppUrl,
 	isProduction,
-} = require('./src/helper/config');
+} = require('./api/helper/config');
 
 // Importing App Router
-const appRouter = require('./src/app');
+const appRouter = require('./api/app/src');
 
 // Initializing Express Application
 const app = express();
@@ -33,7 +33,7 @@ app.use(
 );
 
 // Connecting to MongoDB
-require('./src/helper/database');
+require('./api/helper/database');
 
 // Using App Router
 app.use(appRouter);

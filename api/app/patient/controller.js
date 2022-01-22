@@ -49,6 +49,8 @@ exports.loginPatient = async (req, res) => {
 	}
 };
 
+exports.verifyPatient = (req, res) => {};
+
 /* ================================
     AUTHENTICATED CONTROLLERS
 ================================ */

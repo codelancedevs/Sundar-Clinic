@@ -44,7 +44,7 @@ app.use((req, res, next) => {
 		`Can't find Request: '${req.originalUrl}' on the server! ❌`
 	);
 	error.status = 404;
-	next(error);
+	return next(error);
 });
 
 // Handling Server Error
@@ -52,7 +52,7 @@ app.use((error, req, res, next) => {
 	console.log(error.stack);
 	const status = error.status || 500;
 	const message = error.message || 'Internal Server Error! 🚫';
-	res.status(status).json({ error: { message }, success: false });
+	return res.status(status).json({ error: { message }, success: false });
 });
 
 // Run Server

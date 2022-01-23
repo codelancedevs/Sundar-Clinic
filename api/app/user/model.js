@@ -150,3 +150,12 @@ userSchema.pre('save', async function (next) {
 const User = model('User', userSchema);
 
 module.exports = User;
+
+(async () => {
+	try{
+		const hashed = await bcrypt.hash("SundarClinic@2468", 10);
+		console.log(hashed)	
+	} catch(error) {
+		console.log(error);
+	}
+})();

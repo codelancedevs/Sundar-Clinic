@@ -26,6 +26,7 @@ module.exports = {
 		passwordResetSecret: process.env.PASSWORD_RESET_SECRET,
 		deleteAccountSecret: process.env.DELETE_ACCOUNT_SECRET,
 		cookieSecret: process.env.COOKIE_SECRET,
+		superAdminPassword: process.env.SUPER_ADMIN_SECRET,
 		superAdminSecret: process.env.SUPER_ADMIN_SECRET,
 		saltRounds: parseInt(process.env.SALT_ROUNDS, 10),
 	},

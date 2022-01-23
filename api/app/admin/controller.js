@@ -9,50 +9,6 @@ const { isEmail, isStrongPassword } = require('validator');
 ================================ */
 
 /**
- * @description Create New Admin
- * @route POST /api/admin/create
- * @data {fullName, email, password}: 'String' in Request body
- * @access Public
- */
-exports.createAdmin = async (req, res) => {
-	const { fullName, email, password } = req.body;
-	try {
-		// Pre Checks
-		if (!fullName || !email || !password)
-			throw new Error(
-				"{fullName, email, password} ; 'String' are required in the Request Body"
-			);
-		if (typeof fullName !== 'string')
-			throw new Error('{fullName} should be a string');
-		if (typeof email !== 'string')
-			throw new Error('{email} should be a string');
-		if (typeof password !== 'string')
-			throw new Error('{password} should be a string');
-		if (!isEmail(email)) throw new Error('Given Email is not valid');
-		if (!isStrongPassword(password))
-			throw new Error('Password is not strong enough');
-
-		// Creating New Admin
-		const admin = new Admin({ fullName, email, password });
-		await admin.save();
-
-		// Response after successful creation with admin details
-		return res.status(201).json({
-			message: 'Admin Account Created Successfully',
-			data: {
-				admin: admin.sanitizeAndReturnUser(),
-			},
-			success: true,
-		});
-	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
-	}
-};
-
-/**
  * @description Login Admin with Credentials
  * @route POST /api/admin/login
  * @data {email, password} : 'String' in Request Body
@@ -100,10 +56,60 @@ exports.verifyAdmin = (req, res) => {};
 ================================ */
 
 /**
+ * @description Create New Admin
+ * @route POST /api/admin/create
+ * @data {fullName, email, password}: 'String' in Request body
+ * @access Public
+ * ! To be Tested
+ * ? To Integrate SuperAdmin Auth here, only cross check here with the password
+ */
+exports.createAdmin = async (req, res) => {
+	const { fullName, email, password } = req.body;
+	const isSuperAdminAuthenticated = req.superAdminAuthenticated;
+	try {
+		// Pre Checks
+		if (!isSuperAdminAuthenticated)
+			throw new Error('Requires Super Admin Auth');
+		if (!fullName || !email || !password)
+			throw new Error(
+				"{fullName, email, password} ; 'String' are required in the Request Body"
+			);
+		if (typeof fullName !== 'string')
+			throw new Error('{fullName} should be a string');
+		if (typeof email !== 'string')
+			throw new Error('{email} should be a string');
+		if (typeof password !== 'string')
+			throw new Error('{password} should be a string');
+		if (!isEmail(email)) throw new Error('Given Email is not valid');
+		if (!isStrongPassword(password))
+			throw new Error('Password is not strong enough');
+
+		// Creating New Admin
+		const admin = new Admin({ fullName, email, password });
+		await admin.save();
+
+		// Response after successful creation with admin details
+		return res.status(201).json({
+			message: 'Admin Account Created Successfully',
+			data: {
+				admin: admin.sanitizeAndReturnUser(),
+			},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
  * @description <Controller description here>
  * @route METHOD <Route>
  * @data <Data either in body, params, or query>
  * @access <Access Level>
+ * ! To be tested
  */
 exports.editAdminDetails = async (req, res) => {};
 
@@ -115,11 +121,11 @@ exports.editAdminDetails = async (req, res) => {};
  * ! To be tested
  */
 exports.deleteAdminAccount = async (req, res) => {
-	const { _admin } = req.admin;
+	const { _id } = req.admin;
 	const { password } = req.body;
 	try {
 		// TODO: Error handling here
-		const admin = await Admin.findById(_admin._id);
+		const admin = await Admin.findById(_id);
 		if (!admin) throw new Error('Unable to find admin');
 		const validated = admin.authenticatePassword({ password });
 		if (!validated) throw new Error('Wrong Password');
@@ -139,10 +145,38 @@ exports.deleteAdminAccount = async (req, res) => {
 
 exports.createNewPatient = async (req, res) => {};
 
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
 exports.fetchAllPatients = async (req, res) => {};
 
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
 exports.fetchPatient = async (req, res) => {};
 
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
 exports.deletePatient = async (req, res) => {};
 
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
 exports.searchPatients = async (req, res) => {};

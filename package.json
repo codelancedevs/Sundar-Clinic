@@ -1,19 +1,27 @@
 {
   "name": "@codelancedevs/sundar-clinic-sdk",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Sundar Clinic SDK to access backend application",
+  "keywords": [
+    "Sundar Clinic",
+    "SDK",
+    "Codelance Devs"
+  ],
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/codelancedevs/Sundar-Clinic.git"
+    "url": "git+https://github.com/codelancedevs/Sundar-Clinic/tree/sdk"
   },
   "author": "Kunal Keshan <kunalkeshan12@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/codelancedevs/Sundar-Clinic/issues"
   },
-  "homepage": "https://github.com/codelancedevs/Sundar-Clinic#readme"
+  "homepage": "https://github.com/codelancedevs/Sundar-Clinic/tree/sdk#readme",
+  "dependencies": {
+    "axios": "^0.25.0"
+  }
 }

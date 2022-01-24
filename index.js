@@ -1,5 +1,5 @@
-function consoleText(text = ""){
-    console.log(text);
-}
+'use strict';
 
-module.exports = consoleText;
+const SundarClinicSDK = require("./src");
+
+module.exports = SundarClinicSDK;

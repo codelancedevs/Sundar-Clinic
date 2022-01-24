@@ -2,6 +2,6 @@
 
 # Installation 
 
-`npm i sundar-clinic-sdk`
+`npm i @codelancedevs/sundar-clinic-sdk`
 
 # Usage

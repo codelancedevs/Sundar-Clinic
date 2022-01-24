@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/codelancedevs/Sundar-Clinic/tree/sdk"
+    "url": "https://github.com/codelancedevs/Sundar-Clinic/tree/sdk"
   },
   "author": "Kunal Keshan <kunalkeshan12@gmail.com>",
   "license": "ISC",

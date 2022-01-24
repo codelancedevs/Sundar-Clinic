@@ -46,7 +46,7 @@ Description - Method - Route
 
 Involves Request to backend with `/:variant` HTTP Endpoint.
 
-- Index Route - GET - `/`
+- ### Index Route - GET - `/` 
   ```javascript
   sundarClinic.default.index()
     .then(res => console.log(res)) // Information about Website

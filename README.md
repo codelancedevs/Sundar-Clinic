@@ -1,5 +1,9 @@
 # Sundar Clinic Backend Access SDK
 
+![npm (scoped with tag)](https://img.shields.io/npm/v/@codelancedevs/sundar-clinic-sdk/latest?color=red&style=for-the-badge)
+
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/codelancedevs/Sundar-Clinic/sdk?style=for-the-badge)
+
 ## Installation
 
 `npm install @codelancedevs/sundar-clinic-sdk@latest`
@@ -27,9 +31,9 @@ This SDK was made for the purpose of learning how NPM Packages work and also to 
 After Installing the package, import it into your project and provide the **API key** that is required to make requests, without which the package will not work.
 
 ```javascript
-import SundarClinicSDK from '@codelancedevs/sundar-clinic-sdk'
+import SundarClinicSDK from '@codelancedevs/sundar-clinic-sdk';
 
-const sundarClinic = new SundarClinicSDK(<your-api-key-here>)
+const sundarClinic = new SundarClinicSDK('<your-api-key-here>');
 ```
 
 After importing it, you can use the following methods to create a type of request to the backend application of Sundar Clinic.
@@ -51,11 +55,27 @@ Description - Method - Route
 
 Access Required: Whether the User should be logged in for this route.
 
+Method:
+
 ```javascript
 // Method to send request
-sundarClinic.<method>.<variant>({data})
-  .then(res => {/* do something with res */})
-  .catch(err => {/* do something with err */});
+sundarClinic.METHOD.VARIANT({ data })
+ .then((res) => {
+  /* do something with res */
+ })
+ .catch((err) => {
+  /* do something with err */
+ });
+```
+
+Response:
+
+```json
+{
+  message: 'string',
+  data: {<Object Associated with the Request>},
+  success: 'boolean',
+}
 ```
 
 ### Default
@@ -66,13 +86,40 @@ Involves Request to backend with `/:variant` HTTP Endpoint.
 
 - Index Route - GET - `/`
 
-  Access Required: **No**
+    Access Required: **No**
 
-  ```javascript
-  sundarClinic.default.index()
-    .then(res => console.log(res)) // Information about Website
-    .catch(err => console.log(err));
-  ```
+    Method:
+
+    ```javascript
+    sundarClinic.default
+     .index()
+     .then((res) => console.log(res)) // Information about Website
+     .catch((err) => console.log(err));
+    ```
+
+    Response:
+
+    ```json
+    {
+      message: 'API created for Sundar Clinic By Codelance Devs, made with 💖 by Kunal Keshan',
+      data: {
+        owner: { doctorInCharge: [Object], name: 'string' },
+        site: {
+          contact: [Object],
+          detail: '© Sundar Clinic Est. since 2013',
+          link: 'https://sundar-clinic.netlify.app/'
+        },
+        createdBy: {
+          contact: [Object],
+          name: '© Codelance Devs Est. since 2022',
+          github: 'https://github.com/codelancedevs/Sundar-Clinic'
+        },
+        createdAt: 'Date',
+        updatedAt: 'Date'
+      },
+      success: true
+    }
+    ```
 
 ### User
 
@@ -81,24 +128,44 @@ Involves Request to backend with `/user/:variant` HTTP Endpoint.
 #### Is Username Unique
 
 - Check If Username Is Unique - GET - `/api/user/isUsernameUnique`
-  Access Required: **No**
 
-  ```javascript
-  sundarClinic.user.isUsernameUnique({username: "<username-here>"})
-    .then(res => console.log(res))
-    .catch(err => console.log(err))
-  ```
+    Access Required: **No**
+
+    Method:
+
+    ```javascript
+    sundarClinic.user
+     .isUsernameUnique({ username: '<username-here>' })
+     .then((res) => console.log(res))
+     .catch((err) => console.log(err));
+    ```
+
+    Response:
+
+    ```json
+
+    ```
 
 #### Is Email Unique
 
 - Check If Email Is Unique - GET - `/api/user/isEmailUnique`
-  Access Required: **No**
 
-  ```javascript
-  sundarClinic.user.isEmailUnique({email: "<email-here>"})
-    .then(res => console.log(res))
-    .catch(err => console.log(err))
-  ```
+    Access Required: **No**
+
+    Method:
+
+    ```javascript
+    sundarClinic.user
+     .isEmailUnique({ email: '<email-here>' })
+     .then((res) => console.log(res))
+     .catch((err) => console.log(err));
+    ```
+
+    Response:
+
+    ```json
+
+    ```
 
 ### Admin
 
@@ -106,31 +173,33 @@ Involves Request to backend with `/api/admin/:variant` HTTP Endpoint.
 
 - Create New Admin - POST - `/api/admin/create`
 
-  ```javascript
-  const details = {
-      firstName: "Kunal Keshan",
-      email: "contact@codelancedevs.com",
-      password: "KunalDev@3983", // Should follow strong password
-      superPassword: "************", // Only Super Admins can create new admins
-  };
+    ```javascript
+    const details = {
+     fullName: 'Kunal Keshan',
+     email: 'contact@codelancedevs.com',
+     password: 'KunalDev@3983', // Should follow strong password
+     superPassword: '************', // Only Super Admins can create new admins
+    };
 
-  sundarClinic.admin.create(details)
-    .then(res => console.log(res))
-    .catch(err => console.log(err));
-  ```
+    sundarClinic.admin
+     .create(details)
+     .then((res) => console.log(res))
+     .catch((err) => console.log(err));
+    ```
 
 - Admin Login - POST - `/api/admin/login`
 
-  ```javascript
-  const details = {
-      email: "contact@codelancedevs.com",
-      password: "KunalDev@3983",
-  };
+    ```javascript
+    const details = {
+     email: 'contact@codelancedevs.com',
+     password: 'KunalDev@3983',
+    };
 
-  sundarClinic.admin.login(details)
-    .then(res => console.log(res))
-    .catch(err => console.log(err));
-  ```
+    sundarClinic.admin
+     .login(details)
+     .then((res) => console.log(res))
+     .catch((err) => console.log(err));
+    ```
 
 ### Patient
 
@@ -138,30 +207,32 @@ Involves Request to backend with `/api/patient/:variant` HTTP Endpoint.
 
 - Create New Patient - POST - `/api/patient/create`
 
-  ```javascript
-  const details = {
-      firstName: "Kunal Keshan",
-      email: "contact@codelandedevs.com",
-      password: "KunalDev@3983", // Should follow strong password
-  }
+    ```javascript
+    const details = {
+     fullName: 'Kunal Keshan',
+     email: 'contact@codelandedevs.com',
+     password: 'KunalDev@3983', // Should follow strong password
+    };
 
-  sundarClinic.patient.create(details)
-    .then(res => console.log(res))
-    .catch(err => console.log(err));
-  ```
+    sundarClinic.patient
+     .create(details)
+     .then((res) => console.log(res))
+     .catch((err) => console.log(err));
+    ```
 
 - Patient Login - POST - `/api/patient/login`
 
-  ```javascript
-  const details = {
-      email: "contact@codelancedevs.com",
-      password: "KunalDev@2983",
-  }
+    ```javascript
+    const details = {
+     email: 'contact@codelancedevs.com',
+     password: 'KunalDev@2983',
+    };
 
-  sundarClinic.patient.login(details)
-    .then(res => console.log(res))
-    .catch(err => console.log(err));
-  ```
+    sundarClinic.patient
+     .login(details)
+     .then((res) => console.log(res))
+     .catch((err) => console.log(err));
+    ```
 
 ### Post
 
@@ -169,14 +240,15 @@ Involves Request to backend with `/api/post/:variant` HTTP Endpoint.
 
 - Create New Post - POST - `/api/post/create`
 
-  ```javascript
-  const details = {
-      title: "Post Title",
-      body: "Body of Post",
-      type: "General" // Options: ["General", "Job"]
-  }
+    ```javascript
+    const details = {
+     title: 'Post Title',
+     body: 'Body of Post',
+     type: 'General', // Options: ["General", "Job"]
+    };
 
-  sundarClinic.post.create(details)
-    .then(res => console.log(res))
-    .catch(err => console.log(err));
-  ```
+    sundarClinic.post
+     .create(details)
+     .then((res) => console.log(res))
+     .catch((err) => console.log(err));
+    ```

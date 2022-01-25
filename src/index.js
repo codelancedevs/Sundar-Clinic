@@ -27,7 +27,7 @@ class SundarClinicSDK {
 	}
 
 	get user(){
-		
+		return user(axios);
 	}
 
 	get default() {
@@ -38,14 +38,18 @@ class SundarClinicSDK {
 		return admin(axios);
 	}
 
-	get patient() {}
+	get patient() {
+		return patient(axios);
+	}
 
-	get post() {}
+	get post() {
+		return post(axios);
+	}
 }
 
 module.exports = SundarClinicSDK;
 
-// const sundarClinic = new SundarClinicSDK();
-// sundarClinic.default.index()
-// 	.then(res => console.log(res))
-// 	.catch(err => console.log(err))
+const sundarClinic = new SundarClinicSDK("afasf");
+sundarClinic.default.index()
+	.then(res => console.log(res))
+	.catch(err => console.log(err))

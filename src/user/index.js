@@ -2,6 +2,7 @@
 
 const { userRoutes } = require('../../helper/routes');
 const { isEmail } = require('validator');
+const { requestErrorHandler } = require('../../helper/functions');
 
 module.exports = function (requester) {
 	return {
@@ -35,7 +36,7 @@ module.exports = function (requester) {
 				);
 				return response.data;
 			} catch (error) {
-				return error?.response ? error?.response?.data : error;
+				return requestErrorHandler(error);
 			}
 		},
 
@@ -62,7 +63,7 @@ module.exports = function (requester) {
 				});
 				return response.data;
 			} catch (error) {
-				return error?.response ? error?.response?.data : error;
+				return requestErrorHandler(error);
 			}
 		},
 	};

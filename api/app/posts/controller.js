@@ -21,11 +21,11 @@ exports.fetchPost = async (req, res) => {};
 * @access Only Admin
 */
 exports.createPost = async (req, res) => {
-	const { admin } = req.admin;
+	const { _id } = req.admin;
 	const { title, body, type } = req.body;
 	try {
 		// TODO: Error handling here
-		const post = new Post({ title, body, type, createdBy: admin._id });
+		const post = new Post({ title, body, type, createdBy: _id, lastEditedBy: _id });
 		await post.save();
 		return res.status(200).json({
 			message: 'Post Successfully Created',
@@ -49,13 +49,13 @@ exports.createPost = async (req, res) => {
 * @access Only Admins
 */
 exports.editPost = async (req, res) => {
-	const { admin } = req.admin;
+	const { _id: adminId } = req.admin;
 	const { title, body, type, _id } = req.body;
 	try {
 		// TODO: Error Handling here
 		const post = await Post.findById(_id);
 		if (!post) throw new Error('Unable to Find Post');
-		await post.update({ title, body, type });
+		await post.update({ title, body, type, lastEditedBy: adminId });
 		return res.status(200).json({
 			message: 'Post Edited Successfully',
 			data: {
@@ -78,7 +78,7 @@ exports.editPost = async (req, res) => {
 * @access <Access Level>
 */
 exports.deletePost = async (req, res) => {
-	const { admin } = req.admin;
+	const { _id: adminId } = req.admin;
 	const { _id } = req.body;
 	try {
         // TODO: Error Handling here

@@ -10,9 +10,19 @@ const appSchema = new Schema(
 	{
 		owner: {
 			name: String,
-			doctorInCharge: {
-				name: String,
-				degrees: [{ type: String }],
+			clinic: {
+				doctors: [
+					{
+						name: String,
+						degrees: [{ type: String }],
+					},
+				],
+				address: {
+					type: String,
+					default:
+						'1195A, Nehru Street, Bangalore-Chennai Highway, Pappanchatiram, Chennai, Tamil Nadu - 600123',
+				},
+				documents: [{}],
 			},
 		},
 		site: {
@@ -76,4 +86,4 @@ const App = model('App', appSchema);
 
 module.exports = App;
 
-createApp({id: appId, App})
+createApp({ id: appId, App });

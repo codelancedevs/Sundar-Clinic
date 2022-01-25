@@ -38,6 +38,7 @@ const postsSchema = new Schema(
 		},
 		publishedAt: Date,
 		createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
+		lastEditedBy: { type: Schema.Types.ObjectId, ref: 'User' },
 	},
 	{
 		timestamps: true,

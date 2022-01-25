@@ -6,6 +6,13 @@ const Patient = require('./model');
     UNAUTHENTICATED CONTROLLERS
 ================================ */
 
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
 exports.createPatient = async (req, res) => {
 	try {
 		// TODO: Error Handling here
@@ -26,6 +33,13 @@ exports.createPatient = async (req, res) => {
 	}
 };
 
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
 exports.loginPatient = async (req, res) => {
 	const { email, password } = req.body;
 	try {
@@ -49,12 +63,33 @@ exports.loginPatient = async (req, res) => {
 	}
 };
 
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
 exports.verifyPatient = (req, res) => {};
 
 /* ================================
     AUTHENTICATED CONTROLLERS
 ================================ */
 
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
 exports.fetchPatientProfile = async (req, res) => {};
 
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
 exports.savePatientDetails = async (req, res) => {};

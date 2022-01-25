@@ -1,6 +1,6 @@
 'use strict';
 
-const { reactAppUrl, appId } = require('../../helper/config');
+const { reactAppUrl, appId, apiKeys } = require('../../helper/config');
 const App = require('./model');
 
 /* ================================
@@ -37,6 +37,31 @@ exports.sendSiteDetails = async (req, res) => {
  */
 exports.redirectToIndex = (req, res) => {
 	return res.redirect('/');
+};
+
+exports.verifyApiKey = (req, res) => {
+	const providedKey = req.headers['x-api-key'];
+	const isFromSDK = req.headers['x-sdk-req'] === "SDK-SS";
+	try {
+		if (!providedKey && !isFromSDK) throw new Error('API Key is required!');
+		const isValidApiKey = apiKeys.includes(providedKey);
+		if (!isValidApiKey)
+			throw new Error(
+				'Unauthorized API Key, Please provide a authorized API Key'
+			);
+		return res
+			.status(200)
+			.json({
+				message: 'Authorized API Key',
+				data: { isValidApiKey },
+				success: true,
+			});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(401)
+			.json({ message: error.message, data: {}, success: false });
+	}
 };
 
 /* ================================

@@ -32,7 +32,9 @@ app.use(
 	})
 );
 
-// Connecting to MongoDB
+app.disable("x-powered-by");
+
+// Connecting App to MongoDB
 require('./api/helper/database');
 
 // Using App Router

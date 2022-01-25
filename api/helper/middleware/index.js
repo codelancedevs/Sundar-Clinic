@@ -12,8 +12,10 @@ const {
 		superAdminSecret,
 		superAdminPassword,
 	},
+	apiKeys
 } = require('../config');
 
+// Authorize Admins
 exports.authAdmin = async (req, res, next) => {
 	const token = req.signedCookies.adminToken;
 	try {
@@ -32,6 +34,7 @@ exports.authAdmin = async (req, res, next) => {
 	}
 };
 
+// Authorize Patients
 exports.authPatient = async (req, res, next) => {
 	const token = req.signedCookies.patientToken;
 	try {
@@ -50,6 +53,7 @@ exports.authPatient = async (req, res, next) => {
 	}
 };
 
+// Authorize Super Admins
 exports.authSuperAdmin = async (req, res, next) => {
 	const { superPassword } = req.body;
 	try {
@@ -75,5 +79,23 @@ exports.authSuperAdmin = async (req, res, next) => {
 			.json({ message: error.message, data: {}, success: false });
 	}
 };
+
+// Authorize API Related Requests
+exports.authApiKey = (req, res, next) => {
+	const providedKey = req.headers['x-api-key'];
+	const isFromSDK = req.headers['x-sdk-req'] === "SDK-SS";
+	try {
+		if(!isFromSDK) return next(); // If it's not sdk related, then proceed 
+		if(isFromSDK && !providedKey) throw new Error("API Is Required!"); // If from sdk, then check if api key is provided
+		const isValidApiKey = apiKeys.includes(providedKey); // Check Api key validity
+		if(!isValidApiKey) throw new Error("Unauthorized API Key");
+		return next();
+	} catch (error) {
+		console.log(error)
+		return res
+			.status(401)
+			.json({ message: error.message, data: {}, success: false });
+	}
+}
 
 exports.errorHandler = (err, req, res, next) => {};

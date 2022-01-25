@@ -2,7 +2,7 @@
 
 // Importing Packages
 const Router = require('express').Router();
-const { authAdmin } = require('../../helper/middleware');
+const { authAdmin, authApiKey } = require('../../helper/middleware');
 
 // Importing all Routers
 const indexController = require('./controller');
@@ -10,6 +10,9 @@ const userRouter = require('../user');
 const adminRouter = require('../admin');
 const patientRouter = require('../patient');
 const postsRouter = require('../posts');
+
+// Check if API Key is there and validate it
+Router.use(authApiKey);
 
 // Using Routers at specified HTTP Endpoints
 Router.use('/api/user', userRouter);
@@ -24,6 +27,8 @@ Router.use('/api/post', postsRouter);
 Router.get('/', indexController.sendSiteDetails);
 
 Router.get('/index', indexController.redirectToIndex);
+
+Router.get('/verifyApiKey', indexController.verifyApiKey);
 
 /* ================================
     AUTHENTICATED ROUTES

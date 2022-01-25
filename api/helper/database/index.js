@@ -1,11 +1,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const { isProduction, mongoDb } = require('../config');
-
-const connectionUri = isProduction
-	? mongoDb.productionUri
-	: mongoDb.developmentUri;
+const { isProduction, mongoDb: { connectionUri} } = require('../config');
 
 const connectToDatabase = async () => {
 	try {

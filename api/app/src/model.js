@@ -22,11 +22,7 @@ const appSchema = new Schema(
 					default:
 						'1195A, Nehru Street, Bangalore-Chennai Highway, Pappanchatiram, Chennai, Tamil Nadu - 600123',
 				},
-				documents: [{
-					name: String,
-					type: [{type: String}],
-					file: Buffer
-				}]
+				documents: [{}],
 			},
 		},
 		site: {

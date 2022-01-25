@@ -4,8 +4,16 @@ require('dotenv').config();
 
 const developmentEnviroNment = process.env.NODE_ENV;
 const isProduction = developmentEnviroNment === 'production';
+
+const developmentUri = process.env.DEVELOPMENT_MONGODB_URI;
+const productionUri = process.env.PRODUCTION_MONGODB_URI;
+const connectionUri = isProduction ? productionUri : developmentUri ;
+
+const apiKeys = (process.env.API_KEYS).split(" ");
+
 module.exports = {
 	port: process.env.PORT,
+	apiKeys,
 	isProduction,
 	reactAppUrl: process.env.REACT_APP_URL,
 	backendAppUrl: process.env.BACKEND_APP_URL,
@@ -16,8 +24,7 @@ module.exports = {
 		passwordResetExpireAt: 8.64e7 * 3,
 	},
 	mongoDb: {
-		developmentUri: process.env.DEVELOPMENT_MONGODB_URI,
-		productionUri: process.env.PRODUCTION_MONGODB_URI,
+		connectionUri,
 	},
 	secrets: {
 		adminSecret: process.env.ADMIN_SECRET,

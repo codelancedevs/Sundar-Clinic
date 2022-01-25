@@ -16,9 +16,12 @@ const adminRoutes = {
 
 const patientRoutes = {};
 
+const postRoutes = {};
+
 module.exports = {
 	defaultRoutes,
 	userRoutes,
 	adminRoutes,
 	patientRoutes,
+	postRoutes,
 };

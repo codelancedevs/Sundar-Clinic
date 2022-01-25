@@ -99,7 +99,7 @@ Involves Request to backend with `/:variant` HTTP Endpoint.
 
     Response:
 
-    ```json
+    ```javascript
     {
       message: 'API created for Sundar Clinic By Codelance Devs, made with 💖 by Kunal Keshan',
       data: {
@@ -142,7 +142,7 @@ Involves Request to backend with `/user/:variant` HTTP Endpoint.
 
     Response:
 
-    ```json
+    ```javascript
 
     ```
 
@@ -163,7 +163,7 @@ Involves Request to backend with `/user/:variant` HTTP Endpoint.
 
     Response:
 
-    ```json
+    ```javascript
 
     ```
 

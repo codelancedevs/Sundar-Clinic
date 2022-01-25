@@ -10,6 +10,7 @@ const post = require('./post');
 
 class SundarClinicSDK {
 	constructor(apiKey) {
+		
 		this.apiKey = apiKey;
 		setApiKey(this.apiKey);
 
@@ -49,7 +50,7 @@ class SundarClinicSDK {
 
 module.exports = SundarClinicSDK;
 
-const sundarClinic = new SundarClinicSDK("afasf");
-sundarClinic.default.index()
-	.then(res => console.log(res))
-	.catch(err => console.log(err))
+// const sundarClinic = new SundarClinicSDK("afasf");
+// sundarClinic.default.index()
+// 	.then(res => console.log(res))
+// 	.catch(err => console.log(err))

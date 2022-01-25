@@ -47,7 +47,7 @@ module.exports = function (requester) {
 						`password should be a string, cannot be ${typeof password}`
 					);
 				// Validity Check
-				if (!isEmail(email)) throw new Error('email should be valid');
+				if (!isEmail(email)) throw new Error('Email should be valid!');
 				const passwordScore = isStrongPassword(password, {
 					returnScore: true,
 				});
@@ -84,11 +84,28 @@ module.exports = function (requester) {
 		 */
 		login: async function (data = {}) {
 			const { email = '', password = '' } = data;
-            try {
-                
-            } catch (error) {
-                return requestErrorHandler(error);
-            }
+			try {
+				// Pre Checks
+				if (!email || !password)
+					throw new Error("{email, password} : 'string' is required");
+				if (typeof email !== 'string')
+					throw new Error(
+						`email should be a string, cannot be ${typeof email}`
+					);
+				if (typeof password !== 'string')
+					throw new Error(
+						`password should be a string, cannot be ${typeof password}`
+					);
+				if (!isEmail(email)) throw new Error('Email should be valid!');
+
+				// Sending Request
+				const response = await requester.post(adminRoutes.login, {
+					data,
+				});
+				return response;
+			} catch (error) {
+				return requestErrorHandler(error);
+			}
 		},
 	};
 };

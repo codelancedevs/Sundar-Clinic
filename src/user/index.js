@@ -2,7 +2,10 @@
 
 const { userRoutes } = require('../../helper/routes');
 const { isEmail } = require('validator');
-const { requestErrorHandler } = require('../../helper/functions');
+const {
+	requestErrorHandler,
+	isValidatedApi,
+} = require('../../helper/functions');
 
 module.exports = function (requester) {
 	return {
@@ -13,6 +16,7 @@ module.exports = function (requester) {
 		 */
 		isUsernameUnique: async function ({ username = '' }) {
 			try {
+				await isValidatedApi(requester);
 				// Pre checks
 				if (!username)
 					throw new Error(
@@ -47,6 +51,7 @@ module.exports = function (requester) {
 		 */
 		isEmailUnique: async function ({ email = '' }) {
 			try {
+				await isValidatedApi(requester);
 				// Pre checks
 				if (!email)
 					throw new Error('Object should contain {email: "string"}');

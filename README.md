@@ -70,7 +70,7 @@ sundarClinic.METHOD.VARIANT({ data })
 
 Response:
 
-```json
+```javascript
 {
   message: 'string',
   data: {<Object Associated with the Request>},

@@ -1,7 +1,7 @@
 'use strict';
 
 const { defaultRoutes } = require('../../helper/routes');
-const { requestErrorHandler } = require('../../helper/functions');
+const { requestErrorHandler, isValidatedApi } = require('../../helper/functions');
 
 module.exports = function (requester) {
 	return {
@@ -11,6 +11,7 @@ module.exports = function (requester) {
 		 */
 		index: async function () {
 			try {
+				await isValidatedApi(requester)
 				const response = await requester.get(defaultRoutes.index);
 				return response.data;
 			} catch (error) {

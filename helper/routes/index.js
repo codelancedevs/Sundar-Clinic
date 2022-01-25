@@ -4,7 +4,10 @@ const defaultRoutes = {
 	index: '/',
 };
 
-const userRoutes = {};
+const userRoutes = {
+	isUsernameUnique: '/api/user/isUsernameUnique',
+	isEmailUnique: '/api/user/isEmailUnique',
+};
 
 const adminRoutes = {
 	create: '/api/admin/create',

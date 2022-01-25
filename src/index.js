@@ -1,12 +1,18 @@
 'use strict';
 
 const axios = require('../helper/axios.config');
+
 const defaults = require('./default');
+const user = require('./user');
 const admin = require('./admin');
+const patient = require('./patient');
+const post = require('./post');
 
 class SundarClinicSDK {
 	constructor(apiKey) {
 		this.apiKey = apiKey;
+		setApiKey(this.apiKey);
+
 		function setApiKey(key) {
 			if (!key) throw new Error('Sundar Clinic SDK Requires an API Key!');
 			if (typeof key !== 'string')
@@ -18,7 +24,10 @@ class SundarClinicSDK {
 				Accept: 'application/json, text/plain, */*',
 			};
 		}
-		setApiKey(this.apiKey);
+	}
+
+	get user(){
+		
 	}
 
 	get default() {
@@ -28,6 +37,15 @@ class SundarClinicSDK {
 	get admin() {
 		return admin(axios);
 	}
+
+	get patient() {}
+
+	get post() {}
 }
 
 module.exports = SundarClinicSDK;
+
+// const sundarClinic = new SundarClinicSDK();
+// sundarClinic.default.index()
+// 	.then(res => console.log(res))
+// 	.catch(err => console.log(err))

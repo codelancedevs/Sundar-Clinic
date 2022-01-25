@@ -1,6 +1,6 @@
 'use strict';
 
-const {adminRoutes} = require('../routes');
+const {adminRoutes} = require('../../helper/routes');
 
 module.exports = function (requester) {
 	return {

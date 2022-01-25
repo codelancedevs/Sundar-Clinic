@@ -1,12 +1,16 @@
 'use strict';
 
-const { defaultRoutes } = require('../routes');
+const { defaultRoutes } = require('../../helper/routes');
 
 module.exports = function (requester) {
 	return {
 		index: async function () {
-            const response = await requester.get(defaultRoutes.index);
-            return response;
+			try {
+				const response = await requester.get(defaultRoutes.index);
+				return response.data;
+			} catch (error) {
+				return error.response.data;
+			}
 		},
 	};
 };

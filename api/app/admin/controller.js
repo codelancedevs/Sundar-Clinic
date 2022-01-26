@@ -49,6 +49,13 @@ exports.loginAdmin = async (req, res) => {
 	}
 };
 
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
 exports.verifyAdmin = (req, res) => {};
 
 /* ================================

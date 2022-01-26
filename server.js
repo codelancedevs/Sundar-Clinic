@@ -27,7 +27,7 @@ app.use(cookieParser(cookieSecret));
 app.use(logger(isProduction ? 'combined' : 'dev'));
 app.use(
 	cors({
-		origin: isProduction ? reactAppUrl : `http://localhost:${port}`,
+		origin: isProduction ? reactAppUrl : `http://localhost:3000`,
 		optionsSuccessStatus: 200,
 	})
 );

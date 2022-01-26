@@ -54,12 +54,12 @@ const userSchema = new Schema(
 		isVerified: {
 			type: Boolean,
 			default: false,
-		}
+		},
 	},
 	{
 		timestamps: true,
 		strict: true,
-		discriminatorKey: 'role'
+		discriminatorKey: 'role',
 	}
 );
 
@@ -109,16 +109,28 @@ userSchema.methods.authenticatePassword = async function ({ password }) {
 		const isUserPassword = await bcrypt.compare(password, this.password);
 		return isUserPassword;
 	} catch (error) {
-		console.log(error)
+		console.log(error);
 	}
 };
 
-// Sanitize User Details 
+// Sanitize User Details
 userSchema.methods.sanitizeAndReturnUser = function () {
 	const user = this.toObject();
 	delete user.password;
 	return user;
-}
+};
+
+// Create a token to allow user to verify their account
+userSchema.methods.generateVerifyAuthToken = function () {};
+
+// Authenticate Verify Account Token
+userSchema.methods.authenticateVerifyAuthToken = function () {};
+
+// Create a token to allow user to reset their password
+userSchema.methods.generateResetPasswordAuthToken = function () {};
+
+// Authenticate Reset Password Token
+userSchema.methods.authenticateResetPasswordAuthToken = function () {};
 
 // Authenticate a User Token using Model Method
 userSchema.statics.authenticateAdminAuthToken = async function ({ token }) {

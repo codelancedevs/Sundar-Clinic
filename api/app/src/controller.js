@@ -41,7 +41,7 @@ exports.redirectToIndex = (req, res) => {
 
 exports.verifyApiKey = (req, res) => {
 	const providedKey = req.headers['x-api-key'];
-	const isFromSDK = req.headers['x-sdk-req'] === "SDK-SS";
+	const isFromSDK = req.headers['x-sdk-req'] === 'SDK-SS';
 	try {
 		if (!providedKey && !isFromSDK) throw new Error('API Key is required!');
 		const isValidApiKey = apiKeys.includes(providedKey);
@@ -49,13 +49,11 @@ exports.verifyApiKey = (req, res) => {
 			throw new Error(
 				'Unauthorized API Key, Please provide a authorized API Key'
 			);
-		return res
-			.status(200)
-			.json({
-				message: 'Authorized API Key',
-				data: { isValidApiKey },
-				success: true,
-			});
+		return res.status(200).json({
+			message: 'Authorized API Key',
+			data: { isValidApiKey },
+			success: true,
+		});
 	} catch (error) {
 		console.log(error);
 		return res
@@ -68,6 +66,53 @@ exports.verifyApiKey = (req, res) => {
     AUTHENTICATED CONTROLLERS
 ================================ */
 
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
 exports.editOwnerDetails = (req, res) => {};
 
-exports.editSiteDetails = (req, res) => {};
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
+exports.editSiteDetails = async (req, res) => {
+	const { detail, contact, link } = req.body;
+	const { email, email } = contact;
+	try {
+		if (!detail || !contact || !link)
+			throw new Error(
+				'Request body should contain {detail, contact, link} : String'
+			);
+		if (!phone || !email)
+			throw new Error(
+				'Contact should contain contact: {phone, email} : String'
+			);
+
+		await App.updateOne(
+			{ _id: appId },
+			{
+				'site.detail': detail,
+				'site.link': link,
+				'site.contact.phone': phone,
+				'site.contact.email': email,
+			}
+		);
+		return res.status(200).json({
+			message: 'Site Detail Updated Successfully',
+			data: { detail, contact, link },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(401)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};

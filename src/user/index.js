@@ -8,68 +8,64 @@ const {
 } = require('../../helper/functions');
 
 module.exports = function (requester) {
-	return {
-		/**
-		 * @description Checks if a username is unique or not
-		 * @param {string} {username} - object with username
-		 * @returns Promise
-		 */
-		isUsernameUnique: async function ({ username = '' }) {
-			try {
-				await isValidatedApi(requester);
-				// Pre checks
-				if (!username)
-					throw new Error(
-						'Object should contain {username: "string"}'
-					);
-				if (typeof username !== 'string')
-					throw new Error(
-						`{username} should be string, cannot be ${typeof username}`
-					);
-				if (username.length < 8 || username.length > 16)
-					throw new Error(
-						'username should be more that 8 and less that 16 characters'
-					);
+	const user = {};
 
-				// Send Request
-				const response = await requester.get(
-					userRoutes.isUsernameUnique,
-					{
-						username,
-					}
+	/**
+	 * @description Checks if a username is unique or not
+	 * @param {string} {username} - object with username
+	 * @returns Promise
+	 */
+	user.isUsernameUnique = async ({ username = '' }) => {
+		try {
+			await isValidatedApi(requester);
+			// Pre checks
+			if (!username)
+				throw new Error('Object should contain {username: "string"}');
+			if (typeof username !== 'string')
+				throw new Error(
+					`{username} should be string, cannot be ${typeof username}`
 				);
-				return response.data;
-			} catch (error) {
-				return requestErrorHandler(error);
-			}
-		},
+			if (username.length < 8 || username.length > 16)
+				throw new Error(
+					'username should be more that 8 and less that 16 characters'
+				);
 
-		/**
-		 * @description Checks if a email is unique or not
-		 * @param {string} {email} - object with username
-		 * @returns Promise
-		 */
-		isEmailUnique: async function ({ email = '' }) {
-			try {
-				await isValidatedApi(requester);
-				// Pre checks
-				if (!email)
-					throw new Error('Object should contain {email: "string"}');
-				if (typeof email !== 'string')
-					throw new Error(
-						`{email} should be string, cannot be ${typeof email}`
-					);
-				if (!isEmail(email))
-					throw new Error('Should be a valid email!');
-
-				// Send Request
-				const response = await requester.get(userRoutes.isEmailUnique, {
-					email,
-				});
-				return response.data;
-			} catch (error) {
-				return requestErrorHandler(error);
-			}
-		},
+			// Send Request
+			const response = await requester.get(userRoutes.isUsernameUnique, {
+				username,
+			});
+			return response.data;
+		} catch (error) {
+			return requestErrorHandler(error);
+		}
 	};
+
+	/**
+	 * @description Checks if a email is unique or not
+	 * @param {string} {email} - object with username
+	 * @returns Promise
+	 */
+	user.isEmailUnique = async ({ email = '' }) => {
+		try {
+			await isValidatedApi(requester);
+			// Pre checks
+			if (!email)
+				throw new Error('Object should contain {email: "string"}');
+			if (typeof email !== 'string')
+				throw new Error(
+					`{email} should be string, cannot be ${typeof email}`
+				);
+			if (!isEmail(email)) throw new Error('Should be a valid email!');
+
+			// Send Request
+			const response = await requester.get(userRoutes.isEmailUnique, {
+				email,
+			});
+			return response.data;
+		} catch (error) {
+			return requestErrorHandler(error);
+		}
+	};
+
+	return user;
 };

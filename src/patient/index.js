@@ -5,9 +5,11 @@ const { patientRoutes } = require('../../helper/routes');
 const { requestErrorHandler } = require('../../helper/functions');
 
 module.exports = function (requester) {
-	return {
-		create: async function () {},
+	const patient = {};
 
-		login: async function () {},
-	};
+	patient.create = async () => {};
+
+	patient.login = async () => {};
+
+	return patient;
 };

@@ -1,6 +1,6 @@
 {
   "name": "@codelancedevs/sundar-clinic-sdk",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Sundar Clinic SDK to access backend application",
   "keywords": [
     "Sundar Clinic",
@@ -23,6 +23,8 @@
   "homepage": "https://github.com/codelancedevs/Sundar-Clinic/tree/sdk#readme",
   "dependencies": {
     "axios": "^0.25.0",
+    "dotenv": "^14.3.2",
     "validator": "^13.7.0"
-  }
+  },
+  "devDependencies": {}
 }

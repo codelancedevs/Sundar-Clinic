@@ -36,6 +36,8 @@ import SundarClinicSDK from '@codelancedevs/sundar-clinic-sdk';
 const sundarClinic = new SundarClinicSDK('<your-api-key-here>');
 ```
 
+<!-- Dotenv Updates here -->
+
 After importing it, you can use the following methods to create a type of request to the backend application of Sundar Clinic.
 
 - [Default](#default)

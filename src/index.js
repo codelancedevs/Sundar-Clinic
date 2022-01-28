@@ -1,16 +1,14 @@
 'use strict';
 
 const axios = require('../helper/axios.config');
+const { apiKey } = require('../helper/config');
 
 const defaults = require('./default');
 const user = require('./user');
 const admin = require('./admin');
 const patient = require('./patient');
 const post = require('./post');
-const {
-	checkApiKeyValidity,
-	isValidatedApi
-} = require('../helper/functions');
+const { isValidatedApi } = require('../helper/functions');
 
 class SundarClinicSDK {
 	constructor(apiKey, options = {}) {
@@ -56,9 +54,7 @@ class SundarClinicSDK {
 	}
 }
 
-const sundarClinic = new SundarClinicSDK(
-	''
-);
+const sundarClinic = new SundarClinicSDK(apiKey);
 
 sundarClinic.default
 	.index()

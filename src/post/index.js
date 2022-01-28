@@ -5,11 +5,13 @@ const { postRoutes } = require('../../helper/routes');
 const { requestErrorHandler } = require('../../helper/functions');
 
 module.exports = function (requester) {
-	return {
-		create: async function () {},
+	const post = {};
 
-		edit: async function () {},
+	post.create = async () => {};
 
-		delete: async function () {},
-	};
+	post.edit = async () => {};
+
+	post.delete = async () => {};
+
+	return post;
 };

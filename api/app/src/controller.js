@@ -83,6 +83,7 @@ exports.editOwnerDetails = (req, res) => {};
 * ! To be Tested
 */
 exports.editSiteDetails = async (req, res) => {
+
 	const { detail, contact, link } = req.body;
 	const { email, phone } = contact;
 	try {

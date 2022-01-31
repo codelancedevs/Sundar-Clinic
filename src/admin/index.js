@@ -2,24 +2,30 @@
 
 const { isEmail, isStrongPassword } = require('validator');
 const { adminRoutes } = require('../../helper/routes');
-const { requestErrorHandler } = require('../../helper/functions');
+const {
+	requestErrorHandler,
+	isValidatedApi,
+} = require('../../helper/functions');
 
-module.exports = function (requester) {
+module.exports = async function (requester) {
 	const admin = {};
-	/**
-	 * @description Create a new Admin by passing in the required data
-	 * @param {object} data Includes {fullName, email, password, superPassword}
-	 * @returns {Promise} confirmation of admin creation
-	 */
-	admin.create = async (data = {}) => {
-		// Information required to create user
-		const {
-			fullName = '',
-			email = '',
-			password = '',
-			superPassword = '',
-		} = data;
-		try {
+
+	try {
+		await isValidatedApi(requester);
+
+		/**
+		 * @description Create a new Admin by passing in the required data
+		 * @param {object} data Includes {fullName, email, password, superPassword}
+		 * @returns {Promise} confirmation of admin creation
+		 */
+		admin.create = async (data = {}) => {
+			// Information required to create user
+			const {
+				fullName = '',
+				email = '',
+				password = '',
+				superPassword = '',
+			} = data;
 			// Pre Checks
 			if (!superPassword)
 				throw new Error(
@@ -54,17 +60,17 @@ module.exports = function (requester) {
 			if (passwordScore < 50)
 				throw new Error(
 					`{
-						"error":"Password not strong enough",
-						"minLength":8,
-						"minLowercase":1,
-						"minUppercase":1,
-						"minNumbers":1,
-						"minSymbols":1,
-						"points":{
-							"acquired":${passwordScore},
-							"required":50
-						}
-					}`
+							"error":"Password not strong enough",
+							"minLength":8,
+							"minLowercase":1,
+							"minUppercase":1,
+							"minNumbers":1,
+							"minSymbols":1,
+							"points":{
+								"acquired":${passwordScore},
+								"required":50
+							}
+						}`
 				);
 
 			// Sending Request
@@ -72,19 +78,15 @@ module.exports = function (requester) {
 				data,
 			});
 			return response;
-		} catch (error) {
-			return requestErrorHandler(error);
-		}
-	};
+		};
 
-	/**
-	 * @description Login admin with required credentials
-	 * @param {object} data {email, password}
-	 * @returns {Promise} Admin Login with JWT Cookie
-	 */
-	admin.login = async (data = {}) => {
-		const { email = '', password = '' } = data;
-		try {
+		/**
+		 * @description Login admin with required credentials
+		 * @param {object} data {email, password}
+		 * @returns {Promise} Admin Login with JWT Cookie
+		 */
+		admin.login = async (data = {}) => {
+			const { email = '', password = '' } = data;
 			// Pre Checks
 			if (!email || !password)
 				throw new Error("{email, password} : 'string' is required");
@@ -103,10 +105,10 @@ module.exports = function (requester) {
 				data,
 			});
 			return response;
-		} catch (error) {
-			return requestErrorHandler(error);
-		}
-	};
+		};
+	} catch (error) {
+		return requestErrorHandler(error);
+	}
 
 	return admin;
 };

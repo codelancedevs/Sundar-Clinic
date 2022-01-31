@@ -2,16 +2,24 @@
 
 const { isEmail, isStrongPassword } = require('validator');
 const { postRoutes } = require('../../helper/routes');
-const { requestErrorHandler } = require('../../helper/functions');
+const {
+	requestErrorHandler,
+	isValidatedApi,
+} = require('../../helper/functions');
 
-module.exports = function (requester) {
+module.exports = async function (requester) {
 	const post = {};
 
-	post.create = async () => {};
+	try {
+		await isValidatedApi;
+		post.create = async () => {};
 
-	post.edit = async () => {};
+		post.edit = async () => {};
 
-	post.delete = async () => {};
+		post.delete = async () => {};
+	} catch (error) {
+		return requestErrorHandler(error);
+	}
 
 	return post;
 };

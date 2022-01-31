@@ -7,17 +7,17 @@ const {
 	isValidatedApi,
 } = require('../../helper/functions');
 
-module.exports = function (requester) {
+module.exports = async function (requester) {
 	const user = {};
 
-	/**
-	 * @description Checks if a username is unique or not
-	 * @param {string} {username} - object with username
-	 * @returns Promise
-	 */
-	user.isUsernameUnique = async ({ username = '' }) => {
-		try {
-			await isValidatedApi(requester);
+	try {
+		await isValidatedApi(requester);
+		/**
+		 * @description Checks if a username is unique or not
+		 * @param {string} {username} - object with username
+		 * @returns Promise
+		 */
+		user.isUsernameUnique = async ({ username = '' }) => {
 			// Pre checks
 			if (!username)
 				throw new Error('Object should contain {username: "string"}');
@@ -35,19 +35,14 @@ module.exports = function (requester) {
 				username,
 			});
 			return response.data;
-		} catch (error) {
-			return requestErrorHandler(error);
-		}
-	};
+		};
 
-	/**
-	 * @description Checks if a email is unique or not
-	 * @param {string} {email} - object with username
-	 * @returns Promise
-	 */
-	user.isEmailUnique = async ({ email = '' }) => {
-		try {
-			await isValidatedApi(requester);
+		/**
+		 * @description Checks if a email is unique or not
+		 * @param {string} {email} - object with username
+		 * @returns Promise
+		 */
+		user.isEmailUnique = async ({ email = '' }) => {
 			// Pre checks
 			if (!email)
 				throw new Error('Object should contain {email: "string"}');
@@ -62,10 +57,10 @@ module.exports = function (requester) {
 				email,
 			});
 			return response.data;
-		} catch (error) {
-			return requestErrorHandler(error);
-		}
-	};
+		};
+	} catch (error) {
+		return requestErrorHandler(error);
+	}
 
 	return user;
 };

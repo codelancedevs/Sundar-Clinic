@@ -37,8 +37,12 @@ class SundarClinicSDK {
 		return user(axios);
 	}
 
-	get default() {
-		return defaults(axios);
+	get default () {
+		defaults(axios)
+		.then(res => {
+			this.set = res;
+		})
+		// return defaults(axios);
 	}
 
 	get admin() {
@@ -56,8 +60,10 @@ class SundarClinicSDK {
 
 const sundarClinic = new SundarClinicSDK(apiKey);
 
-sundarClinic.default
-	.index()
-	.then((res) => console.log(res))
-	.catch((err) => console.log(err));
+// sundarClinic.default
+// 	.index()
+// 	.then((res) => console.log(res))
+// 	.catch((err) => console.log(err));
+
+console.log(sundarClinic.default)
 module.exports = SundarClinicSDK;

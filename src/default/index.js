@@ -6,22 +6,24 @@ const {
 	isValidatedApi,
 } = require('../../helper/functions');
 
-module.exports = function (requester) {
+module.exports = async function (requester) {
 	const defaults = {};
 
-	/**
-	 * @description Request to '/' route, returns data about website.
-	 * @returns {Promise} Information about the website
-	 */
-	defaults.index = async () => {
-		try {
-			await isValidatedApi(requester);
+	try {
+		// Validate API Key before allowing any Requests
+		await isValidatedApi(requester);
+
+		/**
+		 * @description Request to '/' route, returns data about website.
+		 * @returns {Promise} Information about the website
+		 */
+		defaults.index = async () => {
 			const response = await requester.get(defaultRoutes.index);
 			return response.data;
-		} catch (error) {
-			return requestErrorHandler(error);
-		}
-	};
+		};
+	} catch (error) {
+		return requestErrorHandler(error);
+	}
 
 	return defaults;
 };

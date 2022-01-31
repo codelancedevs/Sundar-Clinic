@@ -2,14 +2,22 @@
 
 const { isEmail, isStrongPassword } = require('validator');
 const { patientRoutes } = require('../../helper/routes');
-const { requestErrorHandler } = require('../../helper/functions');
+const {
+	requestErrorHandler,
+	isValidatedApi,
+} = require('../../helper/functions');
 
-module.exports = function (requester) {
+module.exports = async function (requester) {
 	const patient = {};
 
-	patient.create = async () => {};
+	try {
+		await isValidatedApi(requester);
+		patient.create = async () => {};
 
-	patient.login = async () => {};
+		patient.login = async () => {};
+	} catch (error) {
+		return requestErrorHandler(error);
+	}
 
 	return patient;
 };

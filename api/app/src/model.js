@@ -47,6 +47,12 @@ const appSchema = new Schema(
 				validate: [isURL, 'Requires a valid URL'],
 				default: reactAppUrl,
 			},
+			meta: {
+				isOpenSource: {
+					type: Boolean,
+					default: false,
+				},
+			},
 		},
 		createdBy: {
 			name: {

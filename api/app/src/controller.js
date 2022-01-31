@@ -83,8 +83,9 @@ exports.editOwnerDetails = (req, res) => {};
 * ! To be Tested
 */
 exports.editSiteDetails = async (req, res) => {
+
 	const { detail, contact, link } = req.body;
-	const { email, email } = contact;
+	const { email, phone } = contact;
 	try {
 		if (!detail || !contact || !link)
 			throw new Error(

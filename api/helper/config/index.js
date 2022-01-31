@@ -9,7 +9,7 @@ const developmentUri = process.env.DEVELOPMENT_MONGODB_URI;
 const productionUri = process.env.PRODUCTION_MONGODB_URI;
 const connectionUri = isProduction ? productionUri : developmentUri ;
 
-const apiKeys = (process.env.API_KEYS).split(" ");
+const apiKeys = (process.env.API_KEYS || "").split(" ");
 
 module.exports = {
 	port: process.env.PORT,

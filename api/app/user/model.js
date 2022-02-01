@@ -55,6 +55,9 @@ const userSchema = new Schema(
 			type: Boolean,
 			default: false,
 		},
+		tosAgreement: {
+			type: Boolean,
+		},
 	},
 	{
 		timestamps: true,
@@ -117,6 +120,7 @@ userSchema.methods.authenticatePassword = async function ({ password }) {
 userSchema.methods.sanitizeAndReturnUser = function () {
 	const user = this.toObject();
 	delete user.password;
+	delete user.__v;
 	return user;
 };
 

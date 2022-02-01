@@ -13,7 +13,6 @@ const { isEmail, isStrongPassword } = require('validator');
  * @route POST /api/admin/login
  * @data {email, password} : 'String' in Request Body
  * @access Public
- * ! To be tested
  */
 exports.loginAdmin = async (req, res) => {
 	const { email, password } = req.body;
@@ -50,12 +49,13 @@ exports.loginAdmin = async (req, res) => {
 };
 
 /**
-* @description <Controller description here>
-* @route METHOD <Route>
-* @data <Data either in body, params, or query>
-* @access <Access Level>
-* ! To be Tested
-*/
+ * @description Authenticate Admin Account from the Link clicked by email
+ * @route PATCH
+ * @data <Data either in body, params, or query> 
+ * ? Data to be implemented
+ * @access Public
+ * ! To be Tested
+ */
 exports.verifyAdmin = (req, res) => {};
 
 /* ================================
@@ -65,13 +65,12 @@ exports.verifyAdmin = (req, res) => {};
 /**
  * @description Create New Admin
  * @route POST /api/admin/create
- * @data {fullName, email, password}: 'String' in Request body
- * @access Public
- * ! To be Tested
- * ? To Integrate SuperAdmin Auth here, only cross check here with the password
+ * @data {fullName, email, password, tosAgreement: 'Boolean'}: 'String' in Request body
+ * @data {superPassword}: 'String' in Request Body
+ * @access Super Admin
  */
 exports.createAdmin = async (req, res) => {
-	const { fullName, email, password } = req.body;
+	const { fullName, email, password, tosAgreement } = req.body;
 	const isSuperAdminAuthenticated = req.superAdminAuthenticated;
 	try {
 		// Pre Checks
@@ -79,7 +78,7 @@ exports.createAdmin = async (req, res) => {
 			throw new Error('Requires Super Admin Auth');
 		if (!fullName || !email || !password)
 			throw new Error(
-				"{fullName, email, password} ; 'String' are required in the Request Body"
+				"{fullName, email, password, tosAgreement: 'Boolean'} ; 'String' are required in the Request Body"
 			);
 		if (typeof fullName !== 'string')
 			throw new Error('{fullName} should be a string');
@@ -87,12 +86,18 @@ exports.createAdmin = async (req, res) => {
 			throw new Error('{email} should be a string');
 		if (typeof password !== 'string')
 			throw new Error('{password} should be a string');
+		if (typeof tosAgreement !== 'boolean')
+			throw new Error('{tosAgreement} should be a boolean');
 		if (!isEmail(email)) throw new Error('Given Email is not valid');
 		if (!isStrongPassword(password))
 			throw new Error('Password is not strong enough');
+		if (!tosAgreement)
+			throw new Error(
+				'Account Cannot be created without agreeing to Terms of Service'
+			);
 
 		// Creating New Admin
-		const admin = new Admin({ fullName, email, password });
+		const admin = new Admin({ fullName, email, password, tosAgreement });
 		await admin.save();
 
 		// Response after successful creation with admin details
@@ -121,10 +126,10 @@ exports.createAdmin = async (req, res) => {
 exports.editAdminDetails = async (req, res) => {};
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
+ * @description Delete Admin Account
+ * @route METHOD DELETE
+ * @data {password}: 'String' in Request Body
+ * @access Admin
  * ! To be tested
  */
 exports.deleteAdminAccount = async (req, res) => {
@@ -153,37 +158,37 @@ exports.deleteAdminAccount = async (req, res) => {
 exports.createNewPatient = async (req, res) => {};
 
 /**
-* @description <Controller description here>
-* @route METHOD <Route>
-* @data <Data either in body, params, or query>
-* @access <Access Level>
-* ! To be Tested
-*/
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
 exports.fetchAllPatients = async (req, res) => {};
 
 /**
-* @description <Controller description here>
-* @route METHOD <Route>
-* @data <Data either in body, params, or query>
-* @access <Access Level>
-* ! To be Tested
-*/
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
 exports.fetchPatient = async (req, res) => {};
 
 /**
-* @description <Controller description here>
-* @route METHOD <Route>
-* @data <Data either in body, params, or query>
-* @access <Access Level>
-* ! To be Tested
-*/
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
 exports.deletePatient = async (req, res) => {};
 
 /**
-* @description <Controller description here>
-* @route METHOD <Route>
-* @data <Data either in body, params, or query>
-* @access <Access Level>
-* ! To be Tested
-*/
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
 exports.searchPatients = async (req, res) => {};

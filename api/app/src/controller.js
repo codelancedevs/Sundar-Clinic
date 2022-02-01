@@ -14,12 +14,13 @@ const App = require('./model');
  * @access Public
  */
 exports.sendSiteDetails = async (req, res) => {
-	if (!appId)
+	if (!appId){
 		return res.status(200).json({
 			message: 'App Details being Updated',
 			data: {},
 			success: true,
 		});
+	}
 	const appDetails = await App.findById(appId).select({ _id: 0, __v: 0 });
 	return res.status(200).json({
 		message:
@@ -39,6 +40,12 @@ exports.redirectToIndex = (req, res) => {
 	return res.redirect('/');
 };
 
+/**
+ * @description Checks the validity of API key from SDK
+ * @route GET /verifyApiKey
+ * @data API key in headers and additional sdk details in headers
+ * @access Public
+ */
 exports.verifyApiKey = (req, res) => {
 	const providedKey = req.headers['x-api-key'];
 	const isFromSDK = req.headers['x-sdk-req'] === 'SDK-SS';

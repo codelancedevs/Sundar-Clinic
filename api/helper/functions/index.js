@@ -24,21 +24,25 @@ exports.deleteAccountToken = ({ id = '' }) => {
 	return jwt.sign({ id }, deleteAccountSecret, tokenExpireAt);
 };
 
-exports.createApp = async ({id, App}) => {
+exports.createApp = async ({ id, App }) => {
 	if (id) return;
 	try {
 		const app = new App({
 			owner: {
 				name: 'P Siva Kumar',
-				doctorInCharge: {
-					name: 'Dr. Ekta Bharti',
-					degrees: ['M.B.B.S', 'General Physician'],
-				},
+				doctors: [
+					{
+						name: 'Dr. Ekta Bharti',
+						degrees: ['M.B.B.S', 'General Physician'],
+					},
+				],
 			},
 		});
-        await app.save();
-        console.log(`Application Instance Created with id: ${app._id} - ⚠️  Update this Id in the environment!`);
+		await app.save();
+		console.log(
+			`Application Instance Created with id: ${app._id} - ⚠️  Update this Id in the environment!`
+		);
 	} catch (error) {
-        console.log(error);
-    }
+		console.log(error);
+	}
 };

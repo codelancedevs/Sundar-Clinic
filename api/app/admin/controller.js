@@ -1,8 +1,11 @@
 'use strict';
 
+const { isEmail, isStrongPassword } = require('validator');
 const Admin = require('./model');
 const Patient = require('../patient/model');
-const { isEmail, isStrongPassword } = require('validator');
+const {
+	expireDurations: { tokenExpireAt },
+} = require('../../helper/config');
 
 /* ================================
     UNAUTHENTICATED CONTROLLERS
@@ -33,6 +36,12 @@ exports.loginAdmin = async (req, res) => {
 		if (!validated) throw new Error('Wrong Password');
 
 		// Responding with admin details
+		const adminToken = await admin.generateAuthToken();
+		res.cookie('adminToken', adminToken, {
+			httpOnly: true,
+			signed: true,
+			maxAge: tokenExpireAt,
+		});
 		return res.status(200).json({
 			message: 'Login Successful',
 			data: {
@@ -51,7 +60,7 @@ exports.loginAdmin = async (req, res) => {
 /**
  * @description Authenticate Admin Account from the Link clicked by email
  * @route PATCH
- * @data <Data either in body, params, or query> 
+ * @data <Data either in body, params, or query>
  * ? Data to be implemented
  * @access Public
  * ! To be Tested
@@ -101,6 +110,12 @@ exports.createAdmin = async (req, res) => {
 		await admin.save();
 
 		// Response after successful creation with admin details
+		const adminToken = await admin.generateAuthToken();
+		res.cookie('adminToken', adminToken, {
+			httpOnly: true,
+			signed: true,
+			maxAge: tokenExpireAt,
+		});
 		return res.status(201).json({
 			message: 'Admin Account Created Successfully',
 			data: {
@@ -127,23 +142,61 @@ exports.editAdminDetails = async (req, res) => {};
 
 /**
  * @description Delete Admin Account
- * @route METHOD DELETE
+ * @route DELETE /api/admin/delete
  * @data {password}: 'String' in Request Body
  * @access Admin
- * ! To be tested
  */
 exports.deleteAdminAccount = async (req, res) => {
 	const { _id } = req.admin;
 	const { password } = req.body;
 	try {
-		// TODO: Error handling here
+		// Admin Check
 		const admin = await Admin.findById(_id);
 		if (!admin) throw new Error('Unable to find admin');
-		const validated = admin.authenticatePassword({ password });
+
+		// Password Check
+		if (!password)
+			throw new Error(
+				"{password} : 'String' should be there in Request Body."
+			);
+		if (typeof password !== 'string')
+			throw new Error('{password} should be a string.');
+		const validated = await admin.authenticatePassword({ password });
 		if (!validated) throw new Error('Wrong Password');
 		await admin.delete();
+
+		// Sending Response upon successful deletion of admin account
+		res.clearCookie('adminToken');
 		return res.status(200).json({
 			message: 'Admin Deleted Successfully',
+			data: {},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description Logout Admin
+ * @route POST /api/admin/logout
+ * @data No data to be passed
+ * @access Admin
+ */
+exports.logoutAdmin = async (req, res) => {
+	const { _id } = req.admin;
+	try {
+		// Admin Check
+		const admin = await Admin.findById(_id);
+		if (!admin) throw new Error('Unable to find admin');
+
+		// Respond with Logout
+		res.clearCookie('adminToken');
+		return res.status(200).json({
+			message: 'Logged Out Successfully',
 			data: {},
 			success: true,
 		});

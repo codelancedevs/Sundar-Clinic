@@ -17,6 +17,8 @@ AUTHENTICATED ROUTES
 
 Router.post('/create', authSuperAdmin, adminController.createAdmin);
 
-Router.delete("/delete", authAdmin, adminController.deleteAdminAccount);
+Router.post('/logout', authAdmin, adminController.logoutAdmin);
+
+Router.delete('/delete', authAdmin, adminController.deleteAdminAccount);
 
 module.exports = Router;

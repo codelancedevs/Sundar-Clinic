@@ -82,7 +82,7 @@ userSchema.methods.createDefaultAvatar = async function () {
 
 // Get JWT Token for a particular User Instance
 userSchema.methods.generateAuthToken = async function () {
-	const secret = this.role === 'admin' ? adminSecret : patientSecret;
+	const secret = this.role === 'Admin' ? adminSecret : patientSecret;
 	const token = jwt.sign({ _id: this._id.toString() }, secret, {
 		expiresIn: tokenExpireAt,
 	});

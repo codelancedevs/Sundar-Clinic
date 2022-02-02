@@ -67,6 +67,43 @@ exports.isUsernameUnique = async (req, res) => {
 	}
 };
 
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.sendVerifyUserMail = (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.sendResetPasswordMail = (req, res) => {};
+
 /* ================================
     AUTHENTICATED CONTROLLERS
 ================================ */
+
+/** URL AUTH TOKEN BASED AUTHENTICATION
+ * @description Authenticate Admin Account from the Link clicked by email
+ * @route PATCH
+ * @data <Data either in body, params, or query>
+ * ? Data to be implemented
+ * @access Public
+ * ! To be Tested
+ */
+exports.verifyUser = (req, res) => {};
+
+/** URL AUTH TOKEN BASED AUTHENTICATION
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.verifyResetPasswordMail = (req, res) => {};

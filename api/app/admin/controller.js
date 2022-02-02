@@ -57,19 +57,11 @@ exports.loginAdmin = async (req, res) => {
 	}
 };
 
-/**
- * @description Authenticate Admin Account from the Link clicked by email
- * @route PATCH
- * @data <Data either in body, params, or query>
- * ? Data to be implemented
- * @access Public
- * ! To be Tested
- */
-exports.verifyAdmin = (req, res) => {};
-
 /* ================================
     AUTHENTICATED CONTROLLERS
 ================================ */
+
+// ADMIN RELATED
 
 /**
  * @description Create New Admin
@@ -132,13 +124,70 @@ exports.createAdmin = async (req, res) => {
 };
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
+ * @description Edit Admin Account Details
+ * @route PATCH /api/admin/details
+ * @data {fullName, username, email, phone, address}: 'String' in Request Body
+ * @access Admin
  * ! To be tested
  */
-exports.editAdminDetails = async (req, res) => {};
+exports.editAdminDetails = async (req, res) => {
+	const { _id } = req.admin;
+	const { fullName, username, email, phone, address } = req.body;
+	try {
+		// TODO: Request body error handling here
+		const admin = await Admin.findById(_id);
+		if (!admin) throw new Error('Unable to find admin');
+
+		// Updating Admin
+		const details = {
+			fullName,
+			username,
+			email,
+			phone,
+			address,
+		};
+		await Admin.updateOne({ _id }, { ...details });
+		return res.status(200).json({
+			message: 'Details Updated Successfully',
+			data: { ...details },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description Edit Admin Password to a new one
+ * @route PATCH /api/admin/password
+ * @data {password, newPassword}: 'String' in Request Body
+ * @access Admin
+ * ! To be Tested
+ */
+exports.editAdminPassword = async (req, res) => {
+	const { password, newPassword } = req.body;
+	const { _id } = req.body;
+	try {
+		// TODO: Request body error handling here
+
+		const admin = await Admin.findById(_id);
+		if (!admin) throw new Error('Unable to find admin');
+
+		return res.status(200).json({
+			message: 'Password Updated Successfully',
+			data: {},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 /**
  * @description Delete Admin Account
@@ -207,6 +256,8 @@ exports.logoutAdmin = async (req, res) => {
 			.json({ message: error.message, data: {}, success: false });
 	}
 };
+
+// PATIENT RELATED
 
 exports.createNewPatient = async (req, res) => {};
 

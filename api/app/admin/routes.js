@@ -17,6 +17,10 @@ AUTHENTICATED ROUTES
 
 Router.post('/create', authSuperAdmin, adminController.createAdmin);
 
+Router.patch('/details', authAdmin, adminController.editAdminDetails);
+
+Router.patch('/password', authAdmin, adminController.editAdminPassword);
+
 Router.post('/logout', authAdmin, adminController.logoutAdmin);
 
 Router.delete('/delete', authAdmin, adminController.deleteAdminAccount);

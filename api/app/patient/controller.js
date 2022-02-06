@@ -3,7 +3,7 @@
 const Patient = require('./model');
 
 /* ================================
-    UNAUTHENTICATED CONTROLLERS
+	UNAUTHENTICATED CONTROLLERS
 ================================ */
 
 /**
@@ -63,17 +63,8 @@ exports.loginPatient = async (req, res) => {
 	}
 };
 
-/**
-* @description <Controller description here>
-* @route METHOD <Route>
-* @data <Data either in body, params, or query>
-* @access <Access Level>
-* ! To be Tested
-*/
-exports.verifyPatient = (req, res) => {};
-
 /* ================================
-    AUTHENTICATED CONTROLLERS
+	AUTHENTICATED CONTROLLERS
 ================================ */
 
 /**
@@ -83,7 +74,7 @@ exports.verifyPatient = (req, res) => {};
 * @access <Access Level>
 * ! To be Tested
 */
-exports.fetchPatientProfile = async (req, res) => {};
+exports.fetchPatientProfile = async (req, res) => { };
 
 /**
 * @description <Controller description here>
@@ -92,4 +83,4 @@ exports.fetchPatientProfile = async (req, res) => {};
 * @access <Access Level>
 * ! To be Tested
 */
-exports.savePatientDetails = async (req, res) => {};
+exports.savePatientDetails = async (req, res) => { };

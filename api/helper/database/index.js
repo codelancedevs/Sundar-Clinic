@@ -15,4 +15,4 @@ const connectToDatabase = async () => {
 	}
 };
 
-connectToDatabase();
+await connectToDatabase();

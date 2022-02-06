@@ -8,7 +8,7 @@ const {
 } = require('../../helper/config');
 
 /* ================================
-    UNAUTHENTICATED CONTROLLERS
+	UNAUTHENTICATED CONTROLLERS
 ================================ */
 
 /**
@@ -18,6 +18,7 @@ const {
  * @access Public
  */
 exports.loginAdmin = async (req, res) => {
+	// Collecting Required Data from Request Data
 	const { email, password } = req.body;
 	try {
 		// Pre Checks
@@ -35,13 +36,17 @@ exports.loginAdmin = async (req, res) => {
 		const validated = await admin.authenticatePassword({ password });
 		if (!validated) throw new Error('Wrong Password');
 
-		// Responding with admin details
+		// Creating Admin Auth Token
 		const adminToken = await admin.generateAuthToken();
+
+		// Sending Admin Auth Token
 		res.cookie('adminToken', adminToken, {
 			httpOnly: true,
 			signed: true,
 			maxAge: tokenExpireAt,
 		});
+
+		// Responding with admin details
 		return res.status(200).json({
 			message: 'Login Successful',
 			data: {
@@ -58,7 +63,7 @@ exports.loginAdmin = async (req, res) => {
 };
 
 /* ================================
-    AUTHENTICATED CONTROLLERS
+	AUTHENTICATED CONTROLLERS
 ================================ */
 
 // ADMIN RELATED
@@ -71,6 +76,7 @@ exports.loginAdmin = async (req, res) => {
  * @access Super Admin
  */
 exports.createAdmin = async (req, res) => {
+	// Collecting Required Data from Request Body and Middleware
 	const { fullName, email, password, tosAgreement } = req.body;
 	const isSuperAdminAuthenticated = req.superAdminAuthenticated;
 	try {
@@ -101,13 +107,17 @@ exports.createAdmin = async (req, res) => {
 		const admin = new Admin({ fullName, email, password, tosAgreement });
 		await admin.save();
 
-		// Response after successful creation with admin details
+		// Creating Admin Auth Token
 		const adminToken = await admin.generateAuthToken();
+
+		// Sending Admin Auth Token
 		res.cookie('adminToken', adminToken, {
 			httpOnly: true,
 			signed: true,
 			maxAge: tokenExpireAt,
 		});
+
+		// Response after successful creation with admin details
 		return res.status(201).json({
 			message: 'Admin Account Created Successfully',
 			data: {
@@ -124,29 +134,57 @@ exports.createAdmin = async (req, res) => {
 };
 
 /**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.isEmailAvailable = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.isUsernameAvailable = async (req, res) => {};
+
+/**
  * @description Edit Admin Account Details
  * @route PATCH /api/admin/details
  * @data {fullName, username, email, phone, address}: 'String' in Request Body
  * @access Admin
- * ! To be tested
  */
 exports.editAdminDetails = async (req, res) => {
+	// Collecting Required Data from Request Body and Middleware
 	const { _id } = req.admin;
-	const { fullName, username, email, phone, address } = req.body;
+	let { fullName, username, email, phone, address } = req.body;
 	try {
-		// TODO: Request body error handling here
+		// Pre Checks
+		fullName = typeof fullName !== 'string' ? '' : fullName;
+		username = typeof username !== 'string' ? '' : username;
+		email = typeof email !== 'string' ? '' : email;
+		phone = typeof phone !== 'string' ? '' : phone;
+		address = typeof address !== 'string' ? '' : address;
+
+		// Finding Admin
 		const admin = await Admin.findById(_id);
 		if (!admin) throw new Error('Unable to find admin');
 
-		// Updating Admin
+		// Updating admin details
+		// If details are not give, then existing details are passed back
 		const details = {
-			fullName,
-			username,
-			email,
-			phone,
-			address,
+			fullName: fullName || admin.fullName,
+			username: username || admin.username,
+			email: email || admin.email,
+			phone: phone || admin.phone,
+			address: address || admin.address,
 		};
 		await Admin.updateOne({ _id }, { ...details });
+
+		// Response after all updating all admin details
 		return res.status(200).json({
 			message: 'Details Updated Successfully',
 			data: { ...details },
@@ -165,17 +203,45 @@ exports.editAdminDetails = async (req, res) => {
  * @route PATCH /api/admin/password
  * @data {password, newPassword}: 'String' in Request Body
  * @access Admin
- * ! To be Tested
  */
 exports.editAdminPassword = async (req, res) => {
-	const { password, newPassword } = req.body;
-	const { _id } = req.body;
+	// Collecting Required Data from Request Body and Middleware
+	const { _id } = req.admin;
+	let { password, newPassword } = req.body;
 	try {
-		// TODO: Request body error handling here
+		// Pre Checks
+		password = typeof password === 'string' ? password : false;
+		newPassword = typeof newPassword === 'string' ? newPassword : false;
+		if (!password || !newPassword) {
+			throw new Error(
+				"{password, newPassword} : 'String' is Required in Request Body"
+			);
+		}
 
+		// Finding Admin Account
 		const admin = await Admin.findById(_id);
 		if (!admin) throw new Error('Unable to find admin');
 
+		// Check if old password is the same as new Password
+		const isSamePassword = await admin.authenticatePassword({
+			password: newPassword,
+		});
+		if (isSamePassword)
+			throw new Error('Old Password and New Password cannot be same');
+
+		// Validate Password
+		const validated = await admin.authenticatePassword({ password });
+		if (!validated) throw new Error('Wrong Password');
+
+		// Generate New Password
+		const hashedPassword = await admin.returnHashedPassword({
+			password: newPassword,
+		});
+
+		// Update Password for Admin
+		await admin.updateOne({ password: hashedPassword });
+
+		// Response after successfully updating password
 		return res.status(200).json({
 			message: 'Password Updated Successfully',
 			data: {},
@@ -197,24 +263,28 @@ exports.editAdminPassword = async (req, res) => {
  */
 exports.deleteAdminAccount = async (req, res) => {
 	const { _id } = req.admin;
-	const { password } = req.body;
+	let { password } = req.body;
 	try {
 		// Admin Check
 		const admin = await Admin.findById(_id);
 		if (!admin) throw new Error('Unable to find admin');
 
 		// Password Check
+		password = typeof password === 'string' ? password : false;
 		if (!password)
 			throw new Error(
 				"{password} : 'String' should be there in Request Body."
 			);
-		if (typeof password !== 'string')
-			throw new Error('{password} should be a string.');
+
+		// Validate Password
 		const validated = await admin.authenticatePassword({ password });
 		if (!validated) throw new Error('Wrong Password');
+
+		// Delete Admin Account
 		await admin.delete();
 
 		// Sending Response upon successful deletion of admin account
+		// Clearing Cookie (Essentially Logout Admin)
 		res.clearCookie('adminToken');
 		return res.status(200).json({
 			message: 'Admin Deleted Successfully',

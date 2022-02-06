@@ -2,17 +2,17 @@
 
 require('dotenv').config();
 
-const developmentEnviroNment = process.env.NODE_ENV;
+const developmentEnviroNment = process.env.NODE_ENV || 'development';
 const isProduction = developmentEnviroNment === 'production';
 
-const developmentUri = process.env.DEVELOPMENT_MONGODB_URI;
+const developmentUri = process.env.DEVELOPMENT_MONGODB_URI || 'mongodb://127.0.0.1:27017/SundarClinic';
 const productionUri = process.env.PRODUCTION_MONGODB_URI;
-const connectionUri = isProduction ? productionUri : developmentUri ;
+const connectionUri = isProduction ? productionUri : developmentUri;
 
 const apiKeys = (process.env.API_KEYS || "").split(" ");
 
 module.exports = {
-	port: process.env.PORT,
+	port: process.env.PORT || 8000,
 	apiKeys,
 	isProduction,
 	reactAppUrl: process.env.REACT_APP_URL,
@@ -35,7 +35,7 @@ module.exports = {
 		cookieSecret: process.env.COOKIE_SECRET,
 		superAdminPassword: process.env.SUPER_ADMIN_PASSWORD,
 		superAdminSecret: process.env.SUPER_ADMIN_SECRET,
-		saltRounds: parseInt(process.env.SALT_ROUNDS, 10),
+		saltRounds: parseInt(process.env.SALT_ROUNDS, 10) || 8,
 	},
 	mail: {
 		email: process.env.MAIL_EMAIL,

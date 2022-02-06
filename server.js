@@ -11,6 +11,8 @@ const {
 	secrets: { cookieSecret },
 	reactAppUrl,
 	isProduction,
+	loggingOptions,
+	backendAppUrl,
 } = require('./api/helper/config');
 
 // Importing App Router
@@ -24,15 +26,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser(cookieSecret));
-app.use(logger(isProduction ? 'combined' : 'dev'));
+app.use(logger(loggingOptions));
 app.use(
 	cors({
-		origin: isProduction ? reactAppUrl : `http://localhost:3000`,
+		origin: reactAppUrl,
 		optionsSuccessStatus: 200,
 	})
 );
 
-app.disable("x-powered-by");
+app.disable('x-powered-by');
 
 // Connecting App to MongoDB
 require('./api/helper/database');
@@ -59,5 +61,9 @@ app.use((error, req, res, next) => {
 
 // Run Server
 app.listen(port, () => {
-	console.log(`Server Running at http://localhost:${port}`);
+	console.log(
+		`Server Running at ${
+			isProduction ? backendAppUrl : `http://localhost:${port}`
+		}`
+	);
 });

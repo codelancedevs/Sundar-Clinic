@@ -2,21 +2,36 @@
 
 require('dotenv').config();
 
+// Node Environment
 const developmentEnviroNment = process.env.NODE_ENV || 'development';
 const isProduction = developmentEnviroNment === 'production';
 
-const developmentUri = process.env.DEVELOPMENT_MONGODB_URI || 'mongodb://127.0.0.1:27017/SundarClinic';
+// Database Connections
+const developmentUri =
+	process.env.DEVELOPMENT_MONGODB_URI ||
+	'mongodb://127.0.0.1:27017/SundarClinic';
 const productionUri = process.env.PRODUCTION_MONGODB_URI;
 const connectionUri = isProduction ? productionUri : developmentUri;
 
-const apiKeys = (process.env.API_KEYS || "").split(" ");
+// API Keys
+const apiKeys = (process.env.API_KEYS || '').split(' ');
 
-module.exports = {
+// React App Connection
+const reactAppUrl = isProduction
+	? process.env.REACT_APP_URL || 'http://localhost:3000'
+	: 'http://localhost:3000';
+
+// Logging Options
+const loggingOptions = isProduction ? 'combined' : 'dev';
+
+// Configuration Container
+const configuration = {
 	port: process.env.PORT || 8000,
 	apiKeys,
 	isProduction,
-	reactAppUrl: process.env.REACT_APP_URL,
-	backendAppUrl: process.env.BACKEND_APP_URL,
+	reactAppUrl,
+	loggingOptions,
+	backendAppUrl: process.env.BACKEND_APP_URL || `http://localhost:${port}`,
 	appId: process.env.MONGODB_APP_ID,
 	expireDurations: {
 		tokenExpireAt: 8.64e7,
@@ -42,3 +57,6 @@ module.exports = {
 		password: process.env.MAIL_PASSWORD,
 	},
 };
+
+// Exporting Configuration
+module.exports = configuration;

@@ -140,7 +140,7 @@ exports.createAdmin = async (req, res) => {
  * @access <Access Level>
  * ! To be Tested
  */
-exports.isEmailAvailable = async (req, res) => {};
+exports.isEmailAvailable = async (req, res) => { };
 
 /**
  * @description <Controller description here>
@@ -149,7 +149,7 @@ exports.isEmailAvailable = async (req, res) => {};
  * @access <Access Level>
  * ! To be Tested
  */
-exports.isUsernameAvailable = async (req, res) => {};
+exports.isUsernameAvailable = async (req, res) => { };
 
 /**
  * @description Edit Admin Account Details
@@ -329,7 +329,14 @@ exports.logoutAdmin = async (req, res) => {
 
 // PATIENT RELATED
 
-exports.createNewPatient = async (req, res) => {};
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.createNewPatient = async (req, res) => { };
 
 /**
  * @description <Controller description here>
@@ -338,7 +345,7 @@ exports.createNewPatient = async (req, res) => {};
  * @access <Access Level>
  * ! To be Tested
  */
-exports.fetchAllPatients = async (req, res) => {};
+exports.fetchAllPatients = async (req, res) => { };
 
 /**
  * @description <Controller description here>
@@ -347,7 +354,7 @@ exports.fetchAllPatients = async (req, res) => {};
  * @access <Access Level>
  * ! To be Tested
  */
-exports.fetchPatient = async (req, res) => {};
+exports.fetchPatient = async (req, res) => { };
 
 /**
  * @description <Controller description here>
@@ -356,7 +363,7 @@ exports.fetchPatient = async (req, res) => {};
  * @access <Access Level>
  * ! To be Tested
  */
-exports.deletePatient = async (req, res) => {};
+exports.deletePatient = async (req, res) => { };
 
 /**
  * @description <Controller description here>
@@ -365,4 +372,4 @@ exports.deletePatient = async (req, res) => {};
  * @access <Access Level>
  * ! To be Tested
  */
-exports.searchPatients = async (req, res) => {};
+exports.searchPatients = async (req, res) => { };

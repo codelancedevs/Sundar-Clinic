@@ -8,7 +8,6 @@ const User = require('../user/model');
 
 const patientSchema = new Schema({
 	dateOfBirth: Date,
-	dateOfDeath: Date,
 	maritalStatus: {
 		isMarried: Boolean,
 		marriedTo: { type: Schema.Types.ObjectId, ref: 'User' },
@@ -19,7 +18,7 @@ const patientSchema = new Schema({
 	},
 	gender: {
 		type: String,
-		enum: ['Male', 'Female', 'Other', 'Prefer Not To Say'],
+		enum: ['Male', 'Female', 'Other'],
 	},
 	files: [
 		{
@@ -31,8 +30,98 @@ const patientSchema = new Schema({
 			file: Buffer,
 		},
 	],
+	presentingComplaint: [
+		{
+			date: Date,
+			complaint: String,
+			duration: String,
+		},
+	],
 	history: {
-
+		comorbidity: [
+			{
+				date: Date,
+				diabetic: {
+					isDiabetic: Boolean,
+					details: String,
+				},
+				hypertension: {
+					isHypertension: Boolean,
+					details: String,
+				},
+				heartDisease: {
+					isHeartDisease: Boolean,
+					details: String,
+				},
+				thyroidDisorders: {
+					isThyroidDisorders: Boolean,
+					details: String,
+				},
+				other: {
+					details: String,
+				},
+			},
+		],
+		drug: [
+			{
+				date: Date,
+				details: String,
+			},
+		],
+		allergies: [
+			{
+				date: Date,
+				details: String,
+			},
+		],
+		family: [
+			{
+				date: Date,
+				details: String,
+			},
+		],
+		food: [
+			{
+				date: Date,
+				details: String,
+			},
+		],
+		sanitary: [
+			{
+				date: Date,
+				details: String,
+			},
+		],
+		occupation: [
+			{
+				date: Date,
+				details: String,
+			},
+		],
+		surgical: [
+			{
+				date: Date,
+				details: String,
+			},
+		],
+		pregnancy: [
+			{
+				date: Date,
+				details: String,
+			},
+		],
+		menstrual: [
+			{
+				date: Date,
+				details: String,
+			},
+		],
+		vasectomy: [
+			{
+				date: Date,
+				details: String,
+			},
+		],
 	},
 });
 

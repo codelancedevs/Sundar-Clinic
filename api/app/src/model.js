@@ -11,12 +11,15 @@ const appSchema = new Schema(
 		owner: {
 			name: String,
 			clinic: {
-				doctors: [
-					{
-						name: String,
-						degrees: [{ type: String }],
-					},
-				],
+				doctors: {
+					type: Array,
+					default: [
+						{
+							name: 'Dr. Ekta Bharti',
+							degrees: ['M.B.B.S', 'General Physician'],
+						},
+					],
+				},
 				address: {
 					type: String,
 					default:
@@ -46,6 +49,12 @@ const appSchema = new Schema(
 				type: String,
 				validate: [isURL, 'Requires a valid URL'],
 				default: reactAppUrl,
+			},
+			meta: {
+				isOpenSource: {
+					type: Boolean,
+					default: false,
+				},
 			},
 		},
 		createdBy: {

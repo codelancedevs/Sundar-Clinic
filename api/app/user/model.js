@@ -54,12 +54,15 @@ const userSchema = new Schema(
 		isVerified: {
 			type: Boolean,
 			default: false,
-		}
+		},
+		tosAgreement: {
+			type: Boolean,
+		},
 	},
 	{
 		timestamps: true,
 		strict: true,
-		discriminatorKey: 'role'
+		discriminatorKey: 'role',
 	}
 );
 
@@ -67,6 +70,11 @@ const userSchema = new Schema(
 userSchema.methods.generateHashedPassword = async function () {
 	this.password = await bcrypt.hash(this.password, saltRounds);
 };
+
+userSchema.methods.returnHashedPassword = async function ({ password = '' }) {
+	const hashedPassword = await bcrypt.hash(password, saltRounds);
+	return hashedPassword;
+}
 
 // Create a default avatar for User Instance
 userSchema.methods.createDefaultAvatar = async function () {
@@ -79,7 +87,7 @@ userSchema.methods.createDefaultAvatar = async function () {
 
 // Get JWT Token for a particular User Instance
 userSchema.methods.generateAuthToken = async function () {
-	const secret = this.role === 'admin' ? adminSecret : patientSecret;
+	const secret = this.role === 'Admin' ? adminSecret : patientSecret;
 	const token = jwt.sign({ _id: this._id.toString() }, secret, {
 		expiresIn: tokenExpireAt,
 	});
@@ -109,16 +117,29 @@ userSchema.methods.authenticatePassword = async function ({ password }) {
 		const isUserPassword = await bcrypt.compare(password, this.password);
 		return isUserPassword;
 	} catch (error) {
-		console.log(error)
+		console.log(error);
 	}
 };
 
-// Sanitize User Details 
+// Sanitize User Details
 userSchema.methods.sanitizeAndReturnUser = function () {
 	const user = this.toObject();
 	delete user.password;
+	delete user.__v;
 	return user;
-}
+};
+
+// Create a token to allow user to verify their account
+userSchema.methods.generateVerifyAuthToken = function () { };
+
+// Authenticate Verify Account Token
+userSchema.methods.authenticateVerifyAuthToken = function () { };
+
+// Create a token to allow user to reset their password
+userSchema.methods.generateResetPasswordAuthToken = function () { };
+
+// Authenticate Reset Password Token
+userSchema.methods.authenticateResetPasswordAuthToken = function () { };
 
 // Authenticate a User Token using Model Method
 userSchema.statics.authenticateAdminAuthToken = async function ({ token }) {

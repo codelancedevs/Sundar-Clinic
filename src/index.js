@@ -21,7 +21,7 @@ class SundarClinicSDK {
 				throw new Error(
 					`API Key should be string, cannot be ${typeof key}`
 				);
-			axios.default.defaults.headers.common['X-API-Key'] = key;
+			axios.defaults.headers.common['X-API-Key'] = key;
 			await isValidatedApi(axios);
 		};
 

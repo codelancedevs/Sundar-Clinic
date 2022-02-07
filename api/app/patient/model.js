@@ -125,6 +125,8 @@ const patientSchema = new Schema({
 	},
 });
 
+patientSchema.methods.adminAccess = function ({ mode = '', options = {} }) {};
+
 // Inheriting User Model as Admin
 const Patient = User.discriminator('Patient', patientSchema);
 

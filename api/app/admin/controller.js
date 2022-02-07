@@ -163,11 +163,11 @@ exports.editAdminDetails = async (req, res) => {
 	let { fullName, username, email, phone, address } = req.body;
 	try {
 		// Pre Checks
-		fullName = typeof fullName !== 'string' ? '' : fullName;
-		username = typeof username !== 'string' ? '' : username;
-		email = typeof email !== 'string' ? '' : email;
-		phone = typeof phone !== 'string' ? '' : phone;
-		address = typeof address !== 'string' ? '' : address;
+		fullName = typeof fullName === 'string' ? fullName : false;
+		username = typeof username === 'string' ? username : false;
+		email = typeof email === 'string' ? email : false;
+		phone = typeof phone === 'string' ? phone : false;
+		address = typeof address === 'string' ? address : false;
 
 		// Finding Admin
 		const admin = await Admin.findById(_id);

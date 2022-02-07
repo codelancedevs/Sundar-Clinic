@@ -1,3 +1,5 @@
-"use strict";
+'use strict';
 
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer');
+
+module.exports = {};

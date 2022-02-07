@@ -71,6 +71,7 @@ userSchema.methods.generateHashedPassword = async function () {
 	this.password = await bcrypt.hash(this.password, saltRounds);
 };
 
+// Return a hashed password
 userSchema.methods.returnHashedPassword = async function ({ password = '' }) {
 	const hashedPassword = await bcrypt.hash(password, saltRounds);
 	return hashedPassword;

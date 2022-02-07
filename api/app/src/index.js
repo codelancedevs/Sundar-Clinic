@@ -1,9 +1,11 @@
+/**
+ * Application Router Hub
+ */
+
 'use strict';
 
-// Importing Router
+// Dependencies
 const Router = require('express').Router();
-
-// Importing All Routers
 const routerHub = require('./routes');
 
 // Using Router

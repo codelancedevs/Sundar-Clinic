@@ -1,5 +1,10 @@
+/**
+ * User Controllers
+ */
+
 'use strict';
 
+// Dependencies
 const User = require('./model');
 const { isEmail } = require('validator');
 

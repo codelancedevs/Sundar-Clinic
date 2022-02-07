@@ -1,6 +1,9 @@
+/**
+ * Application Routes
+ */
 'use strict';
 
-// Importing Packages
+// Dependencies
 const Router = require('express').Router();
 const { authAdmin, authApiKey } = require('../../helper/middleware');
 

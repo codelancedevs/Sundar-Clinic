@@ -1,5 +1,10 @@
+/**
+ * User Routes Hub
+ */
+
 'use strict';
 
+// Dependencies
 const Router = require('express').Router();
 const userRouter = require('./routes');
 

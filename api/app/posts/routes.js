@@ -1,6 +1,10 @@
+/**
+ * Posts Routes
+ */
+
 'use strict';
 
-// Importing Packages
+// Dependencies
 const Router = require('express').Router();
 const { authAdmin } = require('../../helper/middleware');
 const postsController = require('./controller');

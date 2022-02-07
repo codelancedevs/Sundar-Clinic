@@ -1,6 +1,10 @@
+/**
+ * Patient Model
+ */
+
 'use strict';
 
-// Importing Packages
+// Dependencies
 const { Schema } = require('mongoose');
 const User = require('../user/model');
 

@@ -1,5 +1,10 @@
+/**
+ * Patient Routes
+ */
 
-"use strict";
+'use strict';
+
+// Dependencies
 const Router = require('express').Router();
 const { authPatient } = require('../../helper/middleware');
 const patientController = require('./controller');
@@ -8,14 +13,13 @@ const patientController = require('./controller');
     UNAUTHENTICATED ROUTES
 ================================ */
 
-Router.post('/login', patientController.loginPatient);
-
 Router.post('/create', patientController.createPatient);
+
+Router.post('/login', patientController.loginPatient);
 
 /* ================================
 AUTHENTICATED ROUTES
 ================================ */
-
 
 Router.patch('/details', authPatient, patientController.editPatientDetails);
 

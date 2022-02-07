@@ -1,6 +1,10 @@
+/**
+ * Posts Hub
+ */
+
 'use strict';
 
-// Importing Packages
+// Dependencies
 const Router = require('express').Router();
 const postsRouter = require('./routes');
 

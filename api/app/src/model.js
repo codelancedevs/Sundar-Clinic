@@ -1,6 +1,10 @@
+/**
+ * Application Model
+ */
+
 'use strict';
 
-// Importing Packages
+// Dependencies
 const { Schema, model } = require('mongoose');
 const { isEmail, isURL, isMobilePhone } = require('validator');
 const { reactAppUrl, appId } = require('../../helper/config');

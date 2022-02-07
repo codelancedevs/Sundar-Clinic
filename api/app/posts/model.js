@@ -1,6 +1,10 @@
+/**
+ * Posts Model
+ */
+
 'use strict';
 
-// Importing Packages
+// Dependencies
 const { Schema, model, SchemaTypes } = require('mongoose');
 
 // Creating Posts schema

@@ -1,5 +1,10 @@
+/**
+ * Admin Controllers
+ */
+
 'use strict';
 
+// Dependencies
 const { isEmail, isStrongPassword } = require('validator');
 const Admin = require('./model');
 const Patient = require('../patient/model');
@@ -19,13 +24,17 @@ const {
  */
 exports.loginAdmin = async (req, res) => {
 	// Collecting Required Data from Request Data
-	const { email, password } = req.body;
+	let { email, password } = req.body;
 	try {
-		// Pre Checks
+		// Type Check
+		email = typeof email === 'string' ? email : false;
+		password = typeof password === 'string' ? password : false;
 		if (!email || !password)
 			throw new Error(
 				"{email, password} : 'String' required in Request body"
 			);
+
+		// Details Validity Check
 		if (!isEmail(email)) throw new Error('Given email is not valid');
 
 		// Finding Admin From Database
@@ -77,24 +86,22 @@ exports.loginAdmin = async (req, res) => {
  */
 exports.createAdmin = async (req, res) => {
 	// Collecting Required Data from Request Body and Middleware
-	const { fullName, email, password, tosAgreement } = req.body;
+	let { fullName, email, password, tosAgreement } = req.body;
 	const isSuperAdminAuthenticated = req.superAdminAuthenticated;
 	try {
-		// Pre Checks
+		// Type Check
 		if (!isSuperAdminAuthenticated)
 			throw new Error('Requires Super Admin Auth');
+		fullName = typeof fullName === 'string' ? fullName : false;
+		email = typeof email === 'string' ? email : false;
+		password = typeof password === 'string' ? password : false;
+		tosAgreement = typeof tosAgreement === 'boolean' ? tosAgreement : false;
 		if (!fullName || !email || !password)
 			throw new Error(
 				"{fullName, email, password, tosAgreement: 'Boolean'} ; 'String' are required in the Request Body"
 			);
-		if (typeof fullName !== 'string')
-			throw new Error('{fullName} should be a string');
-		if (typeof email !== 'string')
-			throw new Error('{email} should be a string');
-		if (typeof password !== 'string')
-			throw new Error('{password} should be a string');
-		if (typeof tosAgreement !== 'boolean')
-			throw new Error('{tosAgreement} should be a boolean');
+
+		// Details Validity Check
 		if (!isEmail(email)) throw new Error('Given Email is not valid');
 		if (!isStrongPassword(password))
 			throw new Error('Password is not strong enough');
@@ -140,7 +147,7 @@ exports.createAdmin = async (req, res) => {
  * @access <Access Level>
  * ! To be Tested
  */
-exports.isEmailAvailable = async (req, res) => { };
+exports.isEmailAvailable = async (req, res) => {};
 
 /**
  * @description <Controller description here>
@@ -149,7 +156,7 @@ exports.isEmailAvailable = async (req, res) => { };
  * @access <Access Level>
  * ! To be Tested
  */
-exports.isUsernameAvailable = async (req, res) => { };
+exports.isUsernameAvailable = async (req, res) => {};
 
 /**
  * @description Edit Admin Account Details
@@ -162,13 +169,6 @@ exports.editAdminDetails = async (req, res) => {
 	const { _id } = req.admin;
 	let { fullName, username, email, phone, address } = req.body;
 	try {
-		// Pre Checks
-		fullName = typeof fullName === 'string' ? fullName : false;
-		username = typeof username === 'string' ? username : false;
-		email = typeof email === 'string' ? email : false;
-		phone = typeof phone === 'string' ? phone : false;
-		address = typeof address === 'string' ? address : false;
-
 		// Finding Admin
 		const admin = await Admin.findById(_id);
 		if (!admin) throw new Error('Unable to find admin');
@@ -262,6 +262,7 @@ exports.editAdminPassword = async (req, res) => {
  * @access Admin
  */
 exports.deleteAdminAccount = async (req, res) => {
+	// Collecting Required Data from Request Body and Middleware
 	const { _id } = req.admin;
 	let { password } = req.body;
 	try {
@@ -306,6 +307,7 @@ exports.deleteAdminAccount = async (req, res) => {
  * @access Admin
  */
 exports.logoutAdmin = async (req, res) => {
+	// Collecting Required Data from Middleware
 	const { _id } = req.admin;
 	try {
 		// Admin Check
@@ -336,7 +338,7 @@ exports.logoutAdmin = async (req, res) => {
  * @access <Access Level>
  * ! To be Tested
  */
-exports.createNewPatient = async (req, res) => { };
+exports.createNewPatient = async (req, res) => {};
 
 /**
  * @description <Controller description here>
@@ -345,7 +347,7 @@ exports.createNewPatient = async (req, res) => { };
  * @access <Access Level>
  * ! To be Tested
  */
-exports.fetchAllPatients = async (req, res) => { };
+exports.fetchAllPatients = async (req, res) => {};
 
 /**
  * @description <Controller description here>
@@ -354,7 +356,7 @@ exports.fetchAllPatients = async (req, res) => { };
  * @access <Access Level>
  * ! To be Tested
  */
-exports.fetchPatient = async (req, res) => { };
+exports.fetchPatient = async (req, res) => {};
 
 /**
  * @description <Controller description here>
@@ -363,7 +365,7 @@ exports.fetchPatient = async (req, res) => { };
  * @access <Access Level>
  * ! To be Tested
  */
-exports.deletePatient = async (req, res) => { };
+exports.deletePatient = async (req, res) => {};
 
 /**
  * @description <Controller description here>
@@ -372,4 +374,4 @@ exports.deletePatient = async (req, res) => { };
  * @access <Access Level>
  * ! To be Tested
  */
-exports.searchPatients = async (req, res) => { };
+exports.searchPatients = async (req, res) => {};

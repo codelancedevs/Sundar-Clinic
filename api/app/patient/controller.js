@@ -145,7 +145,7 @@ exports.loginPatient = async (req, res) => {
  * @access <Access Level>
  * ! To be Tested
  */
-exports.editPatientDetails = async (req, res) => { };
+exports.editPatientAccountDetails = async (req, res) => {};
 
 /**
  * @description <Controller description here>
@@ -154,7 +154,7 @@ exports.editPatientDetails = async (req, res) => { };
  * @access <Access Level>
  * ! To be Tested
  */
-exports.editPatientPassword = async (req, res) => { };
+exports.editPatientGeneralDetails = async (req, res) => {};
 
 /**
  * @description <Controller description here>
@@ -163,7 +163,7 @@ exports.editPatientPassword = async (req, res) => { };
  * @access <Access Level>
  * ! To be Tested
  */
-exports.deletePatientAccount = async (req, res) => { };
+exports.editPatientPassword = async (req, res) => {};
 
 /**
  * @description <Controller description here>
@@ -172,4 +172,114 @@ exports.deletePatientAccount = async (req, res) => { };
  * @access <Access Level>
  * ! To be Tested
  */
-exports.logoutPatient = async (req, res) => { };
+exports.deletePatientAccount = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.logoutPatient = async (req, res) => {};
+
+// Patient History Editing
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.updateComorbidityDetails = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.updateDrugDetails = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.updateAllergiesDetails = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.updateFamilyDetails = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.updateFoodDetails = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.updateSanitaryDetails = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.updateOccupationDetails = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.updateSurgicalDetails = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.updatePregnancyDetails = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.updateMenstrualDetails = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.updateVasectomyDetails = async (req, res) => {};

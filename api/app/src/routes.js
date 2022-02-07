@@ -24,7 +24,7 @@ Router.use('/api/patient', patientRouter);
 Router.use('/api/post', postsRouter);
 
 /* ================================
-    UNAUTHENTICATED ROUTES
+	UNAUTHENTICATED ROUTES
 ================================ */
 
 Router.get('/', indexController.sendSiteDetails);
@@ -34,19 +34,11 @@ Router.get('/index', indexController.redirectToIndex);
 Router.get('/verifyApiKey', indexController.verifyApiKey);
 
 /* ================================
-    AUTHENTICATED ROUTES
+	AUTHENTICATED ROUTES
 ================================ */
 
-Router.patch(
-	'/api/app/ownerDetails',
-	authAdmin,
-	indexController.editOwnerDetails
-);
+Router.patch('/api/app/ownerDetails', authAdmin, indexController.editOwnerDetails);
 
-Router.patch(
-	'/api/app/siteDetails',
-	authAdmin,
-	indexController.editSiteDetails
-);
+Router.patch('/api/app/siteDetails', authAdmin, indexController.editSiteDetails);
 
 module.exports = Router;

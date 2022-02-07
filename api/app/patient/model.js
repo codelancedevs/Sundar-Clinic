@@ -1,6 +1,10 @@
+/**
+ * Patient Model
+ */
+
 'use strict';
 
-// Importing Packages
+// Dependencies
 const { Schema } = require('mongoose');
 const User = require('../user/model');
 
@@ -124,6 +128,8 @@ const patientSchema = new Schema({
 		],
 	},
 });
+
+patientSchema.methods.adminAccess = function ({ mode = '', options = {} }) {};
 
 // Inheriting User Model as Admin
 const Patient = User.discriminator('Patient', patientSchema);

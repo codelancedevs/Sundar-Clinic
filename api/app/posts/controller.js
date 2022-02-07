@@ -1,5 +1,10 @@
+/**
+ * Posts Controllers
+ */
+
 'use strict';
 
+// Dependencies
 const Post = require('./model');
 
 /* ================================

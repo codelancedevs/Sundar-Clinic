@@ -1,5 +1,10 @@
+/**
+ * App Configuration
+ */
+
 'use strict';
 
+// Dependencies
 require('dotenv').config();
 
 // Node Environment

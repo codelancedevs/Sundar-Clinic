@@ -1,5 +1,10 @@
+/**
+ * Common function to be used in application
+ */
+
 'use strict';
 
+// Dependencies
 const jwt = require('jsonwebtoken');
 const {
 	expireDurations: {

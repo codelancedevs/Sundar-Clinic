@@ -1,6 +1,10 @@
+/**
+ * User Model
+ */
+
 'use strict';
 
-// Importing Packages
+// Dependencies
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -71,10 +75,11 @@ userSchema.methods.generateHashedPassword = async function () {
 	this.password = await bcrypt.hash(this.password, saltRounds);
 };
 
+// Return a hashed password
 userSchema.methods.returnHashedPassword = async function ({ password = '' }) {
 	const hashedPassword = await bcrypt.hash(password, saltRounds);
 	return hashedPassword;
-}
+};
 
 // Create a default avatar for User Instance
 userSchema.methods.createDefaultAvatar = async function () {
@@ -130,16 +135,16 @@ userSchema.methods.sanitizeAndReturnUser = function () {
 };
 
 // Create a token to allow user to verify their account
-userSchema.methods.generateVerifyAuthToken = function () { };
+userSchema.methods.generateVerifyAuthToken = function () {};
 
 // Authenticate Verify Account Token
-userSchema.methods.authenticateVerifyAuthToken = function () { };
+userSchema.methods.authenticateVerifyAuthToken = function () {};
 
 // Create a token to allow user to reset their password
-userSchema.methods.generateResetPasswordAuthToken = function () { };
+userSchema.methods.generateResetPasswordAuthToken = function () {};
 
 // Authenticate Reset Password Token
-userSchema.methods.authenticateResetPasswordAuthToken = function () { };
+userSchema.methods.authenticateResetPasswordAuthToken = function () {};
 
 // Authenticate a User Token using Model Method
 userSchema.statics.authenticateAdminAuthToken = async function ({ token }) {

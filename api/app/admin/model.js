@@ -1,6 +1,10 @@
+/**
+ * Admin Model
+ */
+
 'use strict';
 
-// Importing packages
+// Dependencies
 const { Schema, model } = require('mongoose');
 const User = require('../user/model');
 

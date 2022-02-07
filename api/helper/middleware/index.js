@@ -1,6 +1,10 @@
+/**
+ * Application Middleware
+ */
+
 'use strict';
 
-// Importing Packages
+// Dependencies
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Admin = require('../../app/admin/model');

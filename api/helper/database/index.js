@@ -1,7 +1,14 @@
+/**
+ * Database Connection Setup
+ */
+
 'use strict';
 
+// Dependencies
 const mongoose = require('mongoose');
-const { mongoDb: { connectionUri} } = require('../config');
+const {
+	mongoDb: { connectionUri },
+} = require('../config');
 
 const connectToDatabase = async () => {
 	try {
@@ -15,4 +22,4 @@ const connectToDatabase = async () => {
 	}
 };
 
-await connectToDatabase();
+connectToDatabase();

@@ -1,6 +1,6 @@
 'use strict';
 
-// Importing Packages
+// Dependencies
 const Router = require('express').Router();
 const { authAdmin, authSuperAdmin } = require('../../helper/middleware');
 const adminController = require('./controller');

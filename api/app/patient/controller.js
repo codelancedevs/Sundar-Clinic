@@ -145,6 +145,24 @@ exports.loginPatient = async (req, res) => {
  * @access <Access Level>
  * ! To be Tested
  */
+exports.patientEmailAvailable = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.patientUsernameAvailable = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
 exports.editPatientAccountDetails = async (req, res) => {};
 
 /**
@@ -166,120 +184,103 @@ exports.editPatientGeneralDetails = async (req, res) => {};
 exports.editPatientPassword = async (req, res) => {};
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
+ * @description Delete Patient Account
+ * @route DELETE /api/patient/delete
+ * @data {password: 'String'} in Request Body
+ * @access Patient
  */
-exports.deletePatientAccount = async (req, res) => {};
+exports.deletePatientAccount = async (req, res) => {
+	// Collecting Required Data from Request Body and Middleware
+	const { _id } = req.patient;
+	let { password } = req.body;
+	try {
+		// Patient Check
+		const patient = await Patient.findById(_id);
+		if (!patient) throw new Error('Unable to find patient');
+
+		// Password Check
+		password = typeof password === 'string' ? password : false;
+		if (!password)
+			throw new Error(
+				"{password} : 'String' should be there in Request Body."
+			);
+
+		// Validate Password
+		const validated = await patient.authenticatePassword({ password });
+		if (!validated) throw new Error('Wrong Password');
+
+		// Delete Patient Account
+		await patient.delete();
+
+		// Sending Response upon successful deletion of patient account
+		// Clearing Cookie (Essentially Logout Patient)
+		res.clearCookie('patientToken');
+		return res.status(200).json({
+			message: 'Patient Deleted Successfully',
+			data: {},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
+ * @description Logout Patient by Clearing token
+ * @route POST /api/patient/logout
+ * @data No date to be passed
+ * @access Patient
  */
-exports.logoutPatient = async (req, res) => {};
+exports.logoutPatient = async (req, res) => {
+	// Collecting Required Data from Middleware
+	const { _id } = req.patient;
+	try {
+		// Patient Check
+		const patient = await Patient.findById(_id);
+		if (!patient) throw new Error('Unable to find patient');
+
+		// Respond with Logout
+		res.clearCookie('patientToken');
+		return res.status(200).json({
+			message: 'Logged Out Successfully',
+			data: {},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 // Patient History Editing
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
+ * @description Update Patient History
+ * @route PATCH /api/patient/history
+ * @data {historyFor: 'String', _id: 'String', details: 'Object'} in the Request Body
+ * @access Patient
  * ! To be Tested
  */
-exports.updateComorbidityDetails = async (req, res) => {};
-
-/**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.updateDrugDetails = async (req, res) => {};
-
-/**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.updateAllergiesDetails = async (req, res) => {};
-
-/**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.updateFamilyDetails = async (req, res) => {};
-
-/**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.updateFoodDetails = async (req, res) => {};
-
-/**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.updateSanitaryDetails = async (req, res) => {};
-
-/**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.updateOccupationDetails = async (req, res) => {};
-
-/**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.updateSurgicalDetails = async (req, res) => {};
-
-/**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.updatePregnancyDetails = async (req, res) => {};
-
-/**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.updateMenstrualDetails = async (req, res) => {};
-
-/**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.updateVasectomyDetails = async (req, res) => {};
+exports.updateHistoryDetails = async (req, res) => {
+	// Collecting Required data from Request Body and Middleware
+	const { _id } = req.patient;
+	const { historyFor, details } = req.body;
+	try {
+		await Patient.updateHistoryDetails({ historyFor, _id, details });
+		return res.status(200).json({
+			message: `History for ${historyFor} Updated Successfully`,
+			data: { ...details },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};

@@ -21,6 +21,7 @@ const appSchema = new Schema(
 						{
 							name: 'Dr. Ekta Bharti',
 							degrees: ['M.B.B.S', 'General Physician'],
+							registrationNo: '68812',
 						},
 					],
 				},
@@ -99,4 +100,5 @@ const App = model('App', appSchema);
 
 module.exports = App;
 
+// Create Application Instance in Database if not created already.
 createApp({ id: appId, App });

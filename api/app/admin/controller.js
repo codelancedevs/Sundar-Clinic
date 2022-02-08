@@ -147,7 +147,7 @@ exports.createAdmin = async (req, res) => {
  * @access <Access Level>
  * ! To be Tested
  */
-exports.isEmailAvailable = async (req, res) => {};
+exports.adminEmailAvailable = async (req, res) => {};
 
 /**
  * @description <Controller description here>
@@ -156,7 +156,7 @@ exports.isEmailAvailable = async (req, res) => {};
  * @access <Access Level>
  * ! To be Tested
  */
-exports.isUsernameAvailable = async (req, res) => {};
+exports.adminUsernameAvailable = async (req, res) => {};
 
 /**
  * @description Edit Admin Account Details
@@ -182,7 +182,7 @@ exports.editAdminDetails = async (req, res) => {
 			phone: phone || admin.phone,
 			address: address || admin.address,
 		};
-		await Admin.updateOne({ _id }, { ...details });
+		await admin.updateOne({ ...details });
 
 		// Response after all updating all admin details
 		return res.status(200).json({
@@ -301,7 +301,7 @@ exports.deleteAdminAccount = async (req, res) => {
 };
 
 /**
- * @description Logout Admin
+ * @description Logout Admin by Clearing token
  * @route POST /api/admin/logout
  * @data No data to be passed
  * @access Admin

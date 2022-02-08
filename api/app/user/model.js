@@ -146,6 +146,14 @@ userSchema.methods.generateResetPasswordAuthToken = function () {};
 // Authenticate Reset Password Token
 userSchema.methods.authenticateResetPasswordAuthToken = function () {};
 
+// Create a random Password for the user
+userSchema.statics.createRandomPassword = function ({ fullName = '' }) {
+	const password = `${fullName.split(' ').join('')}@${Math.floor(
+		Math.random() * fullName.length
+	)}`;
+	return password;
+};
+
 // Authenticate a User Token using Model Method
 userSchema.statics.authenticateAdminAuthToken = async function ({ token }) {
 	const secret = this.role === 'admin' ? adminSecret : patientSecret;

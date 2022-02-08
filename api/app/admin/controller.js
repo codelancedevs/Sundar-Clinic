@@ -147,7 +147,7 @@ exports.createAdmin = async (req, res) => {
  * @access <Access Level>
  * ! To be Tested
  */
-exports.isEmailAvailable = async (req, res) => {};
+exports.adminEmailAvailable = async (req, res) => {};
 
 /**
  * @description <Controller description here>
@@ -156,7 +156,7 @@ exports.isEmailAvailable = async (req, res) => {};
  * @access <Access Level>
  * ! To be Tested
  */
-exports.isUsernameAvailable = async (req, res) => {};
+exports.adminUsernameAvailable = async (req, res) => {};
 
 /**
  * @description Edit Admin Account Details
@@ -182,7 +182,7 @@ exports.editAdminDetails = async (req, res) => {
 			phone: phone || admin.phone,
 			address: address || admin.address,
 		};
-		await Admin.updateOne({ _id }, { ...details });
+		await admin.updateOne({ ...details });
 
 		// Response after all updating all admin details
 		return res.status(200).json({
@@ -301,7 +301,7 @@ exports.deleteAdminAccount = async (req, res) => {
 };
 
 /**
- * @description Logout Admin
+ * @description Logout Admin by Clearing token
  * @route POST /api/admin/logout
  * @data No data to be passed
  * @access Admin
@@ -332,46 +332,174 @@ exports.logoutAdmin = async (req, res) => {
 // PATIENT RELATED
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
+ * @description Admin can create a new Patient
+ * @route POST /api/admin/patient-create
+ * @data {fullName, email, tosAgreement: 'Boolean'}: 'String' in Request body
+ * @access Admin
+ * ? Add Feature to Email the Password to Patient after successful acount creation
  */
-exports.createNewPatient = async (req, res) => {};
+exports.createNewPatient = async (req, res) => {
+	// Collecting Required Data from Request Body
+	let { fullName, email, tosAgreement } = req.body;
+	try {
+		// Type Check
+		fullName = typeof fullName === 'string' ? fullName : false;
+		email = typeof email === 'string' ? email : false;
+		tosAgreement = typeof tosAgreement === 'boolean' ? tosAgreement : false;
+		if (!fullName || !email) {
+			throw new Error(
+				"{fullName, email} : 'String' and {tosAgreement} : 'Boolean' are required in Request Body"
+			);
+		}
+		// Details Check
+		if (!isEmail(email)) throw new Error('{email} should be valid!');
+		if (!tosAgreement) {
+			throw new Error(
+				'Cannot create account without agreeing to Terms of Service'
+			);
+		}
+
+		// Creating New Patient
+		const password = Patient.createRandomPassword({ fullName });
+		const patientDetails = {
+			fullName,
+			email,
+			password,
+			tosAgreement,
+		};
+		const patient = await Patient({ ...patientDetails });
+		await patient.save();
+
+		patientDetails._id = patient._id;
+		// Response Upon Successful creation of patient by admin
+		// Sending Password to share with Patient
+		// ? Can Later be implemented to send the password directly to Patient as well
+		return res.status(200).json({
+			message: 'Patient Created Successfully',
+			data: {
+				patient: patientDetails,
+			},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
+ * @description Get all Patients
+ * @route GET /api/admin/patient?_id=<patient id>&searchByFullName=<patient name>
+ * @data No data required for all patients or specify {_id} in Request Query for specific user, search patients if {searchByFullName} is present Request Query
+ * @access Admin
  */
-exports.fetchAllPatients = async (req, res) => {};
+exports.fetchPatients = async (req, res) => {
+	// Collecting Required Data from Request Query
+	let { _id, searchByFullName } = req.query;
+	try {
+		// Checking Request Type
+		_id = typeof _id === 'string' ? _id : false;
+		searchByFullName =
+			typeof searchByFullName === 'string' ? searchByFullName : false;
+
+		// Patients Container
+		const patients = [];
+
+		if (searchByFullName) {
+			const searchedPatients = await Patient.find({
+				fullName: { $regex: searchByFullName, $options: 'i' },
+			});
+			patients.push(...searchedPatients);
+		} else {
+			if (_id) {
+				const patient = await Patient.findById(_id);
+				if (!patient) throw new Error('Unable to find Patient');
+				patients.push(patient.sanitizeAndReturnUser());
+			} else {
+				// Getting all patients
+				const allPatients = await Patient.getAllPatients();
+				patients.push(...allPatients);
+			}
+		}
+
+		// Response with all Patients
+		return res.status(200).json({
+			message: 'Successful response message',
+			data: { patients },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
+ * @description Admin can edit Patient History
+ * @route PATCH /api/admin/patient-history
+ * @data {historyFor: 'String', _id: 'String', details: 'Object'} in the Request Body
+ * @access Admin
  */
-exports.fetchPatient = async (req, res) => {};
+exports.editPatientHistory = async (req, res) => {
+	// Collecting Required Data from Request Body
+	const { _id, historyFor, details } = req.body;
+	try {
+		await Patient.updateHistoryDetails({
+			historyFor,
+			_id,
+			details,
+		});
+
+		// Response Upon Successful History Update
+		return res.status(200).json({
+			message: `History for ${historyFor} Updated Successfully`,
+			data: { ...details },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
+ * @description Admin Can delete a Patient
+ * @route DELETE /api/admin/patient-delete
+ * @data {_id} : 'String' Patient Id in the Request Body
+ * @access Admin
+ * ? Add Feature To Email Patient When Account is deleted
  */
-exports.deletePatient = async (req, res) => {};
+exports.deletePatient = async (req, res) => {
+	// Collecting Required Data from Request Body
+	let { _id } = req.body;
+	try {
+		// Type Check
+		_id = typeof _id === 'string' ? _id : false;
+		if (!_id)
+			throw new Error("{_id} : 'String' should be there in Request Body");
 
-/**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.searchPatients = async (req, res) => {};
+		// Delete Patient
+		Patient.findByIdAndDelete(_id).exec((err, data) => {
+			if (!err) throw new Error('Unable to find Patient');
+		});
+
+		// Response after successfully deleting patient account
+		// ? Implement Feature to Email Patient that account has been deleted
+		return res.status(200).json({
+			message: 'Patient Account Deleted Successfully',
+			data: {},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};

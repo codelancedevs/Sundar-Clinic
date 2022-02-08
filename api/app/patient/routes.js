@@ -21,12 +21,18 @@ Router.post('/login', patientController.loginPatient);
 AUTHENTICATED ROUTES
 ================================ */
 
-Router.patch('/details', authPatient, patientController.editPatientDetails);
+Router.patch('/accountDetails', authPatient, patientController.editPatientAccountDetails);
+
+Router.patch('/generalDetails', authPatient, patientController.editPatientGeneralDetails);
 
 Router.patch('/password', authPatient, patientController.editPatientPassword);
 
 Router.post('/logout', authPatient, patientController.logoutPatient);
 
 Router.delete('/delete', authPatient, patientController.deletePatientAccount);
+
+// Patient History Route
+
+Router.patch('/history', authPatient, patientController.updateHistoryDetails);
 
 module.exports = Router;

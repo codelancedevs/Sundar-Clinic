@@ -37,6 +37,7 @@ const patientSchema = new Schema({
 	],
 	presentingComplaint: [
 		{
+			_id: false,
 			date: Date,
 			complaint: String,
 			duration: String,
@@ -45,6 +46,7 @@ const patientSchema = new Schema({
 	history: {
 		comorbidity: [
 			{
+				_id: false,
 				date: Date,
 				diabetic: {
 					isDiabetic: Boolean,
@@ -69,60 +71,70 @@ const patientSchema = new Schema({
 		],
 		drug: [
 			{
+				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		allergies: [
 			{
+				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		family: [
 			{
+				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		food: [
 			{
+				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		sanitary: [
 			{
+				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		occupation: [
 			{
+				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		surgical: [
 			{
+				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		pregnancy: [
 			{
+				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		menstrual: [
 			{
+				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		vasectomy: [
 			{
+				_id: false,
 				date: Date,
 				details: String,
 			},
@@ -149,61 +161,31 @@ patientSchema.statics.updateHistoryDetails = async function ({
 	const patient = await Patient.findById(_id);
 	if (!patient) throw new Error('Unable to find patient');
 
+	const historyKeys = [
+		'comorbidity',
+		'drug',
+		'allergies',
+		'family',
+		'food',
+		'sanitary',
+		'occupation',
+		'surgical',
+		'pregnancy',
+		'menstrual',
+		'vasectomy',
+	];
+
+	if (!historyKeys.includes(historyFor))
+		throw new Error(
+			`History key is wrong, should include ${historyKeys.join(', ')}`
+		);
+
 	// Updating details for Current date.
 	details.date = Date.now();
 
-	// Updating History for specified case;
-	switch (historyFor) {
-		case 'comorbidity': {
-			patient.updateOne({ 'history.comorbidity': { ...details } });
-			break;
-		}
-		case 'drug': {
-			patient.updateOne({ 'history.drug': { ...details } });
-			break;
-		}
-		case 'allergies': {
-			patient.updateOne({ 'history.allergies': { ...details } });
-			break;
-		}
-		case 'family': {
-			patient.updateOne({ 'history.family': { ...details } });
-			break;
-		}
-		case 'food': {
-			patient.updateOne({ 'history.food': { ...details } });
-			break;
-		}
-		case 'sanitary': {
-			patient.updateOne({ 'history.sanitary': { ...details } });
-			break;
-		}
-		case 'occupation': {
-			patient.updateOne({ 'history.occupation': { ...details } });
-			break;
-		}
-		case 'surgical': {
-			patient.updateOne({ 'history.surgical': { ...details } });
-			break;
-		}
-		case 'pregnancy': {
-			patient.updateOne({ 'history.pregnancy': { ...details } });
-			break;
-		}
-		case 'menstrual': {
-			patient.updateOne({ 'history.menstrual': { ...details } });
-			break;
-		}
-		case 'vasectomy': {
-			patient.updateOne({ 'history.vasectomy': { ...details } });
-			break;
-		}
-		default: {
-			throw new Error(
-				"{historyFor: 'String'} should be a valid history key."
-			);
-		}
-	}
+	await patient.updateOne({
+		$push: { [`history.${historyFor}`]: { ...details } },
+	});
 };
 
 // Inheriting User Model as Admin

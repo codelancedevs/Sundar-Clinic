@@ -271,7 +271,7 @@ exports.updateHistoryDetails = async (req, res) => {
 	const { _id } = req.patient;
 	const { historyFor, details } = req.body;
 	try {
-		await Patient.updateHistoryDetails({ historyFor, _id, details });
+		await Patient.updateHistoryDetails({ historyFor, _id: _id.toString(), details });
 		return res.status(200).json({
 			message: `History for ${historyFor} Updated Successfully`,
 			data: { ...details },

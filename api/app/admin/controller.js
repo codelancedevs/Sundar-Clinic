@@ -332,13 +332,56 @@ exports.logoutAdmin = async (req, res) => {
 // PATIENT RELATED
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
+ * @description Admin can create a new Patient
+ * @route POST /api/admin/patient-create
+ * @data {fullName, email, tosAgreement: 'Boolean'}: 'String' in Request body
+ * @access Admin
  * ! To be Tested
  */
-exports.createNewPatient = async (req, res) => {};
+exports.createNewPatient = async (req, res) => {
+	// Collecting Required Data from Request Body
+	let { fullName, email, tosAgreement } = req.body;
+	try {
+		// Type Check
+		fullName = typeof fullName === 'string' ? fullName : false;
+		email = typeof email === 'string' ? email : false;
+		tosAgreement = typeof tosAgreement === 'boolean' ? tosAgreement : false;
+		if (!fullName || !email) {
+			throw new Error(
+				"{fullName, email} : 'String' and {tosAgreement} are required in Request Body"
+			);
+		}
+		if (!tosAgreement) {
+			throw new Error(
+				'Cannot create account without agreeing to Terms of Service'
+			);
+		}
+
+		// Creating New Patient
+		const password = Patient.createRandomPassword({ fullName });
+		const patientDetails = {
+			fullName,
+			email,
+			password,
+			tosAgreement,
+		};
+		const patient = await Patient({ ...patientDetails });
+		await patient.save();
+
+		return res.status(200).json({
+			message: 'Patient Created Successfully',
+			data: {
+				patient: patient.sanitizeAndReturnUser(),
+			},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 /**
  * @description <Controller description here>
@@ -365,7 +408,7 @@ exports.fetchPatient = async (req, res) => {};
  * @access <Access Level>
  * ! To be Tested
  */
-exports.deletePatient = async (req, res) => {};
+exports.editPatientHistory = async (req, res) => {};
 
 /**
  * @description <Controller description here>
@@ -375,3 +418,12 @@ exports.deletePatient = async (req, res) => {};
  * ! To be Tested
  */
 exports.searchPatients = async (req, res) => {};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.deletePatient = async (req, res) => {};

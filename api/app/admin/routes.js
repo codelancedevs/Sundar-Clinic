@@ -25,4 +25,10 @@ Router.post('/logout', authAdmin, adminController.logoutAdmin);
 
 Router.delete('/delete', authAdmin, adminController.deleteAdminAccount);
 
+// Patient Control
+
+Router.post('/patient-create', authAdmin, adminController.createNewPatient);
+
+Router.post("/patient-delete", authAdmin, adminController.deletePatient);
+
 module.exports = Router;

@@ -257,14 +257,11 @@ exports.logoutPatient = async (req, res) => {
 	}
 };
 
-// Patient History Editing
-
 /**
  * @description Update Patient History
  * @route PATCH /api/patient/history
  * @data {historyFor: 'String', _id: 'String', details: 'Object'} in the Request Body
  * @access Patient
- * ! To be Tested
  */
 exports.updateHistoryDetails = async (req, res) => {
 	// Collecting Required data from Request Body and Middleware
@@ -272,6 +269,8 @@ exports.updateHistoryDetails = async (req, res) => {
 	const { historyFor, details } = req.body;
 	try {
 		await Patient.updateHistoryDetails({ historyFor, _id: _id.toString(), details });
+
+		// Response Upon Successful History Update
 		return res.status(200).json({
 			message: `History for ${historyFor} Updated Successfully`,
 			data: { ...details },

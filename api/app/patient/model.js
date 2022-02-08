@@ -188,6 +188,20 @@ patientSchema.statics.updateHistoryDetails = async function ({
 	});
 };
 
+patientSchema.statics.getAllPatients = async function () {
+	const patients = await Patient.find().select({
+		history: 0,
+		password: 0,
+		address: 0,
+		maritalStatus: 0,
+		kidsDetails: 0,
+		files: 0,
+		isVerified: 0,
+		tosAgreement: 0,
+	});
+	return patients;
+};
+
 // Inheriting User Model as Admin
 const Patient = User.discriminator('Patient', patientSchema);
 

@@ -27,8 +27,12 @@ Router.delete('/delete', authAdmin, adminController.deleteAdminAccount);
 
 // Patient Control
 
+Router.get('/patient', authAdmin, adminController.fetchPatients);
+
 Router.post('/patient-create', authAdmin, adminController.createNewPatient);
 
-Router.post("/patient-delete", authAdmin, adminController.deletePatient);
+Router.patch('/patient-history', authAdmin, adminController.editPatientHistory);
+
+Router.delete('/patient-delete', authAdmin, adminController.deletePatient);
 
 module.exports = Router;

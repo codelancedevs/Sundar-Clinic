@@ -8,32 +8,65 @@
 const Post = require('./model');
 
 /* ================================
-    UNAUTHENTICATED CONTROLLERS
+	UNAUTHENTICATED CONTROLLERS
 ================================ */
 
-exports.fetchAllPosts = async (req, res) => {};
+/**
+ * @description Get all posts or a single post
+ * @route GET /api/post?postId=<post id here>
+ * @data If no data, all posts are fetched else if {postId} in Request Query, it will fetch that post
+ * @access Public
+ */
+exports.fetchPosts = async (req, res) => {
+	// Collecting Required data from Request Query
+	const { postId: _id } = req.query;
+	try {
+		// Posts Container
+		const posts = [];
+		// Checking type of Request
+		if (_id) {
+			const post = await Post.findById(_id);
+			posts.push(post);
+		} else {
+			const allPosts = await Post.find();
+			posts.push(...allPosts);
+		}
 
-exports.fetchPost = async (req, res) => {};
+		return res.status(200).json({
+			message: 'Fetched Post/s Successfully',
+			data: {
+				posts,
+			},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 /* ================================
-    AUTHENTICATED CONTROLLERS
+	AUTHENTICATED CONTROLLERS
 ================================ */
-
-/** 
-* @description Create a new Post
-* @route POST /api/post/create
-* @data {title, body, type} of post in the Request Body
-* @access Only Admin
-*/
-exports.createPost = async (req, res) => {
+/**
+ * @description Create a new Post and Return Id
+ * @route POST /api/post/
+ * @data No data required
+ * @access Admin
+ */
+exports.createNewPost = async (req, res) => {
+	// Collecting Required Data from Middleware
 	const { _id } = req.admin;
-	const { title, body, type } = req.body;
 	try {
-		// TODO: Error handling here
-		const post = new Post({ title, body, type, createdBy: _id, lastEditedBy: _id });
+		// Creating New Post and saving
+		const post = new Post({ createdBy: _id, lastEditedBy: _id });
 		await post.save();
+
+		// Response after creating Post with Post Id
 		return res.status(200).json({
-			message: 'Post Successfully Created',
+			message: 'Post Created Successfully',
 			data: {
 				post: post.toObject(),
 			},
@@ -48,23 +81,52 @@ exports.createPost = async (req, res) => {
 };
 
 /**
-* @description Edit Post
-* @route PATCH /api/post/edit
-* @data {title, body, type, _id} of post in Request body
-* @access Only Admins
-*/
+ * @description Edit Post
+ * @route PATCH /api/post/
+ * @data {title, body, type, _id, isPublished} : 'String' of post in Request body
+ * @access Admins
+ */
 exports.editPost = async (req, res) => {
+	// Collecting Required Data from Request Body and Middleware
 	const { _id: adminId } = req.admin;
-	const { title, body, type, _id } = req.body;
+	let { title, body, type, _id, isPublished } = req.body;
 	try {
-		// TODO: Error Handling here
+		// Type Check
+		_id = typeof _id === 'string' ? _id : false;
+		if (!_id)
+			throw new Error(
+				"{title, body, type, isPublished, _id} : 'String' is required in Request body"
+			);
+
+		isPublished = typeof isPublished === 'boolean' ? isPublished : false;
+
+		// Find Post
 		const post = await Post.findById(_id);
 		if (!post) throw new Error('Unable to Find Post');
-		await post.update({ title, body, type, lastEditedBy: adminId });
+
+		// Updating Post details
+		// If data is not there, update with Previous values
+		const details = {
+			title: title || post.title,
+			body: body || post.body,
+			type: type || post.boyd,
+			lastEditedBy: adminId,
+		};
+		if (isPublished) {
+			details.isPublished = isPublished;
+			details.publishedAt = Date.now();
+		} else {
+			details.publishedAt = null;
+		}
+
+		// Update Post
+		await post.updateOne({ ...details });
+
+		// Response after successfully updating post
 		return res.status(200).json({
 			message: 'Post Edited Successfully',
 			data: {
-				post: post.toObject(),
+				post: { ...post.toObject(), ...details },
 			},
 			success: true,
 		});
@@ -77,19 +139,30 @@ exports.editPost = async (req, res) => {
 };
 
 /**
-* @description <Controller description here>
-* @route METHOD <Route>
-* @data <Data either in body, params, or query>
-* @access <Access Level>
-*/
+ * @description Delete Post
+ * @route DELETE /api/post
+ * @data {_id} : 'String' in Request Body
+ * @access Admin
+ */
 exports.deletePost = async (req, res) => {
-	const { _id: adminId } = req.admin;
-	const { _id } = req.body;
+	// Collecting Required Data from Request Body
+	let { _id } = req.body;
 	try {
-        // TODO: Error Handling here
-        const post = await Post.findById(_id);
-        if(!post) throw new Error("Unable to find Post");
-        await post.delete();
+		// Type Checks
+		_id = typeof _id === 'string' ? _id : false;
+		if (!_id)
+			throw new Error(
+				"{_id} : 'String' is required in Request body"
+			);
+
+		// Finding Post
+		const post = await Post.findById(_id);
+		if (!post) throw new Error('Unable to find Post');
+
+		// Deleting Post
+		await post.delete();
+
+		// Response after Deleting Post Successfully
 		return res.status(200).json({
 			message: 'Post Deleted Successfully',
 			data: {},

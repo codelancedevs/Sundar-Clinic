@@ -13,18 +13,16 @@ const postsController = require('./controller');
     UNAUTHENTICATED ROUTES
 ================================ */
 
-Router.get('/all', postsController.fetchAllPosts);
-
-Router.get('/:_id', postsController.fetchPost);
+Router.get('/', postsController.fetchPosts);
 
 /* ================================
     AUTHENTICATED ROUTES
 ================================ */
 
-Router.post('/create', postsController.createPost);
+Router.post('/', authAdmin, postsController.createNewPost);
 
-Router.patch('/edit', postsController.editPost);
+Router.patch('/', authAdmin, postsController.editPost);
 
-Router.delete('/delete', postsController.deletePost);
+Router.delete('/', authAdmin, postsController.deletePost);
 
 module.exports = Router;

@@ -31,7 +31,13 @@ Router.get('/patient', authAdmin, adminController.fetchPatients);
 
 Router.post('/patient-create', authAdmin, adminController.createNewPatient);
 
-Router.post('/patient-history', authAdmin, adminController.editPatientHistory);
+Router.patch('/patient-account', authAdmin, adminController.editPatientAccountDetails);
+
+Router.patch('/patient-general', authAdmin, adminController.editPatientGeneralDetails);
+
+Router.post('/patient-presentingComplaint', authAdmin, adminController.updatePatientPresentingComplaint);
+
+Router.post('/patient-history', authAdmin, adminController.updatePatientHistory);
 
 Router.delete('/patient-delete', authAdmin, adminController.deletePatient);
 

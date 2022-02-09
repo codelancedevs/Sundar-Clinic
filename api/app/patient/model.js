@@ -11,7 +11,6 @@ const User = require('../user/model');
 // Upload files, history, blood reports, etc, medical related stuff
 
 const patientSchema = new Schema({
-	doctorAssigned: String,
 	dateOfBirth: Date,
 	maritalStatus: {
 		isMarried: Boolean,

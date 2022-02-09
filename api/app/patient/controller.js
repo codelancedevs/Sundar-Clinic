@@ -157,31 +157,141 @@ exports.patientEmailAvailable = async (req, res) => {};
 exports.patientUsernameAvailable = async (req, res) => {};
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
+ * @description Edit Patient Account Details
+ * @route PATCH /api/patient/accountDetails
+ * @data {fullName, username, email, phone, address}: 'String' in Request Body
+ * @access Patient
  */
-exports.editPatientAccountDetails = async (req, res) => {};
+exports.editPatientAccountDetails = async (req, res) => {
+	// Collecting Required Data from Request Body and Middleware
+	const { _id } = req.patient;
+	let { fullName, username, email, phone, address } = req.body;
+	try {
+		// Finding Patient
+		const patient = await Patient.findById(_id);
+		if (!patient) throw new Error('Unable to find patient');
+
+		// Updating patient details
+		// If details are not given, then existing details are passed back
+		const details = {
+			fullName: fullName || patient.fullName,
+			username: username || patient.username,
+			email: email || patient.email,
+			phone: phone || patient.phone,
+			address: address || patient.address,
+		};
+		await patient.updateOne({ ...details });
+
+		// Response after all updating patient account details
+		return res.status(200).json({
+			message: 'Patient Account Details Updated Successfully',
+			data: { ...details },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
+ * @description Edit Patient General Details
+ * @route PATCH /api/patient/generalDetails
+ * @data {dateOfBirth, gender} : 'String' {maritalStatus, kidsDetails} : 'Object' in the Request Body
+ * @access Patient
+ * ? Additional Discussion for Passing Date, Object Id's in maritalStatus and kidsDetails should be included until necessary
  */
-exports.editPatientGeneralDetails = async (req, res) => {};
+exports.editPatientGeneralDetails = async (req, res) => {
+	// Collecting Required data from Request Body and Middleware
+	const { _id } = req.patient;
+	let { dateOfBirth, gender, maritalStatus, kidsDetails } = req.body;
+	try {
+		// Finding Patient
+		const patient = await Patient.findById(_id);
+		if (!patient) throw new Error('Unable to find patient');
+
+		// Updating patient details
+		// If details are not given, then existing details are passed back
+		const details = {
+			dateOfBirth: dateOfBirth || patient.dateOfBirth,
+			gender: gender || patient.gender,
+			maritalStatus: maritalStatus || patient.maritalStatus,
+			kidsDetails: kidsDetails || kidsDetails,
+		};
+		await patient.updateOne({ ...details });
+
+		// Response after updating Patient General Details
+		return res.status(200).json({
+			message: 'Patient General Details Updated Successfully',
+			data: { ...details },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
+ * @description Edit Patient Password to a new One
+ * @route PATCH /api/patient/password
+ * @data {password, newPassword}: 'String' in Request Body
+ * @access Patient
  */
-exports.editPatientPassword = async (req, res) => {};
+exports.editPatientPassword = async (req, res) => {
+	// Collecting Required Data from Request Body and Middleware
+	const { _id } = req.patient;
+	let { password, newPassword } = req.body;
+	try {
+		// Pre Checks
+		password = typeof password === 'string' ? password : false;
+		newPassword = typeof newPassword === 'string' ? newPassword : false;
+		if (!password || !newPassword) {
+			throw new Error(
+				"{password, newPassword} : 'String' is Required in Request Body"
+			);
+		}
+
+		// Finding Patient Account
+		const patient = await Patient.findById(_id);
+		if (!patient) throw new Error('Unable to find patient');
+
+		// Validate Password
+		const validated = await patient.authenticatePassword({ password });
+		if (!validated) throw new Error('Wrong Password');
+
+		// Check if old password is the same as new Password
+		const isSamePassword = await patient.authenticatePassword({
+			password: newPassword,
+		});
+		if (isSamePassword)
+			throw new Error('Old Password and New Password cannot be same');
+
+		// Generate New Password
+		const hashedPassword = await patient.returnHashedPassword({
+			password: newPassword,
+		});
+
+		// Update Password for Patient
+		await patient.updateOne({ password: hashedPassword });
+
+		// Response after successfully updating password
+		return res.status(200).json({
+			message: 'Password Updated Successfully',
+			data: {},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 /**
  * @description Delete Patient Account
@@ -257,9 +367,11 @@ exports.logoutPatient = async (req, res) => {
 	}
 };
 
+// Patient Main Features
+
 /**
  * @description Update Patient History
- * @route PATCH /api/patient/history
+ * @route POST /api/patient/history
  * @data {historyFor: 'String', _id: 'String', details: 'Object'} in the Request Body
  * @access Patient
  */
@@ -268,11 +380,62 @@ exports.updateHistoryDetails = async (req, res) => {
 	const { _id } = req.patient;
 	const { historyFor, details } = req.body;
 	try {
-		await Patient.updateHistoryDetails({ historyFor, _id: _id.toString(), details });
+		await Patient.updateHistoryDetails({
+			historyFor,
+			_id: _id.toString(),
+			details,
+		});
 
 		// Response Upon Successful History Update
 		return res.status(200).json({
 			message: `History for ${historyFor} Updated Successfully`,
+			data: { ...details },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description Update Patient's Presenting Complaint
+ * @route POST /api/patient/presentingComplaint
+ * @data {complaint, duration} : String in the Request Body
+ * @access Patient
+ */
+exports.updatePresentingComplaint = async (req, res) => {
+	// Collecting Required data from Request Body and Middleware
+	const { _id } = req.patient;
+	let { complaint, duration } = req.body;
+	try {
+		// Type Checks
+		complaint = typeof complaint === 'string' ? complaint : false;
+		duration = typeof duration === 'string' ? duration : false;
+		if (!complaint || !duration) {
+			throw new Error(
+				"{complaint, duration} : 'String' should be there in the Request Body"
+			);
+		}
+
+		// Add Presenting Complaint with Current Date
+		const details = {
+			date: Date.now(),
+			complaint,
+			duration,
+		};
+		await Patient.updateOne(
+			{ _id },
+			{
+				$push: { presentingComplaint: { ...details } },
+			}
+		);
+
+		// Response after updating Presenting Complaint
+		return res.status(200).json({
+			message: 'Patient Presenting Complaint Recorded Successfully',
 			data: { ...details },
 			success: true,
 		});

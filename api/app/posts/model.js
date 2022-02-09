@@ -12,14 +12,12 @@ const postsSchema = new Schema(
 	{
 		title: {
 			type: String,
-			required: true,
 			trim: true,
 			minLength: [10, 'Min 10 characters required for title'],
 			maxLength: [100, 'Title Cannot cross 100 Characters'],
 		},
 		body: {
 			type: String,
-			required: true,
 			trim: true,
 		},
 		coverImage: {

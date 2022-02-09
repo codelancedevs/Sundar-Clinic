@@ -174,7 +174,7 @@ exports.editAdminDetails = async (req, res) => {
 		if (!admin) throw new Error('Unable to find admin');
 
 		// Updating admin details
-		// If details are not give, then existing details are passed back
+		// If details are not given, then existing details are passed back
 		const details = {
 			fullName: fullName || admin.fullName,
 			username: username || admin.username,
@@ -222,16 +222,16 @@ exports.editAdminPassword = async (req, res) => {
 		const admin = await Admin.findById(_id);
 		if (!admin) throw new Error('Unable to find admin');
 
+		// Validate Password
+		const validated = await admin.authenticatePassword({ password });
+		if (!validated) throw new Error('Wrong Password');
+
 		// Check if old password is the same as new Password
 		const isSamePassword = await admin.authenticatePassword({
 			password: newPassword,
 		});
 		if (isSamePassword)
 			throw new Error('Old Password and New Password cannot be same');
-
-		// Validate Password
-		const validated = await admin.authenticatePassword({ password });
-		if (!validated) throw new Error('Wrong Password');
 
 		// Generate New Password
 		const hashedPassword = await admin.returnHashedPassword({
@@ -440,7 +440,7 @@ exports.fetchPatients = async (req, res) => {
 
 /**
  * @description Admin can edit Patient History
- * @route PATCH /api/admin/patient-history
+ * @route POST /api/admin/patient-history
  * @data {historyFor: 'String', _id: 'String', details: 'Object'} in the Request Body
  * @access Admin
  */

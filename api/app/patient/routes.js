@@ -31,8 +31,10 @@ Router.post('/logout', authPatient, patientController.logoutPatient);
 
 Router.delete('/delete', authPatient, patientController.deletePatientAccount);
 
-// Patient History Route
+// Patient Features Route
 
-Router.patch('/history', authPatient, patientController.updateHistoryDetails);
+Router.post('/presentingComplaint', authPatient, patientController.updatePresentingComplaint);
+
+Router.post('/history', authPatient, patientController.updateHistoryDetails);
 
 module.exports = Router;

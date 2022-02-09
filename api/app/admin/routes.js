@@ -31,7 +31,7 @@ Router.get('/patient', authAdmin, adminController.fetchPatients);
 
 Router.post('/patient-create', authAdmin, adminController.createNewPatient);
 
-Router.patch('/patient-history', authAdmin, adminController.editPatientHistory);
+Router.post('/patient-history', authAdmin, adminController.editPatientHistory);
 
 Router.delete('/patient-delete', authAdmin, adminController.deletePatient);
 

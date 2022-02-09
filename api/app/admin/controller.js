@@ -147,7 +147,7 @@ exports.createAdmin = async (req, res) => {
  * @access <Access Level>
  * ! To be Tested
  */
-exports.adminEmailAvailable = async (req, res) => {};
+exports.adminEmailAvailable = async (req, res) => { };
 
 /**
  * @description <Controller description here>
@@ -156,7 +156,7 @@ exports.adminEmailAvailable = async (req, res) => {};
  * @access <Access Level>
  * ! To be Tested
  */
-exports.adminUsernameAvailable = async (req, res) => {};
+exports.adminUsernameAvailable = async (req, res) => { };
 
 /**
  * @description Edit Admin Account Details
@@ -439,12 +439,147 @@ exports.fetchPatients = async (req, res) => {
 };
 
 /**
+ * @description Admin can update Patient Account Details
+ * @route PATCH /api/admin/patient-account
+ * @data { fullName, username, email, phone, address, _id } : 'String' in Request Body
+ * @access Admin
+ */
+exports.editPatientAccountDetails = async (req, res) => {
+	// Collecting Required Data from Request Body
+	let { fullName, username, email, phone, address, _id } = req.body;
+	try {
+		// Type Check
+		_id = typeof _id === 'string' ? _id : false;
+		if (!_id)
+			throw new Error("{_id} : 'String' is required in Request Body");
+
+		// Finding Patient
+		const patient = await Patient.findById(_id);
+		if (!patient) throw new Error('Unable to find patient');
+
+		// Updating patient details
+		// If details are not given, then existing details are passed back
+		const details = {
+			fullName: fullName || patient.fullName,
+			username: username || patient.username,
+			email: email || patient.email,
+			phone: phone || patient.phone,
+			address: address || patient.address,
+		};
+		await patient.updateOne({ ...details });
+
+		// Response after all updating patient account details
+		return res.status(200).json({
+			message: 'Patient Account Details Updated Successfully',
+			data: { ...details },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description Admin can update Patient General Details
+ * @route PATCH /api/admin/patient-general
+ * @data {dateOfBirth, gender, _id} : 'String' {maritalStatus, kidsDetails} : 'Object' in the Request Body
+ * @access Admin
+ * ? Additional Discussion for Passing Date, Object Id's in maritalStatus and kidsDetails should be included until necessary
+ */
+exports.editPatientGeneralDetails = async (req, res) => {
+	// Collecting Required data from Request
+	let { dateOfBirth, gender, maritalStatus, kidsDetails, _id } = req.body;
+	try {
+		// Type Check
+		_id = typeof _id === 'string' ? _id : false;
+		if (!_id)
+			throw new Error("{_id} : 'String' is required in Request Body");
+
+		// Finding Patient
+		const patient = await Patient.findById(_id);
+		if (!patient) throw new Error('Unable to find patient');
+
+		// Updating patient details
+		// If details are not given, then existing details are passed back
+		const details = {
+			dateOfBirth: dateOfBirth || patient.dateOfBirth,
+			gender: gender || patient.gender,
+			maritalStatus: maritalStatus || patient.maritalStatus,
+			kidsDetails: kidsDetails || kidsDetails,
+		};
+		await patient.updateOne({ ...details });
+
+		// Response after updating Patient General Details
+		return res.status(200).json({
+			message: 'Patient General Details Updated Successfully',
+			data: { ...details },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description Admin can update Patient's Presenting Complaint
+ * @route POST /api/admin/patient-presentingComplaint
+ * @data { complaint, duration, _id } : 'String' in Request Body
+ * @access Admin
+ */
+exports.updatePatientPresentingComplaint = async (req, res) => {
+	// Collecting Required data from Request Body
+	let { complaint, duration, _id } = req.body;
+	try {
+		// Type Checks
+		complaint = typeof complaint === 'string' ? complaint : false;
+		duration = typeof duration === 'string' ? duration : false;
+		_id = typeof _id === 'string' ? _id : false;
+		if (!complaint || !duration || !_id) {
+			throw new Error(
+				"{complaint, duration, _id} : 'String' should be there in the Request Body"
+			);
+		}
+
+		// Add Presenting Complaint with Current Date
+		const details = {
+			date: Date.now(),
+			complaint,
+			duration,
+		};
+		await Patient.updateOne(
+			{ _id },
+			{
+				$push: { presentingComplaint: { ...details } },
+			}
+		);
+
+		// Response after updating Presenting Complaint
+		return res.status(200).json({
+			message: 'Patient Presenting Complaint Recorded Successfully',
+			data: { ...details },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
  * @description Admin can edit Patient History
  * @route POST /api/admin/patient-history
  * @data {historyFor: 'String', _id: 'String', details: 'Object'} in the Request Body
  * @access Admin
  */
-exports.editPatientHistory = async (req, res) => {
+exports.updatePatientHistory = async (req, res) => {
 	// Collecting Required Data from Request Body
 	const { _id, historyFor, details } = req.body;
 	try {

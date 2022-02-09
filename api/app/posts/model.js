@@ -5,7 +5,7 @@
 'use strict';
 
 // Dependencies
-const { Schema, model, SchemaTypes } = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 // Creating Posts schema
 const postsSchema = new Schema(

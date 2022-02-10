@@ -9,7 +9,7 @@ const { reactAppUrl, appId, apiKeys } = require('../../helper/config');
 const App = require('./model');
 
 /* ================================
-    UNAUTHENTICATED CONTROLLERS
+	UNAUTHENTICATED CONTROLLERS
 ================================ */
 
 /**
@@ -75,7 +75,7 @@ exports.verifyApiKey = (req, res) => {
 };
 
 /* ================================
-    AUTHENTICATED CONTROLLERS
+	AUTHENTICATED CONTROLLERS
 ================================ */
 
 /**
@@ -83,7 +83,6 @@ exports.verifyApiKey = (req, res) => {
  * @route PATCH /api/app/ownerDetails
  * @data {name} : 'String' {clinic: {doctors: 'Array', documents: 'Array', address: 'String'}} in Request Body
  * @access Admin
- * ! To be Tested
  */
 exports.editOwnerDetails = async (req, res) => {
 	// Collecting Required Data from Request Body
@@ -92,26 +91,32 @@ exports.editOwnerDetails = async (req, res) => {
 		// Getting App Details
 		const app = await App.findById(appId);
 		const { owner: ownerDetails } = app;
+
 		// Update Owner Details with Provided Details
 		// If details not provided, use default values
 		const owner = {
 			name: name || ownerDetails.name,
 			clinic: {
-				address: clinic.address || ownerDetails.clinic.address,
+				address: clinic?.address || ownerDetails.clinic.address,
 			},
 		};
 
 		// Check for complex data to update
 		const doctors =
-			clinic.doctors instanceof 'Array' ? clinic.doctors : false;
+			clinic?.doctors instanceof Array && clinic?.doctors.length > 0
+				? clinic?.doctors
+				: false;
 		const documents =
-			clinic.documents instanceof 'Array' ? clinic.documents : false;
+			clinic?.documents instanceof Array && clinic?.documents.length > 0
+				? clinic?.documents
+				: false;
 
 		owner.clinic.doctors = doctors ? doctors : ownerDetails.clinic.doctors;
 		owner.clinic.documents = documents
 			? documents
 			: ownerDetails.clinic.documents;
 
+		// Response after successfully updating owner details
 		return res.status(200).json({
 			message: 'Owner Details Updated Successfully',
 			data: {
@@ -128,25 +133,91 @@ exports.editOwnerDetails = async (req, res) => {
 };
 
 /**
+ * @description Update Clinic Doctor Details
+ * @route PUT /api/app/clinicDoctorDetails
+ * @data {doctors} : 'Array' in Request Body
+ * @access Admin
+ * ! To be Tested
+ */
+exports.updateClinicDoctorDetails = async (req, res) => {
+	// Collecting required data from Request Body
+	let { doctors } = req.body;
+	try {
+		// Type Check
+		doctors =
+			doctors instanceof Array && doctors.length > 0 ? doctors : false;
+		if (!doctors)
+			throw new Error(
+				"{doctors} : 'Array' should be there in the Request Body"
+			);
+
+		// Get Doctors details from App
+		const app = await App.findById(appId);
+		let {
+			owner: {
+				clinic: { doctors: appDoctors },
+			},
+		} = app;
+		console.log(appDoctors);
+
+		// TODO: Check for Duplicate Values and Make array for updated values 
+		doctors.forEach((doctor, index) => {
+			if (doctor.registrationNo !== appDoctors[index].registrationNo) {
+				appDoctors.push(doctor);
+			}
+		});
+
+		// Updating Doctor Details
+		await app.updateOne({ 'owner.clinic.doctors': appDoctors });
+
+		return res.status(200).json({
+			message: 'Clinic Doctor Details Updated Successfully',
+			data: {
+				doctors: [...appDoctors],
+			},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.updateClinicDocumentDetails = async (req, res) => {};
+
+/**
  * @description Update Site Details
  * @route PATCH /api/app/siteDetails
  * @data {detail, contact: {phone, email}, link} : String in Request Body
  * @access Admin
- * ! To be Tested
  */
 exports.editSiteDetails = async (req, res) => {
 	// Collecting Required Data from Request Body
 	const { detail, contact, link } = req.body;
+	const { phone, email } = contact;
 	try {
 		// Getting App Details
 		const app = await App.findById(appId);
+		const { site: siteDetails } = app;
 
 		// Update Site with Provided Details
 		// If details not provided, use default values
 		const site = {
-			detail: detail || app.site.detail,
-			contact: contact || app.site.contact,
-			link: link || app.site.link,
+			detail: detail || siteDetails.detail,
+			contact: {
+				phone: phone || siteDetails.contact.phone,
+				email: email || siteDetails.contact.email,
+			},
+			link: link || siteDetails.link,
 		};
 		await app.updateOne({ site });
 
@@ -154,7 +225,7 @@ exports.editSiteDetails = async (req, res) => {
 		return res.status(200).json({
 			message: 'Site Detail Updated Successfully',
 			data: {
-				site: { ...app.site, ...site },
+				site: { ...siteDetails, ...site },
 			},
 			success: true,
 		});

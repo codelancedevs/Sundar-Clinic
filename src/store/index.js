@@ -5,10 +5,12 @@
 
 // Dependencies
 import { configureStore } from '@reduxjs/toolkit';
-import testReducer from '../features/test';
+import userReducer from './features/user';
+import testReducer from './features/test';
 
 const store = configureStore({
 	reducer: {
+		user: userReducer,
 		test: testReducer,
 	},
 });

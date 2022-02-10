@@ -5,7 +5,10 @@ export const testSlice = createSlice({
 	initialState: { value: 0 },
 	reducers: {
 		rotate: (state, action) => {
-			state.value += action.payload + 2;
+			state.value += 100;
+			if (state.value > 900) {
+				state.value = 0;
+			}
 		},
 	},
 });

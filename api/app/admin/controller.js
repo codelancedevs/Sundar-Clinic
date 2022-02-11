@@ -5,6 +5,7 @@
 'use strict';
 
 // Dependencies
+const { isValidObjectId } = require('mongoose');
 const { isEmail, isStrongPassword } = require('validator');
 const Admin = require('./model');
 const Patient = require('../patient/model');
@@ -336,7 +337,7 @@ exports.logoutAdmin = async (req, res) => {
  * @route POST /api/admin/patient-create
  * @data {fullName, email, tosAgreement: 'Boolean'}: 'String' in Request body
  * @access Admin
- * ? Add Feature to Email the Password to Patient after successful acount creation
+ * ? Add Feature to Email the Password to Patient after successful account creation
  */
 exports.createNewPatient = async (req, res) => {
 	// Collecting Required Data from Request Body
@@ -414,6 +415,7 @@ exports.fetchPatients = async (req, res) => {
 			patients.push(...searchedPatients);
 		} else {
 			if (_id) {
+				if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
 				const patient = await Patient.findById(_id);
 				if (!patient) throw new Error('Unable to find Patient');
 				patients.push(patient.sanitizeAndReturnUser());
@@ -452,6 +454,8 @@ exports.editPatientAccountDetails = async (req, res) => {
 		_id = typeof _id === 'string' ? _id : false;
 		if (!_id)
 			throw new Error("{_id} : 'String' is required in Request Body");
+		if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
+
 
 		// Finding Patient
 		const patient = await Patient.findById(_id);
@@ -497,6 +501,8 @@ exports.editPatientGeneralDetails = async (req, res) => {
 		_id = typeof _id === 'string' ? _id : false;
 		if (!_id)
 			throw new Error("{_id} : 'String' is required in Request Body");
+		if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
+
 
 		// Finding Patient
 		const patient = await Patient.findById(_id);
@@ -545,6 +551,7 @@ exports.updatePatientPresentingComplaint = async (req, res) => {
 				"{complaint, duration, _id} : 'String' should be there in the Request Body"
 			);
 		}
+		if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
 
 		// Add Presenting Complaint with Current Date
 		const details = {
@@ -583,6 +590,7 @@ exports.updatePatientHistory = async (req, res) => {
 	// Collecting Required Data from Request Body
 	const { _id, historyFor, details } = req.body;
 	try {
+		if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
 		await Patient.updateHistoryDetails({
 			historyFor,
 			_id,
@@ -618,6 +626,7 @@ exports.deletePatient = async (req, res) => {
 		_id = typeof _id === 'string' ? _id : false;
 		if (!_id)
 			throw new Error("{_id} : 'String' should be there in Request Body");
+		if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
 
 		// Delete Patient
 		Patient.findByIdAndDelete(_id).exec((err, data) => {

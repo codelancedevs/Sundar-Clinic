@@ -137,11 +137,11 @@ exports.editOwnerDetails = async (req, res) => {
  * @route PUT /api/app/clinicDoctorDetails
  * @data {doctors} : 'Array' in Request Body
  * @access Admin
- * ! To be Tested
+ * ! To be Tested [ Work in Progress ]
  */
 exports.updateClinicDoctorDetails = async (req, res) => {
 	// Collecting required data from Request Body
-	let { doctors } = req.body;
+	let { doctors, mode, data } = req.body;
 	try {
 		// Type Check
 		doctors =
@@ -158,20 +158,22 @@ exports.updateClinicDoctorDetails = async (req, res) => {
 				clinic: { doctors: appDoctors },
 			},
 		} = app;
-		console.log(appDoctors);
+
+		const updatedDoctors = [];
 
 		// TODO: Check for Duplicate Values and Make array for updated values 
-		doctors.forEach((doctor, index) => {
-			if (doctor.registrationNo !== appDoctors[index].registrationNo) {
-				appDoctors.push(doctor);
+		appDoctors.forEach((doctor, index) => {
+			if (doctor.registrationNo !== doctors[index].registrationNo) {
+				updatedDoctors.push(doctor);
 			}
 		});
+		console.log(updatedDoctors)
 
 		// Updating Doctor Details
-		await app.updateOne({ 'owner.clinic.doctors': appDoctors });
+		// await app.updateOne({ 'owner.clinic.doctors': appDoctors });
 
 		return res.status(200).json({
-			message: 'Clinic Doctor Details Updated Successfully',
+			message: 'Clinic Doctor Details Updated Successfully [Work in Progress]',
 			data: {
 				doctors: [...appDoctors],
 			},

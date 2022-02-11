@@ -194,7 +194,7 @@ exports.updateClinicDoctorDetails = async (req, res) => {
  * @access <Access Level>
  * ! To be Tested
  */
-exports.updateClinicDocumentDetails = async (req, res) => {};
+exports.updateClinicDocumentDetails = async (req, res) => { };
 
 /**
  * @description Update Site Details

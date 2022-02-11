@@ -5,6 +5,7 @@
 'use strict';
 
 // Dependencies
+const { isValidObjectId } = require('mongoose');
 const Post = require('./model');
 
 /* ================================
@@ -25,7 +26,9 @@ exports.fetchPosts = async (req, res) => {
 		const posts = [];
 		// Checking type of Request
 		if (_id) {
+			if (!isValidObjectId(_id)) throw new Error('Invalid Post Id');
 			const post = await Post.findById(_id);
+			if (!post) throw new Error('Unable to find post');
 			posts.push(post);
 		} else {
 			const allPosts = await Post.find();
@@ -97,6 +100,7 @@ exports.editPost = async (req, res) => {
 			throw new Error(
 				"{title, body, type, isPublished, _id} : 'String' is required in Request body"
 			);
+		if (!isValidObjectId(_id)) throw new Error('Invalid Post Id');
 
 		isPublished = typeof isPublished === 'boolean' ? isPublished : false;
 
@@ -151,9 +155,8 @@ exports.deletePost = async (req, res) => {
 		// Type Checks
 		_id = typeof _id === 'string' ? _id : false;
 		if (!_id)
-			throw new Error(
-				"{_id} : 'String' is required in Request body"
-			);
+			throw new Error("{_id} : 'String' is required in Request body");
+		if (!isValidObjectId(_id)) throw new Error('Invalid Post Id');
 
 		// Finding Post
 		const post = await Post.findById(_id);

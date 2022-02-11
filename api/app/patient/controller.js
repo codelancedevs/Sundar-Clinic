@@ -145,7 +145,7 @@ exports.loginPatient = async (req, res) => {
  * @access <Access Level>
  * ! To be Tested
  */
-exports.patientEmailAvailable = async (req, res) => {};
+exports.patientEmailAvailable = async (req, res) => { };
 
 /**
  * @description <Controller description here>
@@ -154,7 +154,7 @@ exports.patientEmailAvailable = async (req, res) => {};
  * @access <Access Level>
  * ! To be Tested
  */
-exports.patientUsernameAvailable = async (req, res) => {};
+exports.patientUsernameAvailable = async (req, res) => { };
 
 /**
  * @description Edit Patient Account Details
@@ -372,7 +372,7 @@ exports.logoutPatient = async (req, res) => {
 /**
  * @description Update Patient History
  * @route POST /api/patient/history
- * @data {historyFor: 'String', _id: 'String', details: 'Object'} in the Request Body
+ * @data {historyFor: 'String', details: 'Object'} in the Request Body
  * @access Patient
  */
 exports.updateHistoryDetails = async (req, res) => {

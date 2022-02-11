@@ -10,8 +10,17 @@
   box-sizing: border-box;
 }
 
+:root{
+  --red: #ff0000ff;
+  --white: #ffffffff;
+  --orange-peel: #ff9f1cff;
+  --carolina-blue: #5299d3ff;
+  --medium-purple: #9381ffff;
+}
+
 html{
   scroll-behavior: smooth;
 }
+
 
 

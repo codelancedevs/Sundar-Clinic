@@ -21,16 +21,16 @@ function App() {
 				FallbackComponent={<Error />}
 				onError={(error) => console.log(error)}
 			> */}
-				<Router>
-					<AppRoutes />
-					<img
-						src={Logo}
-						alt='Sundar Clinic Logo'
-						onClick={() => {
-							dispatch(rotate());
-						}}
-					/>
-				</Router>
+			<Router>
+				<AppRoutes />
+				<img
+					src={Logo}
+					alt='Sundar Clinic Logo'
+					onClick={() => {
+						dispatch(rotate());
+					}}
+				/>
+			</Router>
 			{/* </ErrorBoundary> */}
 		</div>
 	);

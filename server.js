@@ -18,6 +18,7 @@ const {
 	loggingOptions,
 	backendAppUrl,
 } = require('./api/helper/config');
+const {preventXST} = require('./api/helper/middleware');
 
 // Importing App Router
 const appRouter = require('./api/app/src');
@@ -26,6 +27,7 @@ const appRouter = require('./api/app/src');
 const app = express();
 
 // Using Middleware
+app.use(preventXST);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));

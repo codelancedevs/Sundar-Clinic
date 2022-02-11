@@ -41,4 +41,8 @@ Router.patch('/api/app/ownerDetails', authAdmin, indexController.editOwnerDetail
 
 Router.patch('/api/app/siteDetails', authAdmin, indexController.editSiteDetails);
 
+Router.put('/api/app/clinicDoctorDetails', authAdmin, indexController.updateClinicDoctorDetails);
+
+Router.put('/api/app/clinicDocumentsDetails', authAdmin, indexController.updateClinicDocumentDetails);
+
 module.exports = Router;

@@ -22,6 +22,7 @@ const appSchema = new Schema(
 							name: 'Dr. Ekta Bharti',
 							degrees: ['M.B.B.S', 'General Physician'],
 							registrationNo: '68812',
+							role: 'Head Doctor'
 						},
 					],
 				},

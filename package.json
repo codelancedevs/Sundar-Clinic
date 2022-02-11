@@ -1,35 +1,35 @@
 {
-  "name": "sundar-clinic-backend",
-  "version": "0.5.0",
-  "description": "Server Side Application for Sundar Clinic Website.",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
-  },
-  "keywords": [
-    "Express",
-    "MERN",
-    "Sundar Clinic",
-    "Codelance Devs"
-  ],
-  "author": "Kunal Keshan <kunalkeshan12@gmail.com>",
-  "license": "ISC",
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
-    "dotenv": "^14.2.0",
-    "express": "^4.17.2",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.1.7",
-    "morgan": "^1.10.0",
-    "nanoid": "^3.2.0",
-    "nodemailer": "^6.7.2",
-    "pdfkit": "^0.13.0",
-    "validator": "^13.7.0"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.15"
-  }
+	"name": "sundar-clinic-backend",
+	"version": "0.5.0",
+	"description": "Server Side Application for Sundar Clinic Website.",
+	"main": "server.js",
+	"scripts": {
+		"start": "node server.js",
+		"dev": "nodemon server.js"
+	},
+	"keywords": [
+		"Express",
+		"MERN",
+		"Sundar Clinic",
+		"Codelance Devs"
+	],
+	"author": "Kunal Keshan <kunalkeshan12@gmail.com>, Codelance Devs <contact@codelancedevs.com>",
+	"license": "ISC",
+	"dependencies": {
+		"bcryptjs": "^2.4.3",
+		"cookie-parser": "^1.4.6",
+		"cors": "^2.8.5",
+		"dotenv": "^14.2.0",
+		"express": "^4.17.2",
+		"jsonwebtoken": "^8.5.1",
+		"mongoose": "^6.1.7",
+		"morgan": "^1.10.0",
+		"nanoid": "^3.2.0",
+		"nodemailer": "^6.7.2",
+		"pdfkit": "^0.13.0",
+		"validator": "^13.7.0"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.15"
+	}
 }

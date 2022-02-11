@@ -9,7 +9,7 @@ const { reactAppUrl, appId, apiKeys } = require('../../helper/config');
 const App = require('./model');
 
 /* ================================
-    UNAUTHENTICATED CONTROLLERS
+	UNAUTHENTICATED CONTROLLERS
 ================================ */
 
 /**
@@ -75,17 +75,117 @@ exports.verifyApiKey = (req, res) => {
 };
 
 /* ================================
-    AUTHENTICATED CONTROLLERS
+	AUTHENTICATED CONTROLLERS
 ================================ */
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
+ * @description Update Owner Details
+ * @route PATCH /api/app/ownerDetails
+ * @data {name} : 'String' {clinic: {doctors: 'Array', documents: 'Array', address: 'String'}} in Request Body
+ * @access Admin
  */
-exports.editOwnerDetails = (req, res) => {};
+exports.editOwnerDetails = async (req, res) => {
+	// Collecting Required Data from Request Body
+	const { name, clinic } = req.body;
+	try {
+		// Getting App Details
+		const app = await App.findById(appId);
+		const { owner: ownerDetails } = app;
+
+		// Update Owner Details with Provided Details
+		// If details not provided, use default values
+		const owner = {
+			name: name || ownerDetails.name,
+			clinic: {
+				address: clinic?.address || ownerDetails.clinic.address,
+			},
+		};
+
+		// Check for complex data to update
+		const doctors =
+			clinic?.doctors instanceof Array && clinic?.doctors.length > 0
+				? clinic?.doctors
+				: false;
+		const documents =
+			clinic?.documents instanceof Array && clinic?.documents.length > 0
+				? clinic?.documents
+				: false;
+
+		owner.clinic.doctors = doctors ? doctors : ownerDetails.clinic.doctors;
+		owner.clinic.documents = documents
+			? documents
+			: ownerDetails.clinic.documents;
+
+		// Response after successfully updating owner details
+		return res.status(200).json({
+			message: 'Owner Details Updated Successfully',
+			data: {
+				owner: { ...app.owner, ...owner },
+			},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description Update Clinic Doctor Details
+ * @route PUT /api/app/clinicDoctorDetails
+ * @data {doctors} : 'Array' in Request Body
+ * @access Admin
+ * ! To be Tested [ Work in Progress ]
+ */
+exports.updateClinicDoctorDetails = async (req, res) => {
+	// Collecting required data from Request Body
+	let { doctors, mode, data } = req.body;
+	try {
+		// Type Check
+		doctors =
+			doctors instanceof Array && doctors.length > 0 ? doctors : false;
+		if (!doctors)
+			throw new Error(
+				"{doctors} : 'Array' should be there in the Request Body"
+			);
+
+		// Get Doctors details from App
+		const app = await App.findById(appId);
+		let {
+			owner: {
+				clinic: { doctors: appDoctors },
+			},
+		} = app;
+
+		const updatedDoctors = [];
+
+		// TODO: Check for Duplicate Values and Make array for updated values 
+		appDoctors.forEach((doctor, index) => {
+			if (doctor.registrationNo !== doctors[index].registrationNo) {
+				updatedDoctors.push(doctor);
+			}
+		});
+		console.log(updatedDoctors)
+
+		// Updating Doctor Details
+		// await app.updateOne({ 'owner.clinic.doctors': appDoctors });
+
+		return res.status(200).json({
+			message: 'Clinic Doctor Details Updated Successfully [Work in Progress]',
+			data: {
+				doctors: [...appDoctors],
+			},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 /**
  * @description <Controller description here>
@@ -94,33 +194,41 @@ exports.editOwnerDetails = (req, res) => {};
  * @access <Access Level>
  * ! To be Tested
  */
-exports.editSiteDetails = async (req, res) => {
-	const { detail, contact, link } = req.body;
-	const { email, phone } = contact;
-	try {
-		if (!detail || !contact || !link)
-			throw new Error(
-				'Request body should contain {detail, contact, link} : String'
-			);
-		if (!phone || !email)
-			throw new Error(
-				'Contact should contain contact: {phone, email} : String'
-			);
+exports.updateClinicDocumentDetails = async (req, res) => {};
 
+/**
+ * @description Update Site Details
+ * @route PATCH /api/app/siteDetails
+ * @data {detail, contact: {phone, email}, link} : String in Request Body
+ * @access Admin
+ */
+exports.editSiteDetails = async (req, res) => {
+	// Collecting Required Data from Request Body
+	const { detail, contact, link } = req.body;
+	const { phone, email } = contact;
+	try {
+		// Getting App Details
+		const app = await App.findById(appId);
+		const { site: siteDetails } = app;
+
+		// Update Site with Provided Details
+		// If details not provided, use default values
 		const site = {
-			detail,
-			contact: { email, phone },
-			link,
+			detail: detail || siteDetails.detail,
+			contact: {
+				phone: phone || siteDetails.contact.phone,
+				email: email || siteDetails.contact.email,
+			},
+			link: link || siteDetails.link,
 		};
-		await App.updateOne(
-			{ _id: appId },
-			{
-				'site.$': site,
-			}
-		);
+		await app.updateOne({ site });
+
+		// Response after successfully updating site details
 		return res.status(200).json({
 			message: 'Site Detail Updated Successfully',
-			data: { detail, contact, link },
+			data: {
+				site: { ...siteDetails, ...site },
+			},
 			success: true,
 		});
 	} catch (error) {

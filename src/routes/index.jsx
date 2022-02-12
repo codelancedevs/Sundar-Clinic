@@ -4,7 +4,7 @@
 
 // Dependencies
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+// import { useSelector } from 'react-redux';
 
 // Public Pages
 import Home from '../pages/Home';
@@ -26,7 +26,10 @@ import PatientDashboard from '../pages/Patient/Dashboard';
 
 const AppRoutes = () => {
     // const loggedIn = useSelector((state) => state.user.loggedIn);
-    const loggedIn = true;
+    const loggedIn = {
+        token: 'asfasfadf',
+        loggedInAs: 'Patient'
+    };
     return (
         <Routes>
             {/* Open Routes  */}
@@ -42,17 +45,14 @@ const AppRoutes = () => {
 
             {/* Admin Routes */}
             <Route path='/admin'>
-                {!loggedIn ? (
-                    <Route index element={<AdminLoginAndSignup />} />
-                ) : (
-                    <Route path='dashboard' element={<AdminDashboard />} />
-                )}
+                <Route index element={loggedIn && loggedIn?.loggedInAs === 'Admin' ? <AdminDashboard /> : <AdminLoginAndSignup />} />
                 <Route path='*' element={<Navigate to='/admin' />} />
             </Route>
 
             {/* Patient Routes */}
             <Route path='/patient'>
-
+                <Route index element={loggedIn && loggedIn?.loggedInAs === 'Patient' ? <PatientDashboard /> : <PatientLoginAndSignup />} />
+                <Route path='*' element={<Navigate to='/patient' />} />
             </Route>
 
             {/* Not Found Route */}

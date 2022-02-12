@@ -5,7 +5,7 @@
 'use strict';
 
 // Dependencies
-const { Schema, now } = require('mongoose');
+const { Schema, isValidObjectId } = require('mongoose');
 const User = require('../user/model');
 
 // Upload files, history, blood reports, etc, medical related stuff
@@ -36,7 +36,6 @@ const patientSchema = new Schema({
 	],
 	presentingComplaint: [
 		{
-			_id: false,
 			date: Date,
 			complaint: String,
 			duration: String,
@@ -145,10 +144,7 @@ patientSchema.statics.updateHistoryDetails = async function ({
 		throw new Error(
 			"{historyFor: 'String', _id : 'String', details: 'Object'} are missing or invalid"
 		);
-
-	// Getting the specific patient
-	const patient = await Patient.findById(_id);
-	if (!patient) throw new Error('Unable to find patient');
+	if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
 
 	const historyKeys = [
 		'comorbidity',
@@ -169,26 +165,125 @@ patientSchema.statics.updateHistoryDetails = async function ({
 			`History key is wrong, should include ${historyKeys.join(', ')}`
 		);
 
+	// Getting the specific patient
+	const patient = await Patient.findById(_id);
+	if (!patient) throw new Error('Unable to find patient');
+
 	// Updating details for Current date.
 	details.date = Date.now();
 
-	await patient.updateOne({
-		$push: { [`history.${historyFor}`]: { ...details } },
-	});
+	// Add New details
+	patient.history[`${historyFor}`].push({ ...details });
+	const updatedPatient = await patient.save();
+
+	// Returning New History
+	const newHistory = updatedPatient.history[`${historyFor}`]
+		.filter((history) => {
+			// Convert to milliseconds to compare
+			const historyDate = new Date(history.date).getTime();
+			return historyDate === details.date;
+		})[0]
+		.toObject();
+
+	return newHistory;
 };
 
+// Edit Patient History Details
 patientSchema.statics.editHistoryDetails = async function ({
 	historyFor = '',
 	patientId = '',
 	_id = '',
 	details = {},
-}) { };
+}) {
+	// Type Checks
+	_id = typeof _id === 'string' ? _id : false;
+	patientId = typeof patientId === 'string' ? patientId : false;
+	historyFor = typeof historyFor === 'string' ? historyFor : false;
+	details = typeof details === 'object' ? details : false;
 
+	if (!_id || !details || !historyFor || !patientId)
+		throw new Error(
+			"{historyFor: 'String', _id : 'String', patientId: 'String', details: 'Object'} are missing or invalid"
+		);
+	if (!isValidObjectId(patientId)) throw new Error('Invalid Patient Id');
+	if (!isValidObjectId(_id)) throw new Error('Invalid History Id');
+
+	const historyKeys = [
+		'comorbidity',
+		'drug',
+		'allergies',
+		'family',
+		'food',
+		'sanitary',
+		'occupation',
+		'surgical',
+		'pregnancy',
+		'menstrual',
+		'vasectomy',
+	];
+
+	if (!historyKeys.includes(historyFor))
+		throw new Error(
+			`History key is wrong, should include ${historyKeys.join(', ')}`
+		);
+
+	// Finding Patient
+	const patient = await Patient.findById({ _id: patientId });
+	if (!patient) throw new Error('Unable to find Patient');
+
+	// Finding Specific History Details from Patient
+	const history = patient.history[`${historyFor}`].id(_id);
+
+	if (!history) throw new Error('Given History Id does not exist');
+
+	// Updating and saving history
+	history.details = details.details;
+	await patient.save();
+};
+
+// Delete Patient History Details
 patientSchema.statics.deleteHistoryDetails = async function ({
 	historyFor = '',
 	patientId = '',
 	_id = '',
-}) { };
+}) {
+	// Type Checks
+	_id = typeof _id === 'string' ? _id : false;
+	patientId = typeof patientId === 'string' ? patientId : false;
+	historyFor = typeof historyFor === 'string' ? historyFor : false;
+
+	if (!_id || !historyFor)
+		throw new Error(
+			"{historyFor: 'String', _id : 'String', patientId: 'String'} are missing or invalid"
+		);
+	if (!isValidObjectId(patientId)) throw new Error('Invalid Patient Id');
+	if (!isValidObjectId(_id)) throw new Error('Invalid History Id');
+
+	const historyKeys = [
+		'comorbidity',
+		'drug',
+		'allergies',
+		'family',
+		'food',
+		'sanitary',
+		'occupation',
+		'surgical',
+		'pregnancy',
+		'menstrual',
+		'vasectomy',
+	];
+
+	if (!historyKeys.includes(historyFor))
+		throw new Error(
+			`History key is wrong, should include ${historyKeys.join(', ')}`
+		);
+
+	const patient = await Patient.findOne({ _id: patientId });
+	const history = patient.history[`${historyFor}`].id(_id);
+	if (!history) throw new Error('Given History Id does not exist');
+	history.remove();
+	await patient.save();
+};
 
 patientSchema.statics.getAllPatients = async function () {
 	const patients = await Patient.find().select({

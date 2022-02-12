@@ -37,6 +37,18 @@ Router.patch('/patient-general', authAdmin, adminController.editPatientGeneralDe
 
 Router.post('/patient-presentingComplaint', authAdmin, adminController.updatePatientPresentingComplaint);
 
+// ! To be tested
+Router.patch('/patient-presentingComplaint', authAdmin, adminController.editPatientPresentingComplaint);
+
+// ! To be tested
+Router.delete('/patient-presentingComplaint', authAdmin, adminController.deletePatientPresentingComplaint);
+
+Router.post('/patient-history', authAdmin, adminController.updatePatientHistory);
+
+// ! To be tested
+Router.post('/patient-history', authAdmin, adminController.updatePatientHistory);
+
+// ! To be tested
 Router.post('/patient-history', authAdmin, adminController.updatePatientHistory);
 
 Router.delete('/patient-delete', authAdmin, adminController.deletePatient);

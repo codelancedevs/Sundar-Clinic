@@ -403,6 +403,24 @@ exports.updateHistoryDetails = async (req, res) => {
 };
 
 /**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.editHistoryDetails = async (req, res) => { };
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.deleteHistoryDetails = async (req, res) => { };
+
+/**
  * @description Update Patient's Presenting Complaint
  * @route POST /api/patient/presentingComplaint
  * @data {complaint, duration} : String in the Request Body
@@ -448,3 +466,21 @@ exports.updatePresentingComplaint = async (req, res) => {
 			.json({ message: error.message, data: {}, success: false });
 	}
 };
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.editPresentingComplaint = async (req, res) => { };
+
+/**
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.deletePresentingComplaint = async (req, res) => { };

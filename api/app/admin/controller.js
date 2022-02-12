@@ -583,6 +583,24 @@ exports.updatePatientPresentingComplaint = async (req, res) => {
 };
 
 /**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
+exports.editPatientPresentingComplaint = async (req, res) => { }
+
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
+exports.deletePatientPresentingComplaint = async (req, res) => { }
+
+/**
  * @description Admin can edit Patient History
  * @route POST /api/admin/patient-history
  * @data {historyFor: 'String', _id: 'String', details: 'Object'} in the Request Body
@@ -612,6 +630,24 @@ exports.updatePatientHistory = async (req, res) => {
 			.json({ message: error.message, data: {}, success: false });
 	}
 };
+
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
+exports.editPatientHistory = async (req, res) => { }
+
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
+exports.deletePatientHistory = async (req, res) => { }
 
 /**
  * @description Admin Can delete a Patient

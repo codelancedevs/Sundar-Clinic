@@ -45,7 +45,6 @@ const patientSchema = new Schema({
 	history: {
 		comorbidity: [
 			{
-				_id: false,
 				date: Date,
 				diabetic: {
 					isDiabetic: Boolean,
@@ -70,70 +69,60 @@ const patientSchema = new Schema({
 		],
 		drug: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		allergies: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		family: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		food: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		sanitary: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		occupation: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		surgical: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		pregnancy: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		menstrual: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		vasectomy: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
@@ -141,6 +130,7 @@ const patientSchema = new Schema({
 	},
 });
 
+// Adds new History for the given details
 patientSchema.statics.updateHistoryDetails = async function ({
 	historyFor = '',
 	_id = '',
@@ -186,6 +176,19 @@ patientSchema.statics.updateHistoryDetails = async function ({
 		$push: { [`history.${historyFor}`]: { ...details } },
 	});
 };
+
+patientSchema.statics.editHistoryDetails = async function ({
+	historyFor = '',
+	patientId = '',
+	_id = '',
+	details = {},
+}) { };
+
+patientSchema.statics.deleteHistoryDetails = async function ({
+	historyFor = '',
+	patientId = '',
+	_id = '',
+}) { };
 
 patientSchema.statics.getAllPatients = async function () {
 	const patients = await Patient.find().select({

@@ -61,6 +61,7 @@ exports.loginAdmin = async (req, res) => {
 			message: 'Login Successful',
 			data: {
 				admin: admin.sanitizeAndReturnUser(),
+				token: adminToken,
 			},
 			success: true,
 		});
@@ -130,6 +131,7 @@ exports.createAdmin = async (req, res) => {
 			message: 'Admin Account Created Successfully',
 			data: {
 				admin: admin.sanitizeAndReturnUser(),
+				token: adminToken,
 			},
 			success: true,
 		});

@@ -68,6 +68,7 @@ exports.createPatient = async (req, res) => {
 			message: 'Patient Account Created Successfully',
 			data: {
 				patient: patient.sanitizeAndReturnUser(),
+				token: patientToken,
 			},
 			success: true,
 		});
@@ -123,6 +124,7 @@ exports.loginPatient = async (req, res) => {
 			message: 'Login Successful',
 			data: {
 				patient: patient.sanitizeAndReturnUser(),
+				token: patientToken,
 			},
 			success: true,
 		});

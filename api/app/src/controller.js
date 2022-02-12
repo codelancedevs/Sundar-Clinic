@@ -26,7 +26,11 @@ exports.sendSiteDetails = async (req, res) => {
 			success: true,
 		});
 	}
-	const appDetails = await App.findById(appId).select({ _id: 0, __v: 0 });
+	const appDetails = await App.findById(appId).select({
+		_id: 0,
+		__v: 0,
+		owner: { clinic: { doctors: 0, documents: 0 } },
+	});
 	return res.status(200).json({
 		message:
 			'API created for Sundar Clinic By Codelance Devs, made with 💖 by Kunal Keshan',
@@ -161,19 +165,20 @@ exports.updateClinicDoctorDetails = async (req, res) => {
 
 		const updatedDoctors = [];
 
-		// TODO: Check for Duplicate Values and Make array for updated values 
+		// TODO: Check for Duplicate Values and Make array for updated values
 		appDoctors.forEach((doctor, index) => {
 			if (doctor.registrationNo !== doctors[index].registrationNo) {
 				updatedDoctors.push(doctor);
 			}
 		});
-		console.log(updatedDoctors)
+		console.log(updatedDoctors);
 
 		// Updating Doctor Details
 		// await app.updateOne({ 'owner.clinic.doctors': appDoctors });
 
 		return res.status(200).json({
-			message: 'Clinic Doctor Details Updated Successfully [Work in Progress]',
+			message:
+				'Clinic Doctor Details Updated Successfully [Work in Progress]',
 			data: {
 				doctors: [...appDoctors],
 			},

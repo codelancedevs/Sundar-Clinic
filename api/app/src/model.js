@@ -15,17 +15,7 @@ const appSchema = new Schema(
 		owner: {
 			name: String,
 			clinic: {
-				doctors: {
-					type: Array,
-					default: [
-						{
-							name: 'Dr. Ekta Bharti',
-							degrees: ['M.B.B.S', 'General Physician'],
-							registrationNo: '68812',
-							role: 'Head Doctor'
-						},
-					],
-				},
+				doctors: [{type: Schema.Types.ObjectId, ref: 'User'}],
 				address: {
 					type: String,
 					default:
@@ -43,7 +33,7 @@ const appSchema = new Schema(
 				phone: {
 					type: String,
 					validate: [isMobilePhone, 'Requires a valid mobile number'],
-					default: '8939881702',
+					default: '8939881708',
 				},
 				email: {
 					type: String,

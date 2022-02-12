@@ -129,6 +129,114 @@ const patientSchema = new Schema({
 	},
 });
 
+// Adds new Presenting Complaint
+patientSchema.statics.updatePresentingComplaint = async function ({
+	_id = '',
+	presentingComplaint = {},
+}) {
+	// Type Checks
+	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
+	presentingComplaint =
+		typeof presentingComplaint === 'object' ? presentingComplaint : false;
+
+	if (!_id || !presentingComplaint)
+		throw new Error(
+			"{_id : 'String', presentingComplaint: 'Object'} are missing or invalid"
+		);
+
+	// Getting the specific patient
+	const patient = await Patient.findById(_id);
+	if (!patient) throw new Error('Unable to find patient');
+
+	// Updating details for Current date.
+	presentingComplaint.date = Date.now();
+
+	// Add New details
+	patient.presentingComplaint.push({ ...presentingComplaint });
+	const updatedPatient = await patient.save();
+
+	// Returning New Presenting Complaint
+	const newPresentingComplaint = updatedPatient.presentingComplaint
+		.filter((complaint) => {
+			// Convert to milliseconds to compare
+			const complaintDate = new Date(complaint.date).getTime();
+			return complaintDate === presentingComplaint.date;
+		})[0]
+		.toObject();
+
+	return newPresentingComplaint;
+};
+
+// Edit Presenting Complaint
+patientSchema.statics.editPresentingComplaint = async function ({
+	patientId = '',
+	_id = '',
+	presentingComplaint = {},
+}) {
+	// Type Checks
+	patientId =
+		typeof patientId === 'string' && isValidObjectId(patientId)
+			? patientId
+			: false;
+	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
+	presentingComplaint =
+		typeof presentingComplaint === 'object' &&
+		presentingComplaint?.complaint
+			? presentingComplaint
+			: false;
+
+	if (!_id || !presentingComplaint)
+		throw new Error(
+			"{_id : 'String', patientId: 'String', presentingComplaint: 'Object'} are missing or invalid"
+		);
+
+	// Finding Patient
+	const patient = await Patient.findById({ _id: patientId });
+	if (!patient) throw new Error('Unable to find Patient');
+
+	// Getting Presenting Complaint Details
+	const patientPresentingComplaint = patient.presentingComplaint.id(_id);
+
+	// Checking if Presenting Complaint exists
+	if (!patientPresentingComplaint)
+		throw new Error('Given Presenting Complaint Id does not exist');
+
+	// Updating and saving edited Presenting Complaint
+	patient.presentingComplaint.id(_id).complaint =
+		presentingComplaint.complaint;
+	patient.presentingComplaint.id(_id).duration = presentingComplaint.duration;
+	await patient.save();
+};
+
+// Delete Presenting Complaint
+patientSchema.statics.deletePresentingComplaint = async function ({
+	patientId,
+	_id,
+}) {
+	// Type Checks
+	patientId =
+		typeof patientId === 'string' && isValidObjectId(patientId)
+			? patientId
+			: false;
+	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
+	if (!_id) {
+		throw new Error(
+			"{_id} : 'String' of Presenting Complaint should be there in Request body or is invalid"
+		);
+	}
+
+	// Finding Patient
+	const patient = await Patient.findOne({ _id: patientId });
+	if (!patient) throw new Error('Unable to find Patient');
+
+	// Deleting Presenting Complaint
+	const presentingComplaint = patient.presentingComplaint.id(_id);
+	if (!presentingComplaint)
+		throw new Error('Given Presenting Complaint Id does not exist');
+	presentingComplaint.remove();
+	await patient.save();
+};
+
 // Adds new History for the given details
 patientSchema.statics.updateHistoryDetails = async function ({
 	historyFor = '',
@@ -136,7 +244,7 @@ patientSchema.statics.updateHistoryDetails = async function ({
 	details = {},
 }) {
 	// Type Checks
-	_id = typeof _id === 'string' ? _id : false;
+	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
 	historyFor = typeof historyFor === 'string' ? historyFor : false;
 	details = typeof details === 'object' ? details : false;
 
@@ -144,7 +252,6 @@ patientSchema.statics.updateHistoryDetails = async function ({
 		throw new Error(
 			"{historyFor: 'String', _id : 'String', details: 'Object'} are missing or invalid"
 		);
-	if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
 
 	const historyKeys = [
 		'comorbidity',

@@ -470,51 +470,24 @@ exports.deleteHistoryDetails = async (req, res) => {
 /**
  * @description Add Patient's Presenting Complaint
  * @route POST /api/patient/presentingComplaint
- * @data {complaint, duration} : String in the Request Body
+ * @data {presentingComplaint: {complaint, duration} : String} in the Request Body
  * @access Patient
  */
 exports.updatePresentingComplaint = async (req, res) => {
 	// Collecting Required data from Request Body and Middleware
 	const { _id } = req.patient;
-	let { complaint, duration } = req.body;
+	let { presentingComplaint } = req.body;
 	try {
-		// Type Checks
-		complaint = typeof complaint === 'string' ? complaint : false;
-		duration = typeof duration === 'string' ? duration : false;
-		if (!complaint || !duration) {
-			throw new Error(
-				"{complaint, duration} : 'String' should be there in the Request Body"
-			);
-		}
-
-		// Add Presenting Complaint with Current Date
-		const details = {
-			date: Date.now(),
-			complaint,
-			duration,
-		};
-
-		// Finding Patient
-		const patient = await Patient.findById(_id);
-		if (!patient) throw new Error('Unable to find Patient');
-
-		// Adding and Saving Presenting Complaint of Patient
-		patient.presentingComplaint.push({ ...details });
-		const updatedPatient = await patient.save();
-
-		// Return the new created complaint
-		const presentingComplaint = updatedPatient.presentingComplaint
-			.filter((complaint) => {
-				// Convert to no of milliseconds to compare
-				const complaintDate = new Date(complaint.date).getTime();
-				return complaintDate === details.date;
-			})[0]
-			.toObject();
+		// Adding new Presenting Complaint
+		const newPresentingComplaint = await Patient.updatePresentingComplaint({
+			_id: _id.toString(),
+			presentingComplaint,
+		});
 
 		// Response after updating Presenting Complaint
 		return res.status(200).json({
 			message: 'Patient Presenting Complaint Added Successfully',
-			data: { presentingComplaint },
+			data: { ...newPresentingComplaint },
 			success: true,
 		});
 	} catch (error) {
@@ -528,50 +501,20 @@ exports.updatePresentingComplaint = async (req, res) => {
 /**
  * @description Edit a presenting history with Id
  * @route PATCH /api/patient/presentingComplaint
- * @data {complaint, duration, _id} : String in the Request Body
+ * @data {presentingComplaint: {complaint, duration}, _id} : String in the Request Body
  * @access Patient
- * ! To be Tested
  */
 exports.editPresentingComplaint = async (req, res) => {
 	// Collecting Required data from Request Body and Middleware
 	const { _id: patientId } = req.patient;
-	let { complaint, duration, _id } = req.body;
+	let { presentingComplaint, _id } = req.body;
 	try {
-		// Type Checks
-		complaint = typeof complaint === 'string' ? complaint : false;
-		duration = typeof duration === 'string' ? duration : false;
-		_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
-		if (!complaint || !duration || !_id) {
-			throw new Error(
-				"{complaint, duration, _id} : 'String' should be there in the Request Body or is invalid"
-			);
-		}
-
-		// Add Presenting Complaint with Current Date
-		const presentingComplaint = {
-			complaint,
-			duration,
-		};
-
-		// Updating Presenting complaint details
-
-		// Finding Patient
-		const patient = await Patient.findById({ _id: patientId });
-		if (!patient) throw new Error('Unable to find Patient');
-
-		// Getting Presenting Complaint Details
-		const patientPresentingComplaint = patient.presentingComplaint.id(_id);
-
-		// Checking if Presenting Complaint exists
-		if (!patientPresentingComplaint)
-			throw new Error('Given Presenting Complaint Id does not exist');
-
-		// Updating and saving edited Presenting Complaint
-		patient.presentingComplaint.id(_id).complaint =
-			presentingComplaint.complaint;
-		patient.presentingComplaint.id(_id).duration =
-			presentingComplaint.duration;
-		await patient.save();
+		// Updating Presenting Complaint Details
+		await Patient.editPresentingComplaint({
+			patientId: patientId.toString(),
+			_id,
+			presentingComplaint,
+		});
 
 		// Response after updating Presenting Complaint
 		return res.status(200).json({
@@ -598,21 +541,11 @@ exports.deletePresentingComplaint = async (req, res) => {
 	const { _id: patientId } = req.patient;
 	let { _id } = req.body;
 	try {
-		// Type Checks
-		_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
-		if (!_id) {
-			throw new Error(
-				"{_id} : 'String' of Presenting Complaint should be there in Request body or is invalid"
-			);
-		}
-
 		// Deleting Presenting Complaint
-		const patient = await Patient.findOne({ _id: patientId });
-		const presentingComplaint = patient.presentingComplaint.id(_id);
-		if (!presentingComplaint)
-			throw new Error('Given Presenting Complaint Id does not exist');
-		presentingComplaint.remove();
-		await patient.save();
+		await Patient.deletePresentingComplaint({
+			_id,
+			patientId: patientId.toString(),
+		});
 
 		// Response after deleting Presenting Complaint
 		return res.status(200).json({

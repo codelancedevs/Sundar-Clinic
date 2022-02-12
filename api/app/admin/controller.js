@@ -61,6 +61,7 @@ exports.loginAdmin = async (req, res) => {
 			message: 'Login Successful',
 			data: {
 				admin: admin.sanitizeAndReturnUser(),
+				token: adminToken,
 			},
 			success: true,
 		});
@@ -130,6 +131,7 @@ exports.createAdmin = async (req, res) => {
 			message: 'Admin Account Created Successfully',
 			data: {
 				admin: admin.sanitizeAndReturnUser(),
+				token: adminToken,
 			},
 			success: true,
 		});
@@ -148,7 +150,7 @@ exports.createAdmin = async (req, res) => {
  * @access <Access Level>
  * ! To be Tested
  */
-exports.adminEmailAvailable = async (req, res) => { };
+exports.adminEmailAvailable = async (req, res) => {};
 
 /**
  * @description <Controller description here>
@@ -157,7 +159,7 @@ exports.adminEmailAvailable = async (req, res) => { };
  * @access <Access Level>
  * ! To be Tested
  */
-exports.adminUsernameAvailable = async (req, res) => { };
+exports.adminUsernameAvailable = async (req, res) => {};
 
 /**
  * @description Edit Admin Account Details
@@ -415,7 +417,8 @@ exports.fetchPatients = async (req, res) => {
 			patients.push(...searchedPatients);
 		} else {
 			if (_id) {
-				if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
+				if (!isValidObjectId(_id))
+					throw new Error('Invalid Patient Id');
 				const patient = await Patient.findById(_id);
 				if (!patient) throw new Error('Unable to find Patient');
 				patients.push(patient.sanitizeAndReturnUser());
@@ -455,7 +458,6 @@ exports.editPatientAccountDetails = async (req, res) => {
 		if (!_id)
 			throw new Error("{_id} : 'String' is required in Request Body");
 		if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
-
 
 		// Finding Patient
 		const patient = await Patient.findById(_id);
@@ -503,7 +505,6 @@ exports.editPatientGeneralDetails = async (req, res) => {
 			throw new Error("{_id} : 'String' is required in Request Body");
 		if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
 
-
 		// Finding Patient
 		const patient = await Patient.findById(_id);
 		if (!patient) throw new Error('Unable to find patient');
@@ -535,41 +536,84 @@ exports.editPatientGeneralDetails = async (req, res) => {
 /**
  * @description Admin can update Patient's Presenting Complaint
  * @route POST /api/admin/patient-presentingComplaint
- * @data { complaint, duration, _id } : 'String' in Request Body
+ * @data { presentingComplaint: {complaint, duration}, _id } : 'String' in Request Body
  * @access Admin
  */
 exports.updatePatientPresentingComplaint = async (req, res) => {
 	// Collecting Required data from Request Body
-	let { complaint, duration, _id } = req.body;
+	let { presentingComplaint, _id } = req.body;
 	try {
-		// Type Checks
-		complaint = typeof complaint === 'string' ? complaint : false;
-		duration = typeof duration === 'string' ? duration : false;
-		_id = typeof _id === 'string' ? _id : false;
-		if (!complaint || !duration || !_id) {
-			throw new Error(
-				"{complaint, duration, _id} : 'String' should be there in the Request Body"
-			);
-		}
-		if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
-
-		// Add Presenting Complaint with Current Date
-		const details = {
-			date: Date.now(),
-			complaint,
-			duration,
-		};
-		await Patient.updateOne(
-			{ _id },
-			{
-				$push: { presentingComplaint: { ...details } },
-			}
-		);
+		// Adding new Presenting Complaint
+		const newPresentingComplaint = await Patient.updatePresentingComplaint({
+			_id: _id.toString(),
+			presentingComplaint,
+		});
 
 		// Response after updating Presenting Complaint
 		return res.status(200).json({
-			message: 'Patient Presenting Complaint Recorded Successfully',
-			data: { ...details },
+			message: 'Patient Presenting Complaint Added Successfully',
+			data: { ...newPresentingComplaint },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description Admin can edit a presenting history with Id
+ * @route PATCH /api/admin/patient-presentingComplaint
+ * @data {presentingComplaint: {complaint, duration}, patientId, _id} : String in the Request Body
+ * @access Admin
+ */
+exports.editPatientPresentingComplaint = async (req, res) => {
+	// Collecting Required data from Request Body
+	let { presentingComplaint, _id, patientId } = req.body;
+	try {
+		// Updating Presenting Complaint Details
+		await Patient.editPresentingComplaint({
+			patientId,
+			_id,
+			presentingComplaint,
+		});
+
+		// Response after updating Presenting Complaint
+		return res.status(200).json({
+			message: 'Patient Presenting Complaint Edited Successfully',
+			data: { presentingComplaint },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description Admin can delete a presenting complaint with Id
+ * @route DELETE /api/admin/patient-presentingComplaint
+ * @data {_id, patientId} : String in the Request Body
+ * @access Admin
+ */
+exports.deletePatientPresentingComplaint = async (req, res) => {
+	// Collecting Required data from Request Body
+	let { _id, patientId } = req.body;
+	try {
+		// Deleting Presenting Complaint
+		await Patient.deletePresentingComplaint({
+			_id,
+			patientId,
+		});
+
+		// Response after deleting Presenting Complaint
+		return res.status(200).json({
+			message: 'Patient Presenting Complaint Deleted Successfully',
+			data: {},
 			success: true,
 		});
 	} catch (error) {
@@ -590,8 +634,7 @@ exports.updatePatientHistory = async (req, res) => {
 	// Collecting Required Data from Request Body
 	const { _id, historyFor, details } = req.body;
 	try {
-		if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
-		await Patient.updateHistoryDetails({
+		const newHistory = await Patient.updateHistoryDetails({
 			historyFor,
 			_id,
 			details,
@@ -600,7 +643,68 @@ exports.updatePatientHistory = async (req, res) => {
 		// Response Upon Successful History Update
 		return res.status(200).json({
 			message: `History for ${historyFor} Updated Successfully`,
+			data: { ...newHistory },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description Admin can edit a specific Patient History with Id
+ * @route PATCH /api/admin/patient-history
+ * @data {historyFor: 'String', details: 'Object', _id: 'String', patientId: 'String'} in the Request Body
+ * @access Admin
+ */
+exports.editPatientHistory = async (req, res) => {
+	// Collecting Required data from Request Body
+	const { historyFor, details, _id, patientId } = req.body;
+	try {
+		// Editing Patient History
+		await Patient.editHistoryDetails({
+			patientId: patientId.toString(),
+			_id,
+			historyFor,
+			details,
+		});
+
+		return res.status(200).json({
+			message: `History for ${historyFor} Updated Successfully`,
 			data: { ...details },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description Admin can delete a specific Patient History with Id
+ * @route DELETE /api/admin/patient-history
+ * @data {historyFor, _id, patientId} : 'String' in the Request Body
+ * @access Patient
+ */
+exports.deletePatientHistory = async (req, res) => {
+	// Collecting Required data from Request Body
+	const { historyFor, _id, patientId } = req.body;
+	try {
+		// Deleting Patient History
+		await Patient.deleteHistoryDetails({
+			patientId,
+			_id,
+			historyFor,
+		});
+
+		return res.status(200).json({
+			message: `History for ${historyFor} Deleted Successfully`,
+			data: {},
 			success: true,
 		});
 	} catch (error) {

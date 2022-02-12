@@ -5,6 +5,7 @@
 'use strict';
 
 // Dependencies
+const { isValidObjectId } = require('mongoose');
 const Patient = require('./model');
 const { isEmail, isStrongPassword } = require('validator');
 const {
@@ -68,6 +69,7 @@ exports.createPatient = async (req, res) => {
 			message: 'Patient Account Created Successfully',
 			data: {
 				patient: patient.sanitizeAndReturnUser(),
+				token: patientToken,
 			},
 			success: true,
 		});
@@ -123,6 +125,7 @@ exports.loginPatient = async (req, res) => {
 			message: 'Login Successful',
 			data: {
 				patient: patient.sanitizeAndReturnUser(),
+				token: patientToken,
 			},
 			success: true,
 		});
@@ -370,7 +373,7 @@ exports.logoutPatient = async (req, res) => {
 // Patient Main Features
 
 /**
- * @description Update Patient History
+ * @description Add to Patient History
  * @route POST /api/patient/history
  * @data {historyFor: 'String', details: 'Object'} in the Request Body
  * @access Patient
@@ -380,13 +383,46 @@ exports.updateHistoryDetails = async (req, res) => {
 	const { _id } = req.patient;
 	const { historyFor, details } = req.body;
 	try {
-		await Patient.updateHistoryDetails({
+		// Adding to Patient History
+		const newHistory = await Patient.updateHistoryDetails({
 			historyFor,
 			_id: _id.toString(),
 			details,
 		});
 
 		// Response Upon Successful History Update
+		return res.status(200).json({
+			message: `History for ${historyFor} Added Successfully`,
+			data: { ...newHistory },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description Edit a specific Patient History with Id
+ * @route PATCH /api/patient/history
+ * @data {historyFor: 'String', details: 'Object', _id: 'String'} in the Request Body
+ * @access Patient
+ */
+exports.editHistoryDetails = async (req, res) => {
+	// Collecting Required data from Request Body and Middleware
+	const { _id: patientId } = req.patient;
+	const { historyFor, details, _id } = req.body;
+	try {
+		// Editing Patient History
+		await Patient.editHistoryDetails({
+			patientId: patientId.toString(),
+			_id,
+			historyFor,
+			details,
+		});
+
 		return res.status(200).json({
 			message: `History for ${historyFor} Updated Successfully`,
 			data: { ...details },
@@ -401,42 +437,120 @@ exports.updateHistoryDetails = async (req, res) => {
 };
 
 /**
- * @description Update Patient's Presenting Complaint
+ * @description Delete a specific Patient History with Id
+ * @route DELETE /api/patient/history
+ * @data {historyFor: 'String', _id: 'String'} in the Request Body
+ * @access Patient
+ */
+exports.deleteHistoryDetails = async (req, res) => {
+	// Collecting Required data from Request Body and Middleware
+	const { _id: patientId } = req.patient;
+	const { historyFor, _id } = req.body;
+	try {
+		// Deleting Patient History
+		await Patient.deleteHistoryDetails({
+			patientId: patientId.toString(),
+			_id,
+			historyFor,
+		});
+
+		return res.status(200).json({
+			message: `History for ${historyFor} Deleted Successfully`,
+			data: {},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description Add Patient's Presenting Complaint
  * @route POST /api/patient/presentingComplaint
- * @data {complaint, duration} : String in the Request Body
+ * @data {presentingComplaint: {complaint, duration} : String} in the Request Body
  * @access Patient
  */
 exports.updatePresentingComplaint = async (req, res) => {
 	// Collecting Required data from Request Body and Middleware
 	const { _id } = req.patient;
-	let { complaint, duration } = req.body;
+	let { presentingComplaint } = req.body;
 	try {
-		// Type Checks
-		complaint = typeof complaint === 'string' ? complaint : false;
-		duration = typeof duration === 'string' ? duration : false;
-		if (!complaint || !duration) {
-			throw new Error(
-				"{complaint, duration} : 'String' should be there in the Request Body"
-			);
-		}
-
-		// Add Presenting Complaint with Current Date
-		const details = {
-			date: Date.now(),
-			complaint,
-			duration,
-		};
-		await Patient.updateOne(
-			{ _id },
-			{
-				$push: { presentingComplaint: { ...details } },
-			}
-		);
+		// Adding new Presenting Complaint
+		const newPresentingComplaint = await Patient.updatePresentingComplaint({
+			_id: _id.toString(),
+			presentingComplaint,
+		});
 
 		// Response after updating Presenting Complaint
 		return res.status(200).json({
-			message: 'Patient Presenting Complaint Recorded Successfully',
-			data: { ...details },
+			message: 'Patient Presenting Complaint Added Successfully',
+			data: { ...newPresentingComplaint },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description Edit a presenting history with Id
+ * @route PATCH /api/patient/presentingComplaint
+ * @data {presentingComplaint: {complaint, duration}, _id} : String in the Request Body
+ * @access Patient
+ */
+exports.editPresentingComplaint = async (req, res) => {
+	// Collecting Required data from Request Body and Middleware
+	const { _id: patientId } = req.patient;
+	let { presentingComplaint, _id } = req.body;
+	try {
+		// Updating Presenting Complaint Details
+		await Patient.editPresentingComplaint({
+			patientId: patientId.toString(),
+			_id,
+			presentingComplaint,
+		});
+
+		// Response after updating Presenting Complaint
+		return res.status(200).json({
+			message: 'Patient Presenting Complaint Edited Successfully',
+			data: { presentingComplaint },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
+ * @description Delete a presenting complaint with Id
+ * @route DELETE /api/patient/presentingComplaint
+ * @data {_id} : String in the Request Body
+ * @access Patient
+ */
+exports.deletePresentingComplaint = async (req, res) => {
+	// Collecting Required data from Request Body and Middleware
+	const { _id: patientId } = req.patient;
+	let { _id } = req.body;
+	try {
+		// Deleting Presenting Complaint
+		await Patient.deletePresentingComplaint({
+			_id,
+			patientId: patientId.toString(),
+		});
+
+		// Response after deleting Presenting Complaint
+		return res.status(200).json({
+			message: 'Patient Presenting Complaint Deleted Successfully',
+			data: {},
 			success: true,
 		});
 	} catch (error) {

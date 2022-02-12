@@ -35,6 +35,14 @@ Router.delete('/delete', authPatient, patientController.deletePatientAccount);
 
 Router.post('/presentingComplaint', authPatient, patientController.updatePresentingComplaint);
 
+Router.patch('/presentingComplaint', authPatient, patientController.editPresentingComplaint);
+
+Router.delete('/presentingComplaint', authPatient, patientController.deletePresentingComplaint);
+
 Router.post('/history', authPatient, patientController.updateHistoryDetails);
+
+Router.patch('/history', authPatient, patientController.editHistoryDetails);
+
+Router.delete('/history', authPatient, patientController.deleteHistoryDetails);
 
 module.exports = Router;

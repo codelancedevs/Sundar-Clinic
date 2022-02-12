@@ -5,7 +5,7 @@
 'use strict';
 
 // Dependencies
-const { Schema, now } = require('mongoose');
+const { Schema, isValidObjectId } = require('mongoose');
 const User = require('../user/model');
 
 // Upload files, history, blood reports, etc, medical related stuff
@@ -36,7 +36,6 @@ const patientSchema = new Schema({
 	],
 	presentingComplaint: [
 		{
-			_id: false,
 			date: Date,
 			complaint: String,
 			duration: String,
@@ -45,7 +44,6 @@ const patientSchema = new Schema({
 	history: {
 		comorbidity: [
 			{
-				_id: false,
 				date: Date,
 				diabetic: {
 					isDiabetic: Boolean,
@@ -70,70 +68,60 @@ const patientSchema = new Schema({
 		],
 		drug: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		allergies: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		family: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		food: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		sanitary: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		occupation: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		surgical: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		pregnancy: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		menstrual: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
 		],
 		vasectomy: [
 			{
-				_id: false,
 				date: Date,
 				details: String,
 			},
@@ -141,13 +129,125 @@ const patientSchema = new Schema({
 	},
 });
 
+// Adds new Presenting Complaint
+patientSchema.statics.updatePresentingComplaint = async function ({
+	_id = '',
+	presentingComplaint = {},
+}) {
+	// Type Checks
+	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
+	presentingComplaint =
+		typeof presentingComplaint === 'object' &&
+			presentingComplaint?.complaint
+			? presentingComplaint
+			: false;
+
+	if (!_id || !presentingComplaint)
+		throw new Error(
+			"{_id : 'String', presentingComplaint: 'Object'} are missing or invalid"
+		);
+
+	// Getting the specific patient
+	const patient = await Patient.findById(_id);
+	if (!patient) throw new Error('Unable to find patient');
+
+	// Updating details for Current date.
+	presentingComplaint.date = Date.now();
+
+	// Add New details
+	patient.presentingComplaint.push({ ...presentingComplaint });
+	const updatedPatient = await patient.save();
+
+	// Returning New Presenting Complaint
+	const newPresentingComplaint = updatedPatient.presentingComplaint
+		.filter((complaint) => {
+			// Convert to milliseconds to compare
+			const complaintDate = new Date(complaint.date).getTime();
+			return complaintDate === presentingComplaint.date;
+		})[0]
+		.toObject();
+
+	return newPresentingComplaint;
+};
+
+// Edit Presenting Complaint
+patientSchema.statics.editPresentingComplaint = async function ({
+	patientId = '',
+	_id = '',
+	presentingComplaint = {},
+}) {
+	// Type Checks
+	patientId =
+		typeof patientId === 'string' && isValidObjectId(patientId)
+			? patientId
+			: false;
+	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
+	presentingComplaint =
+		typeof presentingComplaint === 'object' &&
+			presentingComplaint?.complaint
+			? presentingComplaint
+			: false;
+
+	if (!_id || !presentingComplaint || !patientId)
+		throw new Error(
+			"{_id : 'String', patientId: 'String', presentingComplaint: 'Object'} are missing or invalid"
+		);
+
+	// Finding Patient
+	const patient = await Patient.findById({ _id: patientId });
+	if (!patient) throw new Error('Unable to find Patient');
+
+	// Getting Presenting Complaint Details
+	const patientPresentingComplaint = patient.presentingComplaint.id(_id);
+
+	// Checking if Presenting Complaint exists
+	if (!patientPresentingComplaint)
+		throw new Error('Given Presenting Complaint Id does not exist');
+
+	// Updating and saving edited Presenting Complaint
+	patient.presentingComplaint.id(_id).complaint =
+		presentingComplaint.complaint;
+	patient.presentingComplaint.id(_id).duration = presentingComplaint.duration;
+	await patient.save();
+};
+
+// Delete Presenting Complaint
+patientSchema.statics.deletePresentingComplaint = async function ({
+	patientId,
+	_id,
+}) {
+	// Type Checks
+	patientId =
+		typeof patientId === 'string' && isValidObjectId(patientId)
+			? patientId
+			: false;
+	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
+	if (!_id || !patientId) {
+		throw new Error(
+			"{_id, patientId} : 'String' of Presenting Complaint should be there in Request body or is invalid"
+		);
+	}
+
+	// Finding Patient
+	const patient = await Patient.findOne({ _id: patientId });
+	if (!patient) throw new Error('Unable to find Patient');
+
+	// Deleting Presenting Complaint
+	const presentingComplaint = patient.presentingComplaint.id(_id);
+	if (!presentingComplaint)
+		throw new Error('Given Presenting Complaint Id does not exist');
+	presentingComplaint.remove();
+	await patient.save();
+};
+
+// Adds new History for the given details
 patientSchema.statics.updateHistoryDetails = async function ({
 	historyFor = '',
 	_id = '',
 	details = {},
 }) {
 	// Type Checks
-	_id = typeof _id === 'string' ? _id : false;
+	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
 	historyFor = typeof historyFor === 'string' ? historyFor : false;
 	details = typeof details === 'object' ? details : false;
 
@@ -155,10 +255,6 @@ patientSchema.statics.updateHistoryDetails = async function ({
 		throw new Error(
 			"{historyFor: 'String', _id : 'String', details: 'Object'} are missing or invalid"
 		);
-
-	// Getting the specific patient
-	const patient = await Patient.findById(_id);
-	if (!patient) throw new Error('Unable to find patient');
 
 	const historyKeys = [
 		'comorbidity',
@@ -179,12 +275,127 @@ patientSchema.statics.updateHistoryDetails = async function ({
 			`History key is wrong, should include ${historyKeys.join(', ')}`
 		);
 
+	// Getting the specific patient
+	const patient = await Patient.findById(_id);
+	if (!patient) throw new Error('Unable to find patient');
+
 	// Updating details for Current date.
 	details.date = Date.now();
 
-	await patient.updateOne({
-		$push: { [`history.${historyFor}`]: { ...details } },
-	});
+	// Add New details
+	patient.history[`${historyFor}`].push({ ...details });
+	const updatedPatient = await patient.save();
+
+	// Returning New History
+	const newHistory = updatedPatient.history[`${historyFor}`]
+		.filter((history) => {
+			// Convert to milliseconds to compare
+			const historyDate = new Date(history.date).getTime();
+			return historyDate === details.date;
+		})[0]
+		.toObject();
+
+	return newHistory;
+};
+
+// Edit Patient History Details
+patientSchema.statics.editHistoryDetails = async function ({
+	historyFor = '',
+	patientId = '',
+	_id = '',
+	details = {},
+}) {
+	// Type Checks
+	_id = typeof _id === 'string' ? _id : false;
+	patientId = typeof patientId === 'string' ? patientId : false;
+	historyFor = typeof historyFor === 'string' ? historyFor : false;
+	details = typeof details === 'object' ? details : false;
+
+	if (!_id || !details || !historyFor || !patientId)
+		throw new Error(
+			"{historyFor: 'String', _id : 'String', patientId: 'String', details: 'Object'} are missing or invalid"
+		);
+	if (!isValidObjectId(patientId)) throw new Error('Invalid Patient Id');
+	if (!isValidObjectId(_id)) throw new Error('Invalid History Id');
+
+	const historyKeys = [
+		'comorbidity',
+		'drug',
+		'allergies',
+		'family',
+		'food',
+		'sanitary',
+		'occupation',
+		'surgical',
+		'pregnancy',
+		'menstrual',
+		'vasectomy',
+	];
+
+	if (!historyKeys.includes(historyFor))
+		throw new Error(
+			`History key is wrong, should include ${historyKeys.join(', ')}`
+		);
+
+	// Finding Patient
+	const patient = await Patient.findById({ _id: patientId });
+	if (!patient) throw new Error('Unable to find Patient');
+
+	// Finding Specific History Details from Patient
+	const history = patient.history[`${historyFor}`].id(_id);
+
+	if (!history) throw new Error('Given History Id does not exist');
+
+	// Updating and saving history
+	history.details = details.details;
+	await patient.save();
+};
+
+// Delete Patient History Details
+patientSchema.statics.deleteHistoryDetails = async function ({
+	historyFor = '',
+	patientId = '',
+	_id = '',
+}) {
+	// Type Checks
+	_id = typeof _id === 'string' ? _id : false;
+	patientId = typeof patientId === 'string' ? patientId : false;
+	historyFor = typeof historyFor === 'string' ? historyFor : false;
+
+	if (!_id || !historyFor || !patientId)
+		throw new Error(
+			"{historyFor: 'String', _id : 'String', patientId: 'String'} are missing or invalid"
+		);
+	if (!isValidObjectId(patientId)) throw new Error('Invalid Patient Id');
+	if (!isValidObjectId(_id)) throw new Error('Invalid History Id');
+
+	const historyKeys = [
+		'comorbidity',
+		'drug',
+		'allergies',
+		'family',
+		'food',
+		'sanitary',
+		'occupation',
+		'surgical',
+		'pregnancy',
+		'menstrual',
+		'vasectomy',
+	];
+
+	if (!historyKeys.includes(historyFor))
+		throw new Error(
+			`History key is wrong, should include ${historyKeys.join(', ')}`
+		);
+
+	// Finding Patient 
+	const patient = await Patient.findOne({ _id: patientId });
+	if (!patient) throw new Error('Unable to find Patient');
+
+	const history = patient.history[`${historyFor}`].id(_id);
+	if (!history) throw new Error('Given History Id does not exist');
+	history.remove();
+	await patient.save();
 };
 
 patientSchema.statics.getAllPatients = async function () {

@@ -37,7 +37,15 @@ Router.patch('/patient-general', authAdmin, adminController.editPatientGeneralDe
 
 Router.post('/patient-presentingComplaint', authAdmin, adminController.updatePatientPresentingComplaint);
 
+Router.patch('/patient-presentingComplaint', authAdmin, adminController.editPatientPresentingComplaint);
+
+Router.delete('/patient-presentingComplaint', authAdmin, adminController.deletePatientPresentingComplaint);
+
 Router.post('/patient-history', authAdmin, adminController.updatePatientHistory);
+
+Router.patch('/patient-history', authAdmin, adminController.editPatientHistory);
+
+Router.delete('/patient-history', authAdmin, adminController.deletePatientHistory);
 
 Router.delete('/patient-delete', authAdmin, adminController.deletePatient);
 

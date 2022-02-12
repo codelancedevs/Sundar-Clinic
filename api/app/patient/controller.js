@@ -440,7 +440,7 @@ exports.editHistoryDetails = async (req, res) => {
  * @description Delete a specific Patient History with Id
  * @route DELETE /api/patient/history
  * @data {historyFor: 'String', _id: 'String'} in the Request Body
- * @access Public
+ * @access Patient
  */
 exports.deleteHistoryDetails = async (req, res) => {
 	// Collecting Required data from Request Body and Middleware

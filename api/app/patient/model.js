@@ -137,7 +137,10 @@ patientSchema.statics.updatePresentingComplaint = async function ({
 	// Type Checks
 	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
 	presentingComplaint =
-		typeof presentingComplaint === 'object' ? presentingComplaint : false;
+		typeof presentingComplaint === 'object' &&
+			presentingComplaint?.complaint
+			? presentingComplaint
+			: false;
 
 	if (!_id || !presentingComplaint)
 		throw new Error(
@@ -181,11 +184,11 @@ patientSchema.statics.editPresentingComplaint = async function ({
 	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
 	presentingComplaint =
 		typeof presentingComplaint === 'object' &&
-		presentingComplaint?.complaint
+			presentingComplaint?.complaint
 			? presentingComplaint
 			: false;
 
-	if (!_id || !presentingComplaint)
+	if (!_id || !presentingComplaint || !patientId)
 		throw new Error(
 			"{_id : 'String', patientId: 'String', presentingComplaint: 'Object'} are missing or invalid"
 		);
@@ -219,9 +222,9 @@ patientSchema.statics.deletePresentingComplaint = async function ({
 			? patientId
 			: false;
 	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
-	if (!_id) {
+	if (!_id || !patientId) {
 		throw new Error(
-			"{_id} : 'String' of Presenting Complaint should be there in Request body or is invalid"
+			"{_id, patientId} : 'String' of Presenting Complaint should be there in Request body or is invalid"
 		);
 	}
 
@@ -359,7 +362,7 @@ patientSchema.statics.deleteHistoryDetails = async function ({
 	patientId = typeof patientId === 'string' ? patientId : false;
 	historyFor = typeof historyFor === 'string' ? historyFor : false;
 
-	if (!_id || !historyFor)
+	if (!_id || !historyFor || !patientId)
 		throw new Error(
 			"{historyFor: 'String', _id : 'String', patientId: 'String'} are missing or invalid"
 		);
@@ -385,7 +388,10 @@ patientSchema.statics.deleteHistoryDetails = async function ({
 			`History key is wrong, should include ${historyKeys.join(', ')}`
 		);
 
+	// Finding Patient 
 	const patient = await Patient.findOne({ _id: patientId });
+	if (!patient) throw new Error('Unable to find Patient');
+
 	const history = patient.history[`${historyFor}`].id(_id);
 	if (!history) throw new Error('Given History Id does not exist');
 	history.remove();

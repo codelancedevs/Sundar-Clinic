@@ -2,7 +2,7 @@ import React from 'react'
 
 function Posts() {
     return (
-        <div>Posts</div>
+        <div className='w-full h-full'>Posts</div>
     )
 }
 

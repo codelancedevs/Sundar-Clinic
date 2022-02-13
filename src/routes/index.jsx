@@ -13,6 +13,10 @@ import Gallery from '../pages/Gallery';
 import Contact from '../pages/Contact';
 import Posts from '../pages/Posts';
 import NotFound from '../pages/NotFound';
+import TermsOfService from '../pages/TermsOfService';
+import PrivacyPolicy from '../pages/PrivacyPolicy';
+
+// Email Pages
 import VerifyAccount from '../pages/Email/VerifyAccount';
 import ResetPassword from '../pages/Email/ResetPassword';
 
@@ -39,8 +43,10 @@ const AppRoutes = () => {
                 <Route path='gallery' element={<Gallery />} />
                 <Route path='posts' element={<Posts />} />
                 <Route path='contact' element={<Contact />} />
-                <Route path='verifyAccount?:authToken' element={<VerifyAccount />} />
-                <Route path='resetPassword?:authToken' element={<ResetPassword />} />
+                <Route path='termsOfService' element={<TermsOfService />} />
+                <Route path='privacyPolicy' element={<PrivacyPolicy />} />
+                <Route path='verifyAccount/authToken=:authToken&userId=:userId&type=:type' element={<VerifyAccount />} />
+                <Route path='resetPassword/authToken=:authToken&userId=:userId&type=:type' element={<ResetPassword />} />
             </Route>
 
             {/* Admin Routes */}

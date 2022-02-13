@@ -15,9 +15,6 @@ import React from 'react';
 // };
 
 function Home() {
-  // axios.get("/api/post?postId=6203ea8dc522e5f355756e56")
-  //   .then(res => console.log(res.data))
-  //   .catch(err => console.log(err.response))
   // const { isLoading, error, isError, data, isFetching, refetch } = useQuery(
   //   routes.site.getIndex.key,
   //   getHome,
@@ -35,7 +32,7 @@ function Home() {
   // }
 
   return (
-    <div>
+    <div className='w-full h-full'>
       {/* Home: {JSON.stringify(data)}
       <button onClick={refetch}>Less Gooo</button> */}
     </div>

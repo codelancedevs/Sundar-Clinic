@@ -59,15 +59,12 @@ exports.authPatient = async (req, res, next) => {
 
 // Authorize Super Admins
 exports.authSuperAdmin = async (req, res, next) => {
-	const { superPassword } = req.body;
+	let { superPassword } = req.body;
 	try {
+		superPassword = typeof superPassword === 'string' ? superPassword : false
 		if (!superPassword)
 			throw new Error(
 				"Super admin Password is required as {superPassword: 'String'}"
-			);
-		if (typeof superPassword !== 'string')
-			throw new Error(
-				`superPassword should be a string, cannot be ${typeof superPassword}`
 			);
 		const isSuperAdmin = await bcrypt.compare(
 			superPassword,
@@ -123,4 +120,4 @@ exports.preventXST = (req, res, next) => {
 	return next();
 };
 
-exports.errorHandler = (err, req, res, next) => {};
+exports.errorHandler = (err, req, res, next) => { };

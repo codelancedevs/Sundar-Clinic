@@ -19,24 +19,31 @@ const App = require('./model');
  * @access Public
  */
 exports.sendSiteDetails = async (req, res) => {
-	if (!appId) {
+	try {
+		if (!appId) {
+			return res.status(200).json({
+				message: 'App Details being Updated',
+				data: {},
+				success: true,
+			});
+		}
+		const appDetails = await App.findById(appId).select({
+			_id: 0,
+			__v: 0,
+			owner: { clinic: { doctors: 0, documents: 0 } },
+		});
 		return res.status(200).json({
-			message: 'App Details being Updated',
-			data: {},
+			message:
+				'API created for Sundar Clinic By Codelance Devs, made with 💖 by Kunal Keshan',
+			data: { ...appDetails.toObject() },
 			success: true,
 		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(401)
+			.json({ message: error.message, data: {}, success: false });
 	}
-	const appDetails = await App.findById(appId).select({
-		_id: 0,
-		__v: 0,
-		owner: { clinic: { doctors: 0, documents: 0 } },
-	});
-	return res.status(200).json({
-		message:
-			'API created for Sundar Clinic By Codelance Devs, made with 💖 by Kunal Keshan',
-		data: { ...appDetails.toObject() },
-		success: true,
-	});
 };
 
 /**
@@ -136,10 +143,7 @@ exports.editOwnerDetails = async (req, res) => {
 	}
 };
 
-
 // exports.addClinicDoctor = async (req, res) => {}
-
-// exports.editClinicDoctor = async (req, res) => {}
 
 // exports.deleteClinicDoctor = async (req, res) => {}
 

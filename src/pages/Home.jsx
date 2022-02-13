@@ -28,17 +28,17 @@ function Home() {
         getIndex.path
       )
         .then((res) => {
-          dispatch(showSnackbar({ message: res.data.message, type: 'success' }))
           dispatch(disableLoading())
+          dispatch(showSnackbar({ message: res.data.message, type: 'success' }))
         })
         .catch((err) => {
           console.log(err.response);
           dispatch(disableLoading())
-          dispatch(showSnackbar({ message: err.response.data.error.message }))
+          dispatch(showSnackbar({ message: !err?.response ? 'Server Down' : err?.response?.data?.error?.message }))
         })
     };
     getHome();
-  }, [])
+  })
 
   return <div className="h-full w-full">
     Home

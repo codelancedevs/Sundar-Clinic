@@ -6,6 +6,6 @@
 import axios from 'axios';
 import config from '../config';
 
-const server = axios.create({ baseURL: config.backendUrl })
+axios.defaults.baseURL = config.backendUrl;
 
-export default server;
+export default axios;

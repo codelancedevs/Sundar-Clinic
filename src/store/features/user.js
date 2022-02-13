@@ -70,12 +70,14 @@ export const userSplice = createSlice({
 				loggedInAs: action.payload.loggedInAs,
 			};
 			localStorage.setItem('loggedIn', JSON.stringify(loggedIn));
+			localStorage.setItem('user', JSON.stringify(state.value.user));
 			state.value.loggedIn = loggedIn;
 		},
 		logout: (state, action) => {
 			state.value.loggedIn = false;
 			state.value.user = { ...user };
 			localStorage.removeItem('loggedIn');
+			localStorage.removeItem('user');
 		},
 	},
 });

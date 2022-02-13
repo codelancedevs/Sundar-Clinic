@@ -3,43 +3,46 @@
  */
 
 // Dependencies
-import React from 'react';
-// import { useQuery } from 'react-query';
+import React, { useEffect } from "react";
+// import { useQuery } from "react-query";
+import { useDispatch } from "react-redux";
 
 // Custom
-// import server from '../functions/server';
-// import routes from '../routes/routes.json';
+import axios from "../functions/server";
+import {
+  enableLoading,
+  disableLoading,
+  showSnackbar,
+} from "../store/features/app";
 
-// const getHome = () => {
-//   return server.get(routes.site.getIndex.path);
-// };
-
+// Getting Specific Routes
+import routes from "../config/routes.js";
+const { site: { getIndex } } = routes;
 function Home() {
-  // axios.get("/api/post?postId=6203ea8dc522e5f355756e56")
-  //   .then(res => console.log(res.data))
-  //   .catch(err => console.log(err.response))
-  // const { isLoading, error, isError, data, isFetching, refetch } = useQuery(
-  //   routes.site.getIndex.key,
-  //   getHome,
-  //   {
-  //     enabled: false,
-  //   }
-  // );
+  const dispatch = useDispatch();
 
-  // if (isLoading || isFetching) {
-  //   return <h2>Loading...</h2>;
-  // }
+  useEffect(() => {
+    const getHome = () => {
+      dispatch(enableLoading());
+      axios[getIndex.method](
+        getIndex.path
+      )
+        .then((res) => {
+          dispatch(disableLoading())
+          dispatch(showSnackbar({ message: res.data.message, type: 'success' }))
+        })
+        .catch((err) => {
+          console.log(err.response);
+          dispatch(disableLoading())
+          dispatch(showSnackbar({ message: !err?.response ? 'Server Down' : err?.response?.data?.error?.message }))
+        })
+    };
+    getHome();
+  })
 
-  // if (isError) {
-  //   return <h2>{JSON.stringify(error.message)}</h2>;
-  // }
-
-  return (
-    <div>
-      {/* Home: {JSON.stringify(data)}
-      <button onClick={refetch}>Less Gooo</button> */}
-    </div>
-  );
+  return <div className="h-full w-full">
+    Home
+  </div>;
 }
 
 export default Home;

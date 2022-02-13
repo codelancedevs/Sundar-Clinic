@@ -10,6 +10,7 @@ const bcrypt = require('bcryptjs');
 const Admin = require('../../app/admin/model');
 const Patient = require('../../app/patient/model');
 const {
+	reactAppUrl,
 	secrets: {
 		adminSecret,
 		patientSecret,
@@ -59,15 +60,13 @@ exports.authPatient = async (req, res, next) => {
 
 // Authorize Super Admins
 exports.authSuperAdmin = async (req, res, next) => {
-	const { superPassword } = req.body;
+	let { superPassword } = req.body;
 	try {
+		superPassword =
+			typeof superPassword === 'string' ? superPassword : false;
 		if (!superPassword)
 			throw new Error(
 				"Super admin Password is required as {superPassword: 'String'}"
-			);
-		if (typeof superPassword !== 'string')
-			throw new Error(
-				`superPassword should be a string, cannot be ${typeof superPassword}`
 			);
 		const isSuperAdmin = await bcrypt.compare(
 			superPassword,
@@ -123,4 +122,17 @@ exports.preventXST = (req, res, next) => {
 	return next();
 };
 
-exports.errorHandler = (err, req, res, next) => {};
+// Permit CORS
+exports.permitCrossDomainRequests = function (req, res, next) {
+	res.header('Access-Control-Allow-Origin', reactAppUrl);
+	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,CONNECT,HEAD');
+	res.header('Access-Control-Allow-Headers', 'Content-Type');
+	// some browsers send a pre-flight OPTIONS request to check if CORS is enabled so you have to also respond to that
+	if ('OPTIONS' === req.method) {
+		return res.send(200);
+	} else {
+		return next();
+	}
+};
+
+exports.errorHandler = (err, req, res, next) => { };

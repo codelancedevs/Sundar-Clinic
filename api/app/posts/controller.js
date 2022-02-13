@@ -27,12 +27,26 @@ exports.fetchPosts = async (req, res) => {
 		// Checking type of Request
 		if (_id) {
 			if (!isValidObjectId(_id)) throw new Error('Invalid Post Id');
-			const post = await Post.findById(_id);
+			const post = await Post.findById(_id)
+				.populate('createdBy')
+				.populate('lastEditedBy');
 			if (!post) throw new Error('Unable to find post');
-			posts.push(post);
+			const postData = post.toObject();
+			postData.createdBy = post.createdBy.fullName;
+			postData.lastEditedBy = post.lastEditedBy.fullName;
+			posts.push(postData);
 		} else {
-			const allPosts = await Post.find();
-			posts.push(...allPosts);
+			const allPosts = await Post.find()
+				.populate('createdBy')
+				.populate('lastEditedBy');
+
+			if (!allPosts) throw new Error('No Posts Created');
+			allPosts.forEach((post) => {
+				const postData = post.toObject();
+				postData.createdBy = post.createdBy.fullName;
+				postData.lastEditedBy = post.lastEditedBy.fullName;
+				posts.push(postData);
+			});
 		}
 
 		return res.status(200).json({
@@ -64,14 +78,22 @@ exports.createNewPost = async (req, res) => {
 	const { _id } = req.admin;
 	try {
 		// Creating New Post and saving
-		const post = new Post({ createdBy: _id, lastEditedBy: _id });
-		await post.save();
+		const newPost = new Post({ createdBy: _id, lastEditedBy: _id });
+		await newPost.save();
+
+		const post = await Post.findById({ _id: newPost._id.toString() })
+			.populate('createdBy')
+			.populate('lastEditedBy');
+
+		const postData = post.toObject();
+		postData.createdBy = post.createdBy.fullName;
+		postData.lastEditedBy = post.lastEditedBy.fullName;
 
 		// Response after creating Post with Post Id
 		return res.status(200).json({
 			message: 'Post Created Successfully',
 			data: {
-				post: post.toObject(),
+				post: postData,
 			},
 			success: true,
 		});
@@ -105,7 +127,9 @@ exports.editPost = async (req, res) => {
 		isPublished = typeof isPublished === 'boolean' ? isPublished : false;
 
 		// Find Post
-		const post = await Post.findById(_id);
+		const post = await Post.findById(_id)
+			.populate('createdBy')
+			.populate('lastEditedBy');
 		if (!post) throw new Error('Unable to Find Post');
 
 		// Updating Post details
@@ -126,11 +150,15 @@ exports.editPost = async (req, res) => {
 		// Update Post
 		await post.updateOne({ ...details });
 
+		const postData = post.toObject();
+		postData.createdBy = post.createdBy.fullName;
+		postData.lastEditedBy = post.lastEditedBy.fullName;
+
 		// Response after successfully updating post
 		return res.status(200).json({
 			message: 'Post Edited Successfully',
 			data: {
-				post: { ...post.toObject(), ...details },
+				post: postData,
 			},
 			success: true,
 		});

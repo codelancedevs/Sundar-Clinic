@@ -18,7 +18,7 @@ const {
 	loggingOptions,
 	backendAppUrl,
 } = require('./api/helper/config');
-const {preventXST} = require('./api/helper/middleware');
+const {preventXST, permitCrossDomainRequests} = require('./api/helper/middleware');
 
 // Importing App Router
 const appRouter = require('./api/app/src');
@@ -28,18 +28,19 @@ const app = express();
 
 // Using Middleware
 app.use(preventXST);
+app.use(permitCrossDomainRequests);
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(cookieParser(cookieSecret));
-app.use(logger(loggingOptions));
 app.use(
 	cors({
 		origin: reactAppUrl,
 		optionsSuccessStatus: 200,
 	})
 );
-
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser(cookieSecret));
+app.use(logger(loggingOptions));
+console.log(reactAppUrl)
 app.disable('x-powered-by');
 
 // Connecting App to MongoDB

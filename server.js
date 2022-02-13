@@ -27,20 +27,21 @@ const appRouter = require('./api/app/src');
 const app = express();
 
 // Using Middleware
+app.use(express.json());
 app.use(preventXST);
 app.use(permitCrossDomainRequests);
-app.use(express.json());
 app.use(
 	cors({
 		origin: reactAppUrl,
 		optionsSuccessStatus: 200,
+		credentials: true,
 	})
 );
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser(cookieSecret));
 app.use(logger(loggingOptions));
-console.log(reactAppUrl)
+
 app.disable('x-powered-by');
 
 // Connecting App to MongoDB

@@ -12,6 +12,23 @@ const initialState = {
             type: "error", // error, warning, info, success
         },
         showLoading: false,
+
+        site: {
+            contact: {
+                phone: '',
+                email: '',
+            },
+            detail: '',
+            link: ''
+        },
+        owner: {
+            name: '',
+            clinic: {
+                address: '',
+                doctors: [],
+                documents: [],
+            }
+        }
     },
 };
 

@@ -26,7 +26,11 @@ exports.sendSiteDetails = async (req, res) => {
 			success: true,
 		});
 	}
-	const appDetails = await App.findById(appId).select({ _id: 0, __v: 0 });
+	const appDetails = await App.findById(appId).select({
+		_id: 0,
+		__v: 0,
+		owner: { clinic: { doctors: 0, documents: 0 } },
+	});
 	return res.status(200).json({
 		message:
 			'API created for Sundar Clinic By Codelance Devs, made with 💖 by Kunal Keshan',
@@ -132,60 +136,12 @@ exports.editOwnerDetails = async (req, res) => {
 	}
 };
 
-/**
- * @description Update Clinic Doctor Details
- * @route PUT /api/app/clinicDoctorDetails
- * @data {doctors} : 'Array' in Request Body
- * @access Admin
- * ! To be Tested [ Work in Progress ]
- */
-exports.updateClinicDoctorDetails = async (req, res) => {
-	// Collecting required data from Request Body
-	let { doctors, mode, data } = req.body;
-	try {
-		// Type Check
-		doctors =
-			doctors instanceof Array && doctors.length > 0 ? doctors : false;
-		if (!doctors)
-			throw new Error(
-				"{doctors} : 'Array' should be there in the Request Body"
-			);
 
-		// Get Doctors details from App
-		const app = await App.findById(appId);
-		let {
-			owner: {
-				clinic: { doctors: appDoctors },
-			},
-		} = app;
+// exports.addClinicDoctor = async (req, res) => {}
 
-		const updatedDoctors = [];
+// exports.editClinicDoctor = async (req, res) => {}
 
-		// TODO: Check for Duplicate Values and Make array for updated values 
-		appDoctors.forEach((doctor, index) => {
-			if (doctor.registrationNo !== doctors[index].registrationNo) {
-				updatedDoctors.push(doctor);
-			}
-		});
-		console.log(updatedDoctors)
-
-		// Updating Doctor Details
-		// await app.updateOne({ 'owner.clinic.doctors': appDoctors });
-
-		return res.status(200).json({
-			message: 'Clinic Doctor Details Updated Successfully [Work in Progress]',
-			data: {
-				doctors: [...appDoctors],
-			},
-			success: true,
-		});
-	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
-	}
-};
+// exports.deleteClinicDoctor = async (req, res) => {}
 
 /**
  * @description <Controller description here>

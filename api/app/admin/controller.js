@@ -150,7 +150,7 @@ exports.createAdmin = async (req, res) => {
  * @access <Access Level>
  * ! To be Tested
  */
-exports.adminEmailAvailable = async (req, res) => {};
+exports.adminEmailAvailable = async (req, res) => { };
 
 /**
  * @description <Controller description here>
@@ -159,7 +159,7 @@ exports.adminEmailAvailable = async (req, res) => {};
  * @access <Access Level>
  * ! To be Tested
  */
-exports.adminUsernameAvailable = async (req, res) => {};
+exports.adminUsernameAvailable = async (req, res) => { };
 
 /**
  * @description Edit Admin Account Details
@@ -170,7 +170,7 @@ exports.adminUsernameAvailable = async (req, res) => {};
 exports.editAdminDetails = async (req, res) => {
 	// Collecting Required Data from Request Body and Middleware
 	const { _id } = req.admin;
-	let { fullName, username, email, phone, address } = req.body;
+	let { fullName, username, email, phone, address, adminDetails } = req.body;
 	try {
 		// Finding Admin
 		const admin = await Admin.findById(_id);
@@ -184,6 +184,7 @@ exports.editAdminDetails = async (req, res) => {
 			email: email || admin.email,
 			phone: phone || admin.phone,
 			address: address || admin.address,
+			adminDetails: { ...admin.adminDetails, ...adminDetails }
 		};
 		await admin.updateOne({ ...details });
 

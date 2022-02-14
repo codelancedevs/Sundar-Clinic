@@ -37,10 +37,10 @@ export const appSlice = createSlice({
     initialState,
     reducers: {
         showSnackbar: (state, action) => {
-            state.value.snackbar = { ...state.value.snackbar, display: true, ...action.payload }
+            state.value.snackbar = { ...initialState.value.snackbar, display: true, ...action.payload }
         },
         hideSnackbar: (state, action) => {
-            state.value.snackbar = { ...state.value.snackbar, display: false };
+            state.value.snackbar = initialState.value.snackbar;
         },
         enableLoading: (state, action) => {
             state.value.showLoading = true;

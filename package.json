@@ -1,6 +1,6 @@
 {
 	"name": "sundar-clinic-backend",
-	"version": "0.6.3",
+	"version": "0.6.4",
 	"description": "Server Side Application for Sundar Clinic Website.",
 	"main": "server.js",
 	"scripts": {

@@ -10,24 +10,62 @@ const {
 	expireDurations: {
 		verificationExpireAt,
 		passwordResetExpireAt,
-		tokenExpireAt,
 	},
 	secrets: { verificationSecret, passwordResetSecret, deleteAccountSecret },
 } = require('../config');
 
-exports.createAccountVerificationToken = ({ id = '' }) => {
-	return jwt.sign({ id }, verificationSecret, {
+/**
+ * @description Creates a verify account token
+ * @param {string} _id User Id 
+ * @returns JWT Token
+ */
+exports.createAccountVerificationToken = ({ _id = '' }) => {
+	if (!_id) throw new Error('_id : String is Required to get a token!')
+	return jwt.sign({ _id }, verificationSecret, {
 		expiresIn: verificationExpireAt,
 	});
 };
 
-exports.createPasswordResetToken = ({ id = '' }) => {
-	return jwt.sign({ id }, passwordResetSecret, passwordResetExpireAt);
+/**
+ * @description Creates a reset password token
+ * @param {string} _id User Id 
+ * @returns JWT Token
+ */
+exports.createResetPasswordToken = ({ _id = '' }) => {
+	if (!_id) throw new Error('_id : String is Required to get a token!')
+	return jwt.sign({ _id }, passwordResetSecret, {
+		expiresIn: passwordResetExpireAt,
+	});
 };
 
-exports.deleteAccountToken = ({ id = '' }) => {
-	return jwt.sign({ id }, deleteAccountSecret, tokenExpireAt);
+/**
+ * @description Creates a delete account token
+ * @param {string} _id User Id 
+ * @returns JWT Token
+ */
+exports.createDeleteAccountToken = ({ _id = '' }) => {
+	if (!_id) throw new Error('_id : String is Required to get a token!')
+	return jwt.sign({ _id }, deleteAccountSecret, {
+		expiresIn: passwordResetExpireAt,
+	});
 };
+
+// Authenticate Verify Account Token
+exports.authenticateVerifyAuthToken = ({ authToken = '' }) => {
+	try {
+		const decoded = jwt.verify(authToken, verificationSecret);
+		if (!decoded._id) throw new Error();
+		return decoded._id;
+	} catch (error) {
+		return false;
+	}
+};
+
+// Authenticate Reset Password Token
+exports.authenticateResetPasswordAuthToken = () => { };
+
+// Authenticate Delete account Token
+exports.authenticateDeleteAccountToken = () => { };
 
 exports.createApp = async ({ id, App }) => {
 	if (id) return;

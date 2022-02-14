@@ -134,18 +134,6 @@ userSchema.methods.sanitizeAndReturnUser = function () {
 	return user;
 };
 
-// Create a token to allow user to verify their account
-userSchema.methods.generateVerifyAuthToken = function () {};
-
-// Authenticate Verify Account Token
-userSchema.methods.authenticateVerifyAuthToken = function () {};
-
-// Create a token to allow user to reset their password
-userSchema.methods.generateResetPasswordAuthToken = function () {};
-
-// Authenticate Reset Password Token
-userSchema.methods.authenticateResetPasswordAuthToken = function () {};
-
 // Create a random Password for the user
 userSchema.statics.createRandomPassword = function ({ fullName = '' }) {
 	const password = `${fullName.split(' ').join('')}@${Math.floor(

@@ -7,6 +7,7 @@
 // Dependencies
 const User = require('./model');
 const { isEmail } = require('validator');
+const { authenticateVerifyAuthToken } = require('../../helper/functions');
 
 /* ================================
     UNAUTHENTICATED CONTROLLERS
@@ -95,14 +96,45 @@ exports.sendResetPasswordMail = (req, res) => {};
 ================================ */
 
 /** URL AUTH TOKEN BASED AUTHENTICATION
- * @description Authenticate Admin Account from the Link clicked by email
- * @route PATCH
- * @data <Data either in body, params, or query>
+ * @description Authenticate Account
+ * @route PATCH /api/user/verify
+ * @data {authToken} : 'String' in Request Body
  * ? Data to be implemented
  * @access Public
  * ! To be Tested
  */
-exports.verifyUser = (req, res) => {};
+exports.verifyUser = async (req, res) => {
+	// Collecting Required data from Request Body
+	let { authToken } = req.body;
+	try {
+		// Type Check
+		authToken = typeof authToken === 'string' ? authToken : false;
+		if(!authToken) throw new Error("{authToken} : 'String' is required in Request Body");
+
+		const userId = authenticateVerifyAuthToken({authToken});
+		if(!userId) throw new Error('User cannot be authenticated, request another link');
+
+		const user = await User.findOne({_id: userId});
+		if(!user) throw new Error('Unable to find User');
+
+		// Verifying User Account
+		await user.updateOne({isVerified: true});
+
+		// Response after successfully verifying account
+		return res.status(200).json({
+			message: 'Account Verified Successfully',
+			data: {
+				user: user.sanitizeAndReturnUser(),
+			},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 /** URL AUTH TOKEN BASED AUTHENTICATION
  * @description <Controller description here>

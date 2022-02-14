@@ -39,9 +39,9 @@ const configuration = {
 	backendAppUrl: process.env.BACKEND_APP_URL || `http://localhost:${port}`,
 	appId: process.env.MONGODB_APP_ID,
 	expireDurations: {
-		tokenExpireAt: 8.64e7,
-		verificationExpireAt: 8.64e7 * 3,
-		passwordResetExpireAt: 8.64e7 * 3,
+		tokenExpireAt: 8.64e7 * 30, // 30 Days
+		verificationExpireAt: 8.64e7 * 7, // 7 Days
+		passwordResetExpireAt: 8.64e7 * 3, // 3 Days
 	},
 	mongoDb: {
 		connectionUri,

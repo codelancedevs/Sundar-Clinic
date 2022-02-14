@@ -9,6 +9,7 @@ const { isValidObjectId } = require('mongoose');
 const { isEmail, isStrongPassword } = require('validator');
 const Admin = require('./model');
 const Patient = require('../patient/model');
+const { sendWelcomeAndVerifyAccountEmail } = require('../../helper/mail');
 const {
 	expireDurations: { tokenExpireAt },
 } = require('../../helper/config');
@@ -105,8 +106,7 @@ exports.fetchAdmins = async (req, res) => {
 			admins.push(...searchedAdmins);
 		} else {
 			if (_id) {
-				if (!isValidObjectId(_id))
-					throw new Error('Invalid Admin Id');
+				if (!isValidObjectId(_id)) throw new Error('Invalid Admin Id');
 				const admin = await Admin.findById(_id);
 				if (!admin) throw new Error(`No Admin found with id: ${_id}`);
 				admins.push(admin.sanitizeAndReturnUser());
@@ -167,6 +167,13 @@ exports.createAdmin = async (req, res) => {
 		// Creating New Admin
 		const admin = new Admin({ fullName, email, password, tosAgreement });
 		await admin.save();
+
+		// Sending Admin Welcome email and verify account
+		sendWelcomeAndVerifyAccountEmail({
+			_id: admin._id,
+			fullName: admin.fullName,
+			to: admin.email,
+		});
 
 		// Creating Admin Auth Token
 		const adminToken = await admin.generateAuthToken();

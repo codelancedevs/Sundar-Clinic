@@ -16,16 +16,18 @@ Router.get('/isEmailUnique', userController.isEmailUnique);
 
 Router.get('/isUsernameUnique', userController.isUsernameUnique);
 
-Router.get('/email/verify', userController.sendVerifyUserMail);
+Router.post('/email/verify', userController.sendVerifyUserMail);
 
-Router.get('/email/password', userController.sendResetPasswordMail);
+Router.post('/email/password', userController.sendResetPasswordMail);
 
 /* ================================
     AUTHENTICATED ROUTES
 ================================ */
 
-Router.post('/email/verify', userController.verifyUser);
+Router.patch('/email/verify', userController.verifyUser);
 
-Router.post('/email/password', userController.verifyResetPasswordMail);
+Router.patch('/email/password', userController.verifyResetPasswordMail);
+
+Router.patch('/resetPassword', userController.resetUserPassword);
 
 module.exports = Router;

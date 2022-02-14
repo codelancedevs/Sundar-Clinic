@@ -7,10 +7,14 @@
 // Dependencies
 const User = require('./model');
 const { isEmail } = require('validator');
-const { authenticateVerifyAuthToken } = require('../../helper/functions');
+const {
+	authenticateVerifyAuthToken,
+	authenticateResetPasswordAuthToken,
+} = require('../../helper/functions');
+const { sendResetPasswordEmail } = require('../../helper/mail');
 
 /* ================================
-    UNAUTHENTICATED CONTROLLERS
+	UNAUTHENTICATED CONTROLLERS
 ================================ */
 
 /**
@@ -80,28 +84,59 @@ exports.isUsernameUnique = async (req, res) => {
  * @access <Access Level>
  * ! To be Tested
  */
-exports.sendVerifyUserMail = (req, res) => {};
+exports.sendVerifyUserMail = (req, res) => { };
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
+ * @description Send a Reset Password Email to the User's requested email
+ * @route POST /api/user/email/password
+ * @data {email} : 'String' in Request Body
+ * @access Public
  */
-exports.sendResetPasswordMail = (req, res) => {};
+exports.sendResetPasswordMail = async (req, res) => {
+	// Collecting Required data from Request Body
+	let { email } = req.body;
+	try {
+		// Type Check
+		email = typeof email === 'string' && isEmail(email) ? email : false;
+		if (!email)
+			throw new Error(
+				"{email} : 'String' is required in Request body or is invalid"
+			);
+
+		// Checking if user with given email exists
+		const user = await User.findOne({ email });
+		if (!user) throw new Error(`No user account found for ${email}`);
+
+		// Sending Reset Password Link if user exists
+		sendResetPasswordEmail({
+			_id: user._id,
+			fullName: user.fullName,
+			to: user.email,
+		});
+
+		// Response after sending Reset Password Email
+		return res.status(200).json({
+			message: 'Reset password link set successfully',
+			data: {},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 /* ================================
-    AUTHENTICATED CONTROLLERS
+	AUTHENTICATED CONTROLLERS
 ================================ */
 
 /** URL AUTH TOKEN BASED AUTHENTICATION
  * @description Authenticate Account
  * @route PATCH /api/user/verify
  * @data {authToken} : 'String' in Request Body
- * ? Data to be implemented
  * @access Public
- * ! To be Tested
  */
 exports.verifyUser = async (req, res) => {
 	// Collecting Required data from Request Body
@@ -109,16 +144,26 @@ exports.verifyUser = async (req, res) => {
 	try {
 		// Type Check
 		authToken = typeof authToken === 'string' ? authToken : false;
-		if(!authToken) throw new Error("{authToken} : 'String' is required in Request Body");
+		if (!authToken)
+			throw new Error(
+				"{authToken} : 'String' is required in Request Body"
+			);
 
-		const userId = authenticateVerifyAuthToken({authToken});
-		if(!userId) throw new Error('User cannot be authenticated, request another link');
+		const userId = authenticateVerifyAuthToken({ authToken });
+		if (!userId)
+			throw new Error(
+				'User cannot be authenticated, request another link'
+			);
 
-		const user = await User.findOne({_id: userId});
-		if(!user) throw new Error('Unable to find User');
+		const user = await User.findOne({ _id: userId });
+		if (!user) throw new Error('Unable to find User');
 
 		// Verifying User Account
-		await user.updateOne({isVerified: true});
+		await user.updateOne({ isVerified: true });
+
+		/**
+		 * ? Should user be logged in automatically after account is verified?
+		 */
 
 		// Response after successfully verifying account
 		return res.status(200).json({
@@ -137,19 +182,87 @@ exports.verifyUser = async (req, res) => {
 };
 
 /** URL AUTH TOKEN BASED AUTHENTICATION
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
+ * @description Authenticate the reset password link
+ * @route PATCH /api/user/email/password
+ * @data {authToken} : 'String' in Request Body
+ * @access Public
  */
-exports.verifyResetPasswordMail = (req, res) => {};
+exports.verifyResetPasswordMail = async (req, res) => {
+	// Collecting Required data from Request Body
+	let { authToken } = req.body;
+	try {
+		// Type Check
+		authToken = typeof authToken === 'string' ? authToken : false;
+		if (!authToken)
+			throw new Error(
+				"{authToken} : 'String' is required in Request Body"
+			);
+
+		const userId = authenticateResetPasswordAuthToken({ authToken });
+		if (!userId)
+			throw new Error(
+				'User cannot be authenticated, request another link'
+			);
+
+		const user = await User.findOne({ _id: userId });
+		if (!user) throw new Error('Unable to find User');
+
+		return res.status(200).json({
+			message: 'Reset Password token is valid',
+			data: {
+				isValid: true,
+			},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
 
 /** URL AUTH TOKEN BASED AUTHENTICATION
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
+ * @description Reset Password of user
+ * @route PATCH /api/user/resetPassword
+ * @data {authToken, password} : 'String' in Request Body
+ * @access Public
  * ! To be Tested
  */
-exports.resetUserPassword = (req, res) => {};
+exports.resetUserPassword = async (req, res) => {
+	// Collecting Required data from Request Body
+	let { authToken, password } = req.body;
+	try {
+		// Type Check
+		authToken = typeof authToken === 'string' ? authToken : false;
+		password = typeof password === 'string' ? password : false;
+		if (!authToken || !password)
+			throw new Error(
+				"{authToken, password} : 'String' is required in Request Body"
+			);
+
+		const userId = authenticateResetPasswordAuthToken({ authToken });
+		if (!userId)
+			throw new Error(
+				'User cannot be authenticated, request another link'
+			);
+
+		const user = await User.findOne({ _id: userId });
+		if (!user) throw new Error('Unable to find User');
+
+		const hashedPassword = await user.returnHashedPassword({ password });
+
+		await user.updateOne({ password: hashedPassword });
+
+		return res.status(200).json({
+			message: 'Password Reset Successful',
+			data: {},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};

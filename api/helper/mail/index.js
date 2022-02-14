@@ -12,8 +12,7 @@ const {
 } = require('../config');
 const {
 	createAccountVerificationToken,
-	createResentPasswordToken,
-	createDeleteAccountToken,
+	createResetPasswordToken,
 } = require('../functions');
 
 // Mail Transporter
@@ -72,6 +71,8 @@ exports.sendWelcomeAndVerifyAccountEmail = async ({
 		subject: 'Verify Your Account',
 		html: `Click to verify your account ${reactAppUrl}/verifyAccount/authToken=${token}`,
 	});
+
+	// Sending Email
 	mailTransporter.sendMail(config, mailCallback);
 };
 
@@ -80,15 +81,23 @@ exports.sendVerifyAccountEmail = async ({
 	to = '',
 	fullName = '',
 }) => {
+	// Pre Checks
 	if (!to || !fullName || !_id)
 		throw new Error(
 			'{to, fullName, _id} : String is Required to send email!'
 		);
+
+	// Creating Verification Token
+	const token = createAccountVerificationToken({ _id });
+
+	// Creating Mail Config
 	const config = mailConfig({
 		to,
 		subject: 'Verify Your Account',
-		html: `Click to verify your account ${reactAppUrl}/authToken=${token}`,
+		html: `Click to verify your account ${reactAppUrl}/verifyAccount/authToken=${token}`,
 	});
+
+	// Sending Email
 	mailTransporter.sendMail(config, mailCallback);
 };
 
@@ -101,10 +110,17 @@ exports.sendResetPasswordEmail = async ({
 		throw new Error(
 			'{to, fullName, _id} : String is Required to send email!'
 		);
+
+	// Creating Verification Token
+	const token = createResetPasswordToken({_id})
+
+	// Creating Mail Config
 	const config = mailConfig({
 		to,
 		subject: 'Reset Your Password',
-		html: `Click to reset your password ${reactAppUrl}/authToken=${token}`,
+		html: `Click to reset your password ${reactAppUrl}/resetPassword/authToken=${token}`,
 	});
+
+	// Sending Email
 	mailTransporter.sendMail(config, mailCallback);
 };

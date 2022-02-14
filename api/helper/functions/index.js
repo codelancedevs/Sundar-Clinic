@@ -7,20 +7,17 @@
 // Dependencies
 const jwt = require('jsonwebtoken');
 const {
-	expireDurations: {
-		verificationExpireAt,
-		passwordResetExpireAt,
-	},
+	expireDurations: { verificationExpireAt, passwordResetExpireAt },
 	secrets: { verificationSecret, passwordResetSecret, deleteAccountSecret },
 } = require('../config');
 
 /**
  * @description Creates a verify account token
- * @param {string} _id User Id 
+ * @param {string} _id User Id
  * @returns JWT Token
  */
 exports.createAccountVerificationToken = ({ _id = '' }) => {
-	if (!_id) throw new Error('_id : String is Required to get a token!')
+	if (!_id) throw new Error('_id : String is Required to get a token!');
 	return jwt.sign({ _id }, verificationSecret, {
 		expiresIn: verificationExpireAt,
 	});
@@ -28,11 +25,11 @@ exports.createAccountVerificationToken = ({ _id = '' }) => {
 
 /**
  * @description Creates a reset password token
- * @param {string} _id User Id 
+ * @param {string} _id User Id
  * @returns JWT Token
- */
+ */ 
 exports.createResetPasswordToken = ({ _id = '' }) => {
-	if (!_id) throw new Error('_id : String is Required to get a token!')
+	if (!_id) throw new Error('_id : String is Required to get a token!');
 	return jwt.sign({ _id }, passwordResetSecret, {
 		expiresIn: passwordResetExpireAt,
 	});
@@ -40,17 +37,21 @@ exports.createResetPasswordToken = ({ _id = '' }) => {
 
 /**
  * @description Creates a delete account token
- * @param {string} _id User Id 
+ * @param {string} _id User Id
  * @returns JWT Token
  */
 exports.createDeleteAccountToken = ({ _id = '' }) => {
-	if (!_id) throw new Error('_id : String is Required to get a token!')
+	if (!_id) throw new Error('_id : String is Required to get a token!');
 	return jwt.sign({ _id }, deleteAccountSecret, {
 		expiresIn: passwordResetExpireAt,
 	});
 };
 
-// Authenticate Verify Account Token
+/**
+ * @description Authenticate Verify Account Token
+ * @param {string} authToken
+ * @returns {string} _id (if valid authToken)
+ */
 exports.authenticateVerifyAuthToken = ({ authToken = '' }) => {
 	try {
 		const decoded = jwt.verify(authToken, verificationSecret);
@@ -61,8 +62,20 @@ exports.authenticateVerifyAuthToken = ({ authToken = '' }) => {
 	}
 };
 
-// Authenticate Reset Password Token
-exports.authenticateResetPasswordAuthToken = () => { };
+/**
+ * @description Authenticate Reset Password Token
+ * @param {string} authToken
+ * @returns {string} _id (if valid authToken)
+ */
+exports.authenticateResetPasswordAuthToken = ({ authToken = '' }) => {
+	try {
+		const decoded = jwt.verify(authToken, passwordResetSecret);
+		if (!decoded._id) throw new Error();
+		return decoded._id;
+	} catch (error) {
+		return false;
+	}
+};
 
 // Authenticate Delete account Token
 exports.authenticateDeleteAccountToken = () => { };

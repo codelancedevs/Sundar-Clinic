@@ -15,6 +15,8 @@ Router.post('/login', adminController.loginAdmin);
 AUTHENTICATED ROUTES
 ================================ */
 
+Router.get('/', authAdmin, adminController.fetchAdmins);
+
 Router.post('/create', authSuperAdmin, adminController.createAdmin);
 
 Router.patch('/details', authAdmin, adminController.editAdminDetails);

@@ -27,6 +27,13 @@ const adminSchema = new Schema({
     },
 });
 
+adminSchema.statics.getAllAdmins = async function () {
+	const admins = await Admin.find().select({
+		password: 0,
+	});
+	return admins;
+};
+
 // Inheriting User Model as Admin
 const Admin = User.discriminator('Admin', adminSchema);
 

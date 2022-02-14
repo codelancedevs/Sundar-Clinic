@@ -112,3 +112,12 @@ exports.verifyUser = (req, res) => {};
  * ! To be Tested
  */
 exports.verifyResetPasswordMail = (req, res) => {};
+
+/** URL AUTH TOKEN BASED AUTHENTICATION
+ * @description <Controller description here>
+ * @route METHOD <Route>
+ * @data <Data either in body, params, or query>
+ * @access <Access Level>
+ * ! To be Tested
+ */
+exports.resetUserPassword = (req, res) => {};

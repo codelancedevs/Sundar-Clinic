@@ -18,7 +18,7 @@ const {
 	loggingOptions,
 	backendAppUrl,
 } = require('./api/helper/config');
-const {preventXST, permitCrossDomainRequests} = require('./api/helper/middleware');
+const { preventXST } = require('./api/helper/middleware');
 
 // Importing App Router
 const appRouter = require('./api/app/src');
@@ -29,7 +29,6 @@ const app = express();
 // Using Middleware
 app.use(express.json());
 app.use(preventXST);
-app.use(permitCrossDomainRequests);
 app.use(
 	cors({
 		origin: reactAppUrl,
@@ -70,8 +69,7 @@ app.use((error, req, res, next) => {
 // Run Server
 app.listen(port, () => {
 	console.log(
-		`Server Running at ${
-			isProduction ? backendAppUrl : `http://localhost:${port}`
+		`Server Running at ${isProduction ? backendAppUrl : `http://localhost:${port}`
 		}`
 	);
 });

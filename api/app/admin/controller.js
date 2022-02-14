@@ -80,6 +80,58 @@ exports.loginAdmin = async (req, res) => {
 // ADMIN RELATED
 
 /**
+ * @description Get all Admins
+ * @route GET /api/admin?_id=<patient id>&searchByFullName=<patient name>
+ * @data No data required for all admins or specify {_id} in Request Query for specific user, search admins if {searchByFullName} is present Request Query
+ * @access Admin
+ * ! To be Tested
+ */
+exports.fetchAdmins = async (req, res) => {
+	// Collecting Required Data from Request Query
+	let { _id, searchByFullName } = req.query;
+	try {
+		// Checking Request Type
+		_id = typeof _id === 'string' ? _id : false;
+		searchByFullName =
+			typeof searchByFullName === 'string' ? searchByFullName : false;
+
+		// Admins Container
+		const admins = [];
+
+		if (searchByFullName) {
+			const searchedAdmins = await Admin.find({
+				fullName: { $regex: searchByFullName, $options: 'i' },
+			});
+			admins.push(...searchedAdmins);
+		} else {
+			if (_id) {
+				if (!isValidObjectId(_id))
+					throw new Error('Invalid Admin Id');
+				const admin = await Admin.findById(_id);
+				if (!admin) throw new Error(`No Admin found with id: ${_id}`);
+				admins.push(admin.sanitizeAndReturnUser());
+			} else {
+				// Getting all patients
+				const allAdmins = await Admin.getAllAdmins();
+				admins.push(...allAdmins);
+			}
+		}
+
+		// Response with all Patients
+		return res.status(200).json({
+			message: 'Fetched All Admin/s',
+			data: { admins },
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
+/**
  * @description Create New Admin
  * @route POST /api/admin/create
  * @data {fullName, email, password, tosAgreement: 'Boolean'}: 'String' in Request body
@@ -184,7 +236,7 @@ exports.editAdminDetails = async (req, res) => {
 			email: email || admin.email,
 			phone: phone || admin.phone,
 			address: address || admin.address,
-			adminDetails: { ...admin.adminDetails, ...adminDetails }
+			adminDetails: { ...admin.adminDetails, ...adminDetails },
 		};
 		await admin.updateOne({ ...details });
 
@@ -432,7 +484,7 @@ exports.fetchPatients = async (req, res) => {
 
 		// Response with all Patients
 		return res.status(200).json({
-			message: 'Successful response message',
+			message: 'Fetched All Patient/s',
 			data: { patients },
 			success: true,
 		});

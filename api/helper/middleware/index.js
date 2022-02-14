@@ -116,23 +116,10 @@ exports.preventXST = (req, res, next) => {
 	];
 
 	if (!allowedMethods.includes(req.method)) {
-		res.status(405).send(`${req.method} not allowed.`);
+		return res.status(405).send(`${req.method} not allowed.`);
 	}
 
 	return next();
-};
-
-// Permit CORS
-exports.permitCrossDomainRequests = function (req, res, next) {
-	res.header('Access-Control-Allow-Origin', reactAppUrl);
-	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,CONNECT,HEAD');
-	res.header('Access-Control-Allow-Headers', 'Content-Type');
-	// some browsers send a pre-flight OPTIONS request to check if CORS is enabled so you have to also respond to that
-	if ('OPTIONS' === req.method) {
-		return res.send(200);
-	} else {
-		return next();
-	}
 };
 
 exports.errorHandler = (err, req, res, next) => { };

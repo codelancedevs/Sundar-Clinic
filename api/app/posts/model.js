@@ -48,6 +48,18 @@ const postsSchema = new Schema(
 	}
 );
 
+postsSchema.pre('find', function (next) {
+	if (this.options._recursed) {
+		return next();
+	}
+	this.populate({
+		path: 'createdBy lastEditedBy',
+		select: 'fullName',
+		options: { _recursed: true },
+	});
+	next();
+});
+
 // Creating Model from Schema
 const Posts = model('Posts', postsSchema);
 

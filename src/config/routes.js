@@ -12,7 +12,45 @@ routes.site = {
     },
 };
 
+routes.user = {
+    isEmailUnique: {
+        path: '/api/user/isEmailUnique',
+        method: 'get'
+    },
+    isUsernameUnique: {
+        path: '/api/user/isUsernameUnique',
+        method: 'get'
+    },
+    sendVerifyAccountEmail: {
+        path: '/api/user/email/verify',
+        method: 'post',
+    },
+    sendResetPasswordEmail: {
+        path: '/api/user/email/password',
+        method: 'post'
+    },
+    authenticateVerifyAccountEmail: {
+        path: '/api/user/email/verify',
+        method: 'patch',
+    },
+    authenticateResetPasswordEmail: {
+        path: '/api/user/email/password',
+        method: 'patch'
+    },
+    resetPassword: {
+        path: '/api/user/resetPassword',
+        method: 'patch'
+    }
+}
+
 routes.admin = {
+    fetchAdmins: {
+        path: ({ _id, searchByFullName }) => {
+            return `/api/admin/?${!_id ? "" : `_id=${_id}`}&${!searchByFullName ? "" : `searchByFullName=${searchByFullName}`
+                }`;
+        },
+        method: 'get'
+    },
     create: {
         path: "/api/admin/create",
         method: "post",

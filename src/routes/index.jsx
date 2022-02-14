@@ -45,8 +45,8 @@ const AppRoutes = () => {
                 <Route path='contact' element={<Contact />} />
                 <Route path='termsOfService' element={<TermsOfService />} />
                 <Route path='privacyPolicy' element={<PrivacyPolicy />} />
-                <Route path='verifyAccount/authToken=:authToken&userId=:userId&type=:type' element={<VerifyAccount />} />
-                <Route path='resetPassword/authToken=:authToken&userId=:userId&type=:type' element={<ResetPassword />} />
+                <Route path='verifyAccount/authToken=:authToken' element={<VerifyAccount />} />
+                <Route path='resetPassword/authToken=:authToken' element={<ResetPassword />} />
             </Route>
 
             {/* Admin Routes */}

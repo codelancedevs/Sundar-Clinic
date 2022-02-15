@@ -12,6 +12,9 @@ const {
 	authenticateResetPasswordAuthToken,
 } = require('../../helper/functions');
 const { sendResetPasswordEmail } = require('../../helper/mail');
+const {
+	expireDurations: { tokenExpireAt },
+} = require('../../helper/config');
 
 /* ================================
 	UNAUTHENTICATED CONTROLLERS
@@ -78,15 +81,6 @@ exports.isUsernameUnique = async (req, res) => {
 };
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.sendVerifyUserMail = (req, res) => { };
-
-/**
  * @description Send a Reset Password Email to the User's requested email
  * @route POST /api/user/email/password
  * @data {email} : 'String' in Request Body
@@ -132,6 +126,30 @@ exports.sendResetPasswordMail = async (req, res) => {
 	AUTHENTICATED CONTROLLERS
 ================================ */
 
+/**
+ * @description Allow User to send a verify account link to their email
+ * @route POST /api/user/email/verify
+ * @data No data to be sent
+ * @access Patient || Admin
+ * ! To be Tested
+ */
+exports.sendVerifyUserMail = (req, res) => {
+	// Collecting Required Data from Middleware
+	const { type, user } = req.user;
+	try {
+		return res.status(200).json({
+			message: 'Verify Account Link Sent Successfully',
+			data: {},
+			success: true,
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(400)
+			.json({ message: error.message, data: {}, success: false });
+	}
+};
+
 /** URL AUTH TOKEN BASED AUTHENTICATION
  * @description Authenticate Account
  * @route PATCH /api/user/verify
@@ -151,21 +169,40 @@ exports.verifyUser = async (req, res) => {
 
 		const userId = authenticateVerifyAuthToken({ authToken });
 		if (!userId)
-			throw new Error(
-				'User cannot be authenticated, request another link'
-			);
+			throw new Error('Link Invalid! Provide a valid link to proceed.');
 
+		// Get User from Provided Auth Token
 		const user = await User.findOne({ _id: userId });
 		if (!user) throw new Error('Unable to find User');
 
-		// Verifying User Account
-		await user.updateOne({ isVerified: true });
+		// Checking User Verification
+		const { isVerified } = user.verification;
 
-		/**
-		 * ? Should user be logged in automatically after account is verified?
-		 */
+		// If User is Verified, then notify account is already verified.
+		if (isVerified) {
+			throw new Error('Account Already Verified!');
+		}
+
+		// Verify User Account and Login User
+		const verifiedAt = Date.now();
+		user.verification = {
+			isVerified: true,
+			verifiedAt,
+		};
+		await user.save();
+
+		// Creating User Auth Token
+		const userToken = await user.generateAuthToken();
+
+		// Sending User Auth Token
+		const userType = user.role === 'Admin' ? 'adminToken' : 'patientToken';
 
 		// Response after successfully verifying account
+		res.cookie(userType, userToken, {
+			httpOnly: true,
+			signed: true,
+			maxAge: tokenExpireAt,
+		});
 		return res.status(200).json({
 			message: 'Account Verified Successfully',
 			data: {
@@ -208,7 +245,7 @@ exports.verifyResetPasswordMail = async (req, res) => {
 		if (!user) throw new Error('Unable to find User');
 
 		return res.status(200).json({
-			message: 'Reset Password token is valid',
+			message: 'Reset Password Token is Valid',
 			data: {
 				isValid: true,
 			},
@@ -227,7 +264,6 @@ exports.verifyResetPasswordMail = async (req, res) => {
  * @route PATCH /api/user/resetPassword
  * @data {authToken, password} : 'String' in Request Body
  * @access Public
- * ! To be Tested
  */
 exports.resetUserPassword = async (req, res) => {
 	// Collecting Required data from Request Body

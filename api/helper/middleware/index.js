@@ -20,8 +20,47 @@ const {
 	apiKeys,
 } = require('../config');
 
+
+exports.generalAuth = async (req, res, next) => {
+	// Collecting Tokens from Request Cookies
+	const {adminToken, patientToken} = req.signedCookies;
+	try {
+		if(!adminToken && !patientToken) throw new Error('Not Authorized');
+		else if(adminToken && !patientToken){
+			const decoded = jwt.verify(adminToken, adminSecret);
+			const admin = await Admin.findById(decoded._id);
+			if (!admin) throw new Error('Unable to find Admin');
+			req.user = {
+				type: 'Admin',
+				user: admin.toObject()
+			};
+			return next();
+		} else if(!adminToken && patientToken){
+			const decoded = jwt.verify(patientToken, patientSecret);
+			const patient = await Patient.findById(decoded._id);
+			if (!patient) throw new Error('Unable to find Patient');
+			req.user = {
+				type: 'Patient',
+				user: patient.toObject(),
+			};
+			return next();
+		} else {
+			throw new Error('You need to be logged in as Admin or Patient, not both!')
+		}
+		
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(401)
+			.clearCookie('adminToken')
+			.clearCookie('patientToken')
+			.json({ message: error.message, data: {}, success: false });
+	}
+}
+
 // Authorize Admins
 exports.authAdmin = async (req, res, next) => {
+	// Collecting Tokens from Request Cookies
 	const token = req.signedCookies.adminToken;
 	try {
 		if (!token) throw new Error('Not Authorized');
@@ -41,6 +80,7 @@ exports.authAdmin = async (req, res, next) => {
 
 // Authorize Patients
 exports.authPatient = async (req, res, next) => {
+	// Collecting Tokens from Request Cookies
 	const token = req.signedCookies.patientToken;
 	try {
 		if (!token) throw new Error('Not Authorized');

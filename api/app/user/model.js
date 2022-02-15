@@ -55,9 +55,12 @@ const userSchema = new Schema(
 			type: String,
 			trim: true,
 		},
-		isVerified: {
-			type: Boolean,
-			default: false,
+		verification: {
+			isVerified: {
+				type: Boolean,
+				default: false,
+			},
+			verifiedAt: Date,
 		},
 		tosAgreement: {
 			type: Boolean,

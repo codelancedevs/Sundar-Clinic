@@ -8,7 +8,12 @@ import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 // Actions
-import { enableLoading, disableLoading } from "../../store/features/app";
+import {
+    enableLoading,
+    disableLoading,
+    showSnackbar,
+} from "../../store/features/app";
+import { login } from "../../store/features/user";
 
 // Helper Functions
 import { authenticateVerifyAccountLink } from "./helper";
@@ -23,9 +28,15 @@ function VerifyAccount() {
     const authenticateVerifyUser = async () => {
         dispatch(enableLoading());
         try {
-            await authenticateVerifyAccountLink({ authToken });
+            const response = await authenticateVerifyAccountLink({ authToken });
+            if (!response.success) throw response;
             setAuthenticated(true);
+            dispatch(showSnackbar({ message: response.message, type: "success" }));
+            dispatch(
+                login({ user: response.data.user, loggedInAs: response.data.user.role })
+            );
         } catch (error) {
+            dispatch(showSnackbar({ message: error.message }));
         } finally {
             dispatch(disableLoading());
         }
@@ -35,7 +46,7 @@ function VerifyAccount() {
         // ? Logic that checks is user is logged in and user account is already verified
         // ? If user account is not logged in or not verified then call the below function
         authenticateVerifyUser();
-    });
+    }, []);
 
     return (
         <div className="h-full w-full">

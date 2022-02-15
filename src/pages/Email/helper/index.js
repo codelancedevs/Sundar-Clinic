@@ -3,7 +3,7 @@
  */
 
 // Dependencies
-import axios from "axios";
+import { server } from "../../../functions/server";
 import routes from "../../../config/routes";
 
 // Getting Required Rotes
@@ -21,14 +21,15 @@ const {
  * @returns {object} User Data (if verified);
  */
 export const authenticateVerifyAccountLink = async ({ authToken }) => {
-    const authenticate = await axios[authenticateVerifyAccountEmail.method](
-        authenticateVerifyAccountEmail.path,
-        { authToken }
-    );
-    if (!authenticate?.data?.success)
-        throw new Error("Not Authenticated and unable to verify user account");
-    return authenticate.data.data;
-};
+    try {
+        const authenticate = await server({ ...authenticateVerifyAccountEmail, data: { authToken } });
+        console.log(authenticate)
+        return authenticate;
+    } catch (error) {
+        console.log(error)
+        return error;
+    }
+}
 
 /**
  * @description Authenticate Reset Password Link
@@ -36,13 +37,14 @@ export const authenticateVerifyAccountLink = async ({ authToken }) => {
  * @returns {object} If valid, then true else throws error
  */
 export const authenticateResetPasswordLink = async ({ authToken }) => {
-    const authenticate = await axios[authenticateResetPasswordEmail.method](
-        authenticateResetPasswordEmail.path,
-        { authToken }
-    );
-    if (!authenticate?.data?.success)
-        throw new Error("Not Authenticated and unable to reset password");
-    return authenticate.data.data.isValid;
+    try {
+        const authenticate = await server({ ...authenticateResetPasswordEmail, data: { authToken } });
+        console.log(authenticate)
+        return authenticate;
+    } catch (error) {
+        console.log(error)
+        return error;
+    }
 };
 
 /**
@@ -51,9 +53,13 @@ export const authenticateResetPasswordLink = async ({ authToken }) => {
  * @param {string} password
  * @returns {promise} If changed, then true, else false
  */
-export const resetUserPassword = async ({authToken, password}) => {
-    const response = await axios[resetPassword.method](resetPassword.path, {authToken, password});
-    console.log(response.data)
-    if (!response?.data?.success) return false;
-    return response.data.success
+export const resetUserPassword = async ({ authToken, password }) => {
+    try {
+        const response = await server({ ...resetPassword, data: { authToken, password } });
+        console.log(response);
+        return response;
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
 }

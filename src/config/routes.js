@@ -7,197 +7,197 @@ const routes = {};
 
 routes.site = {
     getIndex: {
-        path: "/",
+        url: "/",
         method: "get",
     },
 };
 
 routes.user = {
     isEmailUnique: {
-        path: '/api/user/isEmailUnique',
+        url: '/api/user/isEmailUnique',
         method: 'get'
     },
     isUsernameUnique: {
-        path: '/api/user/isUsernameUnique',
+        url: '/api/user/isUsernameUnique',
         method: 'get'
     },
     sendVerifyAccountEmail: {
-        path: '/api/user/email/verify',
+        url: '/api/user/email/verify',
         method: 'post',
     },
     sendResetPasswordEmail: {
-        path: '/api/user/email/password',
+        url: '/api/user/email/password',
         method: 'post'
     },
     authenticateVerifyAccountEmail: {
-        path: '/api/user/email/verify',
+        url: '/api/user/email/verify',
         method: 'patch',
     },
     authenticateResetPasswordEmail: {
-        path: '/api/user/email/password',
+        url: '/api/user/email/password',
         method: 'patch'
     },
     resetPassword: {
-        path: '/api/user/resetPassword',
+        url: '/api/user/resetPassword',
         method: 'patch'
     }
 }
 
 routes.admin = {
     fetchAdmins: {
-        path: ({ _id, searchByFullName }) => {
+        url: ({ _id, searchByFullName }) => {
             return `/api/admin/?${!_id ? "" : `_id=${_id}`}&${!searchByFullName ? "" : `searchByFullName=${searchByFullName}`
                 }`;
         },
         method: 'get'
     },
     create: {
-        path: "/api/admin/create",
+        url: "/api/admin/create",
         method: "post",
     },
     login: {
-        path: "/api/admin/login",
+        url: "/api/admin/login",
         method: "post",
     },
     editAccountDetails: {
-        path: "/api/admin/details",
+        url: "/api/admin/details",
         method: "patch",
     },
     editPassword: {
-        path: "/api/admin/password",
+        url: "/api/admin/password",
         method: "patch",
     },
     patient: {
         fetchPatients: {
-            path: ({ _id, searchByFullName }) => {
+            url: ({ _id, searchByFullName }) => {
                 return `/api/admin/patient?${!_id ? "" : `_id=${_id}`}&${!searchByFullName ? "" : `searchByFullName=${searchByFullName}`
                     }`;
             },
             method: "get",
         },
         create: {
-            path: "/api/admin/patient-create",
+            url: "/api/admin/patient-create",
             method: "post",
         },
         editAccountDetails: {
-            path: '/api/admin/patient-account',
+            url: '/api/admin/patient-account',
             method: 'patch'
         },
         editGeneralDetails: {
-            path: '/api/admin/patient-general',
+            url: '/api/admin/patient-general',
             method: 'patch'
         },
         addPresentingComplaint: {
-            path: '/api/admin/patient-presentingComplaint',
+            url: '/api/admin/patient-presentingComplaint',
             method: 'post'
         },
         editPresentingComplaint: {
-            path: '/api/admin/patient-presentingComplaint',
+            url: '/api/admin/patient-presentingComplaint',
             method: 'patch'
         },
         deletePresentingComplaint: {
-            path: '/api/admin/patient-presentingComplaint',
+            url: '/api/admin/patient-presentingComplaint',
             method: 'delete'
         },
         addHistoryDetail: {
-            path: '/api/admin/patient-history',
+            url: '/api/admin/patient-history',
             method: 'post'
         },
         editHistoryDetail: {
-            path: '/api/admin/patient-history',
+            url: '/api/admin/patient-history',
             method: 'patch'
         },
         deleteHistoryDetail: {
-            path: '/api/admin/patient-history',
+            url: '/api/admin/patient-history',
             method: 'delete'
         },
         deletePatient: {
-            path: '/api/admin/patient-delete',
+            url: '/api/admin/patient-delete',
             method: 'delete'
         }
     },
     logout: {
-        path: "/api/admin/logout",
+        url: "/api/admin/logout",
         method: "post",
     },
     deleteAccount: {
-        path: "/api/admin/delete",
+        url: "/api/admin/delete",
         method: "delete",
     },
 };
 
 routes.patient = {
     create: {
-        path: "/api/patient/create",
+        url: "/api/patient/create",
         method: "post",
     },
     login: {
-        path: "/api/patient/login",
+        url: "/api/patient/login",
         method: "post",
     },
     updateAccountDetails: {
-        path: "/api/patient/accountDetails",
+        url: "/api/patient/accountDetails",
         method: "patch",
     },
     updateGeneralDetails: {
-        path: "/api/patient/generalDetails",
+        url: "/api/patient/generalDetails",
         method: "patch",
     },
     editPassword: {
-        path: "/api/patient/password",
+        url: "/api/patient/password",
         method: "patch",
     },
     addPresentingComplaint: {
-        path: "/api/patient/presentingComplaint",
+        url: "/api/patient/presentingComplaint",
         method: "post",
     },
     editPresentingComplaint: {
-        path: "/api/patient/presentingComplaint",
+        url: "/api/patient/presentingComplaint",
         method: "patch",
     },
     deletePresentingComplaint: {
-        path: "/api/patient/presentingComplaint",
+        url: "/api/patient/presentingComplaint",
         method: "delete",
     },
     addHistoryDetail: {
-        path: "/api/patient/history",
+        url: "/api/patient/history",
         method: "post",
     },
     editHistoryDetail: {
-        path: "/api/patient/history",
+        url: "/api/patient/history",
         method: "patch",
     },
     deleteHistoryDetail: {
-        path: "/api/patient/history",
+        url: "/api/patient/history",
         method: "delete",
     },
     logout: {
-        path: "/api/patient/logout",
+        url: "/api/patient/logout",
         method: "post",
     },
     deleteAccount: {
-        path: "/api/patient/delete",
+        url: "/api/patient/delete",
         method: "delete",
     },
 };
 
 routes.posts = {
     fetchPosts: {
-        path: ({ postId }) => {
+        url: ({ postId }) => {
             return `/api/post${!postId ? "" : `?postId=${postId}`}`;
         },
         method: "get",
     },
     createNewPost: {
-        path: "/api/post",
+        url: "/api/post",
         method: "post",
     },
     editPost: {
-        path: "/api/post",
+        url: "/api/post",
         method: "patch",
     },
     deletePost: {
-        path: "/api/post",
+        url: "/api/post",
         method: "delete",
     },
 };

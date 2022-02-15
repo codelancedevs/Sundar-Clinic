@@ -2,21 +2,21 @@
  * User Actions and Reducers
  */
 
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const user = {
-	fullName: '',
-	username: '',
-	email: '',
-	phone: '',
-	defaultAvatar: '',
-	avatar: '',
-	role: '',
-	address: '',
-	dateOfBirth: '',
+	fullName: "",
+	username: "",
+	email: "",
+	phone: "",
+	defaultAvatar: "",
+	avatar: "",
+	role: "",
+	address: "",
+	dateOfBirth: "",
 	maritalStatus: {
 		isMarried: false,
-		marriedTo: '',
+		marriedTo: "",
 	},
 	kidsDetails: {
 		hasKids: false,
@@ -35,55 +35,50 @@ const user = {
 		menstrual: [],
 		vasectomy: [],
 	},
-	isVerified: false,
+	verification: {
+		isVerified: false,
+		verifiedAt: "",
+	},
 	tosAgreement: false,
-	createdAt: '',
-	updatedAt: '',
-};
-
-const getUserState = () => {
-	if (localStorage.getItem('user')) {
-		const userObj = JSON.parse(localStorage.getItem('user'));
-		return userObj;
-	} else {
-		return user;
-	}
+	createdAt: "",
+	updatedAt: "",
 };
 
 const initialState = {
 	value: {
-		loggedIn: localStorage.getItem('loggedIn')
-			? JSON.parse(localStorage.getItem('loggedIn'))
+		loggedIn: localStorage.getItem("loggedIn")
+			? JSON.parse(localStorage.getItem("loggedIn"))
 			: false,
-		user: getUserState(),
+		user: localStorage.getItem("user")
+			? JSON.parse(localStorage.getItem("user"))
+			: user,
 	},
 };
 
 export const userSplice = createSlice({
-	name: 'user',
+	name: "user",
 	initialState,
-	reducer: {
+	reducers: {
 		login: (state, action) => {
 			state.value.user = action.payload.user;
 			const loggedIn = {
-				token: action.payload.token,
 				loggedInAs: action.payload.loggedInAs,
 			};
-			localStorage.setItem('loggedIn', JSON.stringify(loggedIn));
-			localStorage.setItem('user', JSON.stringify(state.value.user));
+			localStorage.setItem("loggedIn", JSON.stringify(loggedIn));
+			localStorage.setItem("user", JSON.stringify(state.value.user));
 			state.value.loggedIn = loggedIn;
 		},
 		logout: (state, action) => {
 			state.value.loggedIn = false;
 			state.value.user = { ...user };
-			localStorage.removeItem('loggedIn');
-			localStorage.removeItem('user');
+			localStorage.removeItem("loggedIn");
+			localStorage.removeItem("user");
 		},
 	},
 });
 
 // Exporting Actions
-export const { register, login, logout } = userSplice.actions;
+export const { login, logout } = userSplice.actions;
 
 // Exporting Reducer
 export default userSplice.reducer;

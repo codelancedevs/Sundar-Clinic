@@ -29,9 +29,12 @@ function ResetPassword() {
     const authenticateResetPassword = async () => {
         dispatch(enableLoading());
         try {
-            const isValid = await authenticateResetPasswordLink({ authToken });
-            setAuthenticated(isValid);
+            const response = await authenticateResetPasswordLink({ authToken });
+            if (!response.success) throw response;
+            setAuthenticated(true);
+            dispatch(showSnackbar({ message: response.message, type: "success" }));
         } catch (error) {
+            dispatch(showSnackbar({ message: error.message }));
         } finally {
             dispatch(disableLoading());
         }
@@ -41,21 +44,22 @@ function ResetPassword() {
     const handleResetPassword = async (e) => {
         e.preventDefault();
         dispatch(enableLoading());
-        if (password !== reenterPassword) {
-            dispatch(showSnackbar({ message: 'Password does not match' }));
-            setPassword('');
-            setReenterPassword('');
+
+        try {
+            if (password !== reenterPassword) {
+                dispatch(showSnackbar({ message: "Password does not match" }));
+                setPassword("");
+                setReenterPassword("");
+                return;
+            }
+            const response = await resetUserPassword({ authToken, password });
+            if (!response.success) throw response;
+            dispatch(showSnackbar({ message: response.message, type: 'success' }));
+        } catch (error) {
+            dispatch(showSnackbar({ message: error.message }));
+        } finally {
             dispatch(disableLoading());
-            return;
         }
-        const passwordUpdated = await resetUserPassword({ authToken, password });
-        if (!passwordUpdated) {
-            dispatch(showSnackbar({ message: 'Unable to update password at the moment' }));
-            dispatch(disableLoading());
-            return;
-        }
-        dispatch(showSnackbar({ message: 'Password Updated Successfully', type: 'success' }));
-        dispatch(disableLoading());
     };
 
     const handlePasswordInput = (e) => {
@@ -87,11 +91,7 @@ function ResetPassword() {
                             onChange={handleReenterPasswordInput}
                             placeholder="reenter new password"
                         />
-                        <button
-                            type="submit"
-                        >
-                            Submit
-                        </button>
+                        <button type="submit">Submit</button>
                     </form>
                 </div>
             )}

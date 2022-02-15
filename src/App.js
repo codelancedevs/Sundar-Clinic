@@ -7,7 +7,7 @@ import React, { useEffect } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import { QueryClientProvider, QueryClient } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
-import axios from 'axios';
+import { server } from "./functions/server";
 
 // Components
 import SnackbarComponent from "./components/Reusable/SnackbarComponent";
@@ -30,19 +30,12 @@ const { site: { getIndex } } = routes;
 // Initializing Query Client
 const queryClient = new QueryClient();
 
-// Setting up Axios Base URL
-axios.defaults.baseURL = config.backendUrl;
-
-// Getting Required Data when App Renders
-const collectDetails = [axios[getIndex.method](getIndex.path)]
-
 function App() {
 	useEffect(() => {
 		// Get Site Details
-		axios.all(collectDetails)
-			.then(axios.spread((appDetails) => {
-				console.log(appDetails.data)
-			}));
+		// server({...getIndex})
+		// 		.then(res => console.log(res))
+		// 		.catch(err => console.log(err))
 	});
 	return (
 		<div className={`h-screen w-full`}>

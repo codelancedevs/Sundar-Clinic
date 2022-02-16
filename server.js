@@ -17,11 +17,11 @@ const {
 	isProduction,
 	loggingOptions,
 	backendAppUrl,
-} = require('./api/helper/config');
-const {preventXST, permitCrossDomainRequests} = require('./api/helper/middleware');
+} = require('./src/helper/config');
+const { preventXST } = require('./src/helper/middleware');
 
 // Importing App Router
-const appRouter = require('./api/app/src');
+const appRouter = require('./src/api/app');
 
 // Initializing Express Application
 const app = express();
@@ -29,7 +29,6 @@ const app = express();
 // Using Middleware
 app.use(express.json());
 app.use(preventXST);
-app.use(permitCrossDomainRequests);
 app.use(
 	cors({
 		origin: reactAppUrl,
@@ -41,11 +40,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser(cookieSecret));
 app.use(logger(loggingOptions));
+app.set("views", path.join(__dirname, "views")); 
+app.set("view engine", "ejs"); 
 
 app.disable('x-powered-by');
 
 // Connecting App to MongoDB
-require('./api/helper/database');
+require('./src/helper/database');
 
 // Using App Router
 app.use(appRouter);
@@ -70,8 +71,7 @@ app.use((error, req, res, next) => {
 // Run Server
 app.listen(port, () => {
 	console.log(
-		`Server Running at ${
-			isProduction ? backendAppUrl : `http://localhost:${port}`
+		`Server Running at ${isProduction ? backendAppUrl : `http://localhost:${port}`
 		}`
 	);
 });

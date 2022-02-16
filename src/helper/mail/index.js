@@ -18,6 +18,7 @@ const {
 	createAccountVerificationToken,
 	createResetPasswordToken,
 } = require('../functions');
+const { mailCallback, mailConfig, generateHtmlAndText } = require('./functions');
 
 // Mail Transporter
 const mailTransporter = nodemailer.createTransport({
@@ -28,43 +29,6 @@ const mailTransporter = nodemailer.createTransport({
 	},
 	from: `Sundar Clinic <${email}>`,
 });
-
-// Convert File to Email HTML
-const generateHtmlAndText = async (filename = '', options = {}) => {
-	const renderedHtml = await ejs.renderFile(
-		path.join(__dirname, '../../../views/email', `${filename}.ejs`),
-		options
-	);
-	const html = juice(renderedHtml);
-	const text = htmlToText(html);
-	return { html, text };
-};
-
-/**
- * @description Creates a mail config object with param details
- * @param {string} to To whom the email is to be sent
- * @param {string} subject Subject of the email
- * @param {string} html Content of the email
- * @returns {object} Mail config object
- */
-const mailConfig = ({ to = '', subject = '', html = '' }) => {
-	const config = {
-		to,
-		subject,
-		html,
-	};
-	return config;
-};
-
-/**
- * @description Callback function after sending email
- * @param {object} error Error object, in case of error while sending mail
- * @param {object} data Success object
- */
-const mailCallback = (error, data) => {
-	if (!error) return;
-	console.log(`Error sending email, ${error}`);
-};
 
 exports.sendWelcomeAndVerifyAccountEmail = async ({
 	_id = '',

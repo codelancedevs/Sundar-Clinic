@@ -6,6 +6,10 @@
 
 // Dependencies
 const nodemailer = require('nodemailer');
+const path = require('path');
+const ejs = require('ejs');
+const juice = require('juice');
+const { htmlToText } = require('html-to-text');
 const {
 	reactAppUrl,
 	mail: { email, password },
@@ -24,6 +28,17 @@ const mailTransporter = nodemailer.createTransport({
 	},
 	from: `Sundar Clinic <${email}>`,
 });
+
+// Convert File to Email HTML
+const generateHtmlAndText = async (filename = '', options = {}) => {
+	const renderedHtml = await ejs.renderFile(
+		path.join(__dirname, '../../../views/email', `${filename}.ejs`),
+		options
+	);
+	const html = juice(renderedHtml);
+	const text = htmlToText(html);
+	return { html, text };
+};
 
 /**
  * @description Creates a mail config object with param details
@@ -65,11 +80,17 @@ exports.sendWelcomeAndVerifyAccountEmail = async ({
 	// Creating Verification Token
 	const token = createAccountVerificationToken({ _id });
 
+	const { html, text } = await generateHtmlAndText('welcomeAndVerify', {
+		reactAppUrl,
+		token,
+	});
+
 	// Creating Mail Config
 	const config = mailConfig({
 		to,
 		subject: 'Verify Your Account',
-		html: `Click to verify your account ${reactAppUrl}/verifyAccount/authToken=${token}`,
+		html,
+		text,
 	});
 
 	// Sending Email
@@ -89,6 +110,11 @@ exports.sendVerifyAccountEmail = async ({
 
 	// Creating Verification Token
 	const token = createAccountVerificationToken({ _id });
+
+	const { html, text } = generateHtmlAndText('verifyAccount', {
+		reactAppUrl,
+		token,
+	});
 
 	// Creating Mail Config
 	const config = mailConfig({
@@ -112,7 +138,12 @@ exports.sendResetPasswordEmail = async ({
 		);
 
 	// Creating Verification Token
-	const token = createResetPasswordToken({_id})
+	const token = createResetPasswordToken({ _id });
+
+	const { html, text } = generateHtmlAndText('resetPassword', {
+		reactAppUrl,
+		token,
+	});
 
 	// Creating Mail Config
 	const config = mailConfig({

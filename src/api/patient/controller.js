@@ -5,9 +5,9 @@
 'use strict';
 
 // Dependencies
-const { isValidObjectId } = require('mongoose');
 const Patient = require('./model');
 const { isEmail, isStrongPassword } = require('validator');
+const { sendWelcomeAndVerifyAccountEmail } = require('../../helper/mail');
 const {
 	expireDurations: { tokenExpireAt },
 } = require('../../helper/config');
@@ -53,6 +53,13 @@ exports.createPatient = async (req, res) => {
 			tosAgreement,
 		});
 		await patient.save();
+
+		// Sending Patient Welcome email and verify account
+		sendWelcomeAndVerifyAccountEmail({
+			_id: patient._id,
+			fullName: patient.fullName,
+			to: patient.email,
+		});
 
 		// Creating Patient Auth Token
 		const patientToken = await patient.generateAuthToken();

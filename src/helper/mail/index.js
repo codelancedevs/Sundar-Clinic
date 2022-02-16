@@ -83,6 +83,7 @@ exports.sendWelcomeAndVerifyAccountEmail = async ({
 	const { html, text } = await generateHtmlAndText('welcomeAndVerify', {
 		reactAppUrl,
 		token,
+		fullName,
 	});
 
 	// Creating Mail Config

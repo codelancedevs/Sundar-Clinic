@@ -17,7 +17,7 @@ Router.get('/isEmailUnique', userController.isEmailUnique);
 
 Router.get('/isUsernameUnique', userController.isUsernameUnique);
 
-Router.post('/email/verify', generalAuth,userController.sendVerifyUserMail);
+Router.post('/email/verify', generalAuth, userController.sendVerifyUserMail);
 
 Router.post('/email/password', userController.sendResetPasswordMail);
 

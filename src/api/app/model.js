@@ -15,7 +15,6 @@ const appSchema = new Schema(
 		owner: {
 			name: String,
 			clinic: {
-				doctors: [{type: Schema.Types.ObjectId, ref: 'User'}],
 				address: {
 					type: String,
 					default:

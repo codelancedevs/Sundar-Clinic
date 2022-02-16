@@ -204,7 +204,7 @@ exports.verifyUser = async (req, res) => {
 			maxAge: tokenExpireAt,
 		});
 		return res.status(200).json({
-			message: 'Account Verified Successfully',
+			message: 'Account Verified Successfully!',
 			data: {
 				user: user.sanitizeAndReturnUser(),
 			},
@@ -235,17 +235,20 @@ exports.verifyResetPasswordMail = async (req, res) => {
 				"{authToken} : 'String' is required in Request Body"
 			);
 
+		// Checking validity of given Token
 		const userId = authenticateResetPasswordAuthToken({ authToken });
 		if (!userId)
 			throw new Error(
-				'User cannot be authenticated, request another link'
+				'Link Invalid! Provide a valid link to proceed.'
 			);
 
+		// Checking if user exists from the token
 		const user = await User.findOne({ _id: userId });
 		if (!user) throw new Error('Unable to find User');
 
+		// Response after successful validation of Reset Password Token
 		return res.status(200).json({
-			message: 'Reset Password Token is Valid',
+			message: 'Reset Password Token is Valid!',
 			data: {
 				isValid: true,
 			},
@@ -277,21 +280,29 @@ exports.resetUserPassword = async (req, res) => {
 				"{authToken, password} : 'String' is required in Request Body"
 			);
 
+		// Checking if Given Token is Valid
 		const userId = authenticateResetPasswordAuthToken({ authToken });
 		if (!userId)
 			throw new Error(
-				'User cannot be authenticated, request another link'
+				'Link Invalid! Provide a valid link to proceed.'
 			);
 
+		// Checking if user exists from the token
 		const user = await User.findOne({ _id: userId });
 		if (!user) throw new Error('Unable to find User');
 
-		const hashedPassword = await user.returnHashedPassword({ password });
+		// Check if the old password is the same as the new password
+		const isOldPassword = user.authenticatePassword({ password })
+		if (isOldPassword) throw new Error('Old Password cannot be same as Reset Password');
 
+		// If new Password
+		// Hashing new password and updating User
+		const hashedPassword = await user.returnHashedPassword({ password });
 		await user.updateOne({ password: hashedPassword });
 
+		// Response after successful Password Reset
 		return res.status(200).json({
-			message: 'Password Reset Successful',
+			message: 'Account Password Reset Successful!',
 			data: {},
 			success: true,
 		});

@@ -27,7 +27,7 @@ exports.createAccountVerificationToken = ({ _id = '' }) => {
  * @description Creates a reset password token
  * @param {string} _id User Id
  * @returns JWT Token
- */ 
+ */
 exports.createResetPasswordToken = ({ _id = '' }) => {
 	if (!_id) throw new Error('_id : String is Required to get a token!');
 	return jwt.sign({ _id }, passwordResetSecret, {
@@ -85,13 +85,7 @@ exports.createApp = async ({ id, App }) => {
 	try {
 		const app = new App({
 			owner: {
-				name: 'P Siva Kumar',
-				doctors: [
-					{
-						name: 'Dr. Ekta Bharti',
-						degrees: ['M.B.B.S', 'General Physician'],
-					},
-				],
+				name: 'P. Siva Kumar and Dr. Ekta Bharti',
 			},
 		});
 		await app.save();

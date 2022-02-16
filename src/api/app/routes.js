@@ -41,7 +41,7 @@ Router.patch('/api/app/ownerDetails', authAdmin, indexController.editOwnerDetail
 
 Router.patch('/api/app/siteDetails', authAdmin, indexController.editSiteDetails);
 
-// ! To be tested
-Router.put('/api/app/clinicDocumentsDetails', authAdmin, indexController.updateClinicDocumentDetails);
+// * v2.0.0 Implementation
+// Router.put('/api/app/clinicDocumentsDetails', authAdmin, indexController.updateClinicDocumentDetails);
 
 module.exports = Router;

@@ -7,8 +7,8 @@
 // Dependencies
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const Admin = require('../../app/admin/model');
-const Patient = require('../../app/patient/model');
+const Admin = require('../../api/admin/model');
+const Patient = require('../../api/patient/model');
 const {
 	reactAppUrl,
 	secrets: {
@@ -20,22 +20,21 @@ const {
 	apiKeys,
 } = require('../config');
 
-
 exports.generalAuth = async (req, res, next) => {
 	// Collecting Tokens from Request Cookies
-	const {adminToken, patientToken} = req.signedCookies;
+	const { adminToken, patientToken } = req.signedCookies;
 	try {
-		if(!adminToken && !patientToken) throw new Error('Not Authorized');
-		else if(adminToken && !patientToken){
+		if (!adminToken && !patientToken) throw new Error('Not Authorized');
+		else if (adminToken && !patientToken) {
 			const decoded = jwt.verify(adminToken, adminSecret);
 			const admin = await Admin.findById(decoded._id);
 			if (!admin) throw new Error('Unable to find Admin');
 			req.user = {
 				type: 'Admin',
-				user: admin.toObject()
+				user: admin.toObject(),
 			};
 			return next();
-		} else if(!adminToken && patientToken){
+		} else if (!adminToken && patientToken) {
 			const decoded = jwt.verify(patientToken, patientSecret);
 			const patient = await Patient.findById(decoded._id);
 			if (!patient) throw new Error('Unable to find Patient');
@@ -45,9 +44,10 @@ exports.generalAuth = async (req, res, next) => {
 			};
 			return next();
 		} else {
-			throw new Error('You need to be logged in as Admin or Patient, not both!')
+			throw new Error(
+				'You need to be logged in as Admin or Patient, not both!'
+			);
 		}
-		
 	} catch (error) {
 		console.log(error);
 		return res
@@ -56,7 +56,7 @@ exports.generalAuth = async (req, res, next) => {
 			.clearCookie('patientToken')
 			.json({ message: error.message, data: {}, success: false });
 	}
-}
+};
 
 // Authorize Admins
 exports.authAdmin = async (req, res, next) => {

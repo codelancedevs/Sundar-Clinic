@@ -17,11 +17,11 @@ const {
 	isProduction,
 	loggingOptions,
 	backendAppUrl,
-} = require('./api/helper/config');
-const { preventXST } = require('./api/helper/middleware');
+} = require('./src/helper/config');
+const { preventXST } = require('./src/helper/middleware');
 
 // Importing App Router
-const appRouter = require('./api/app/src');
+const appRouter = require('./src/api/app');
 
 // Initializing Express Application
 const app = express();
@@ -44,7 +44,7 @@ app.use(logger(loggingOptions));
 app.disable('x-powered-by');
 
 // Connecting App to MongoDB
-require('./api/helper/database');
+require('./src/helper/database');
 
 // Using App Router
 app.use(appRouter);

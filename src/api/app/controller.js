@@ -143,19 +143,6 @@ exports.editOwnerDetails = async (req, res) => {
 	}
 };
 
-// exports.addClinicDoctor = async (req, res) => {}
-
-// exports.deleteClinicDoctor = async (req, res) => {}
-
-/**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.updateClinicDocumentDetails = async (req, res) => { };
-
 /**
  * @description Update Site Details
  * @route PATCH /api/app/siteDetails
@@ -198,3 +185,12 @@ exports.editSiteDetails = async (req, res) => {
 			.json({ message: error.message, data: {}, success: false });
 	}
 };
+
+// /**
+//  * @description <Controller description here>
+//  * @route METHOD <Route>
+//  * @data <Data either in body, params, or query>
+//  * @access <Access Level>
+//  * ! To be Tested
+//  */ v2.0.0 Implementation
+// exports.updateClinicDocumentDetails = async (req, res) => { };

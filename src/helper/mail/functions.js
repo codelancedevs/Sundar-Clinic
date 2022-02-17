@@ -32,7 +32,6 @@ exports.mailConfig = ({ to = '', subject = '', html = '' }) => {
 	return config;
 };
 
-
 /**
  * @description Takes a file, converts to html and text
  * @param {string} template Template that needs to be rendered

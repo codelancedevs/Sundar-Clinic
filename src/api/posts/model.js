@@ -66,6 +66,11 @@ postsSchema.pre('find', function (next) {
 	next();
 });
 
+postsSchema.pre('save', async function (next){
+	await this.assignCoverImage();
+	next();
+})
+
 // Creating Model from Schema
 const Posts = model('Posts', postsSchema);
 

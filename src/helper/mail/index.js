@@ -15,7 +15,11 @@ const {
 	createAccountVerificationToken,
 	createResetPasswordToken,
 } = require('../functions');
-const { mailCallback, mailConfig, generateHtmlAndText } = require('./functions');
+const {
+	mailCallback,
+	mailConfig,
+	generateHtmlAndText,
+} = require('./functions');
 
 // Mail Transporter
 const mailTransporter = nodemailer.createTransport({
@@ -72,17 +76,14 @@ exports.sendVerifyAccountEmail = async ({
 
 	// Creating Verification Token
 	const token = createAccountVerificationToken({ _id });
-
-	const { html, text } = generateHtmlAndText('verifyAccount', {
-		reactAppUrl,
-		token,
-	});
+	const url = `${reactAppUrl}/verifyAccount/authToken=${token}`;
+	const { html, text } = generateHtmlAndText('verify', { fullName, url });
 
 	// Creating Mail Config
 	const config = mailConfig({
 		to,
 		subject: 'Verify Your Account',
-		html: `Click to verify your account ${reactAppUrl}/verifyAccount/authToken=${token}`,
+		html: `Click to verify your account ${url}`,
 	});
 
 	// Sending Email
@@ -101,17 +102,14 @@ exports.sendResetPasswordEmail = async ({
 
 	// Creating Verification Token
 	const token = createResetPasswordToken({ _id });
-
-	const { html, text } = generateHtmlAndText('resetPassword', {
-		reactAppUrl,
-		token,
-	});
+	const url = `${reactAppUrl}/resetPassword/authToken=${token}`;
+	const { html, text } = generateHtmlAndText('verify', { fullName, url });
 
 	// Creating Mail Config
 	const config = mailConfig({
 		to,
 		subject: 'Reset Your Password',
-		html: `Click to reset your password ${reactAppUrl}/resetPassword/authToken=${token}`,
+		html: `Click to reset your password ${url}`,
 	});
 
 	// Sending Email

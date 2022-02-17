@@ -1,4 +1,11 @@
-module.exports = welcomeAndVerifyTemplate = ({ token, fullName, reactAppUrl }) => {
+/**
+ * @description Email Template for Welcoming new Users
+ * @param {string} token Authentication Token
+ * @param {string} fullName Name of the User
+ * @param {string} reactAppUrl Frontend Application Url
+ * @returns {string} HTML Email
+ */
+const welcomeAndVerifyTemplate = ({ token, fullName, reactAppUrl }) => {
     return `
     <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
     <html style="box-sizing: border-box; --acccentp: #5299d3ff; --accents: #9381ffff; margin: 0; padding: 0;">
@@ -176,3 +183,5 @@ module.exports = welcomeAndVerifyTemplate = ({ token, fullName, reactAppUrl }) =
     
     `
 }
+
+module.exports = welcomeAndVerifyTemplate;

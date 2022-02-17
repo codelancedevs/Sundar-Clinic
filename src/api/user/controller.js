@@ -11,7 +11,10 @@ const {
 	authenticateVerifyAuthToken,
 	authenticateResetPasswordAuthToken,
 } = require('../../helper/functions');
-const { sendResetPasswordEmail } = require('../../helper/mail');
+const {
+	sendResetPasswordEmail,
+	sendVerifyAccountEmail,
+} = require('../../helper/mail');
 const {
 	expireDurations: { tokenExpireAt },
 } = require('../../helper/config');
@@ -131,12 +134,28 @@ exports.sendResetPasswordMail = async (req, res) => {
  * @route POST /api/user/email/verify
  * @data No data to be sent
  * @access Patient || Admin
- * ! To be Tested
  */
-exports.sendVerifyUserMail = (req, res) => {
+exports.sendVerifyUserMail = async (req, res) => {
 	// Collecting Required Data from Middleware
-	const { type, user } = req.user;
+	const {
+		user: { _id },
+	} = req.user;
 	try {
+		// Find User
+		const user = await User.findById(_id);
+		if (!user) throw new Error('Unable to find User');
+
+		// Check if user account is already verified
+		if (user.verification.isVerified)
+			throw new Error('Account Already Verified');
+
+		// Send Verification Email
+		await sendVerifyAccountEmail({
+			_id,
+			to: user.email,
+			fullName: user.fullName,
+		});
+
 		return res.status(200).json({
 			message: 'Verify Account Link Sent Successfully',
 			data: {},
@@ -238,9 +257,7 @@ exports.verifyResetPasswordMail = async (req, res) => {
 		// Checking validity of given Token
 		const userId = authenticateResetPasswordAuthToken({ authToken });
 		if (!userId)
-			throw new Error(
-				'Link Invalid! Provide a valid link to proceed.'
-			);
+			throw new Error('Link Invalid! Provide a valid link to proceed.');
 
 		// Checking if user exists from the token
 		const user = await User.findOne({ _id: userId });
@@ -283,17 +300,16 @@ exports.resetUserPassword = async (req, res) => {
 		// Checking if Given Token is Valid
 		const userId = authenticateResetPasswordAuthToken({ authToken });
 		if (!userId)
-			throw new Error(
-				'Link Invalid! Provide a valid link to proceed.'
-			);
+			throw new Error('Link Invalid! Provide a valid link to proceed.');
 
 		// Checking if user exists from the token
 		const user = await User.findOne({ _id: userId });
 		if (!user) throw new Error('Unable to find User');
 
 		// Check if the old password is the same as the new password
-		const isOldPassword = user.authenticatePassword({ password })
-		if (isOldPassword) throw new Error('Old Password cannot be same as Reset Password');
+		const isOldPassword = user.authenticatePassword({ password });
+		if (isOldPassword)
+			throw new Error('Old Password cannot be same as Reset Password');
 
 		// If new Password
 		// Hashing new password and updating User

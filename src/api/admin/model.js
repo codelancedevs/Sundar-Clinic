@@ -5,7 +5,7 @@
 'use strict';
 
 // Dependencies
-const { Schema, model } = require('mongoose');
+const { Schema } = require('mongoose');
 const User = require('../user/model');
 
 // Creating Admin Schema

@@ -40,9 +40,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser(cookieSecret));
 app.use(logger(loggingOptions));
-app.set("views", path.join(__dirname, "views")); 
-app.set("view engine", "ejs"); 
 
+// Disabling App Header
 app.disable('x-powered-by');
 
 // Connecting App to MongoDB

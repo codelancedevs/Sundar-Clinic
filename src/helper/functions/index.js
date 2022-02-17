@@ -6,6 +6,7 @@
 
 // Dependencies
 const jwt = require('jsonwebtoken');
+const {isValidObjectId} = require('mongoose')
 const {
 	expireDurations: { verificationExpireAt, passwordResetExpireAt },
 	secrets: { verificationSecret, passwordResetSecret, deleteAccountSecret },
@@ -17,7 +18,8 @@ const {
  * @returns JWT Token
  */
 exports.createAccountVerificationToken = ({ _id = '' }) => {
-	if (!_id) throw new Error('_id : String is Required to get a token!');
+	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false
+	if (!_id) throw new Error('_id : String is Required or is Invalid!');
 	return jwt.sign({ _id }, verificationSecret, {
 		expiresIn: verificationExpireAt,
 	});
@@ -29,7 +31,8 @@ exports.createAccountVerificationToken = ({ _id = '' }) => {
  * @returns JWT Token
  */
 exports.createResetPasswordToken = ({ _id = '' }) => {
-	if (!_id) throw new Error('_id : String is Required to get a token!');
+	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false
+	if (!_id) throw new Error('_id : String is Required or is Invalid!');
 	return jwt.sign({ _id }, passwordResetSecret, {
 		expiresIn: passwordResetExpireAt,
 	});
@@ -41,7 +44,8 @@ exports.createResetPasswordToken = ({ _id = '' }) => {
  * @returns JWT Token
  */
 exports.createDeleteAccountToken = ({ _id = '' }) => {
-	if (!_id) throw new Error('_id : String is Required to get a token!');
+	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false
+	if (!_id) throw new Error('_id : String is Required or is Invalid!');
 	return jwt.sign({ _id }, deleteAccountSecret, {
 		expiresIn: passwordResetExpireAt,
 	});

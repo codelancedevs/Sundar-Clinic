@@ -9,7 +9,6 @@ const { Schema, isValidObjectId } = require('mongoose');
 const User = require('../user/model');
 
 // Upload files, history, blood reports, etc, medical related stuff
-
 const patientSchema = new Schema({
 	dateOfBirth: Date,
 	maritalStatus: {
@@ -24,16 +23,16 @@ const patientSchema = new Schema({
 		type: String,
 		enum: ['Male', 'Female', 'Other'],
 	},
-	files: [
-		{
-			type: {
-				type: String,
-				enum: ['Blood Investigations', 'X-Ray', 'Urine Test', 'ECG'],
-			},
-			uploaded: Date,
-			file: Buffer,
-		},
-	],
+	// files: [
+	// 	{
+	// 		type: {
+	// 			type: String,
+	// 			enum: ['Blood Investigations', 'X-Ray', 'Urine Test', 'ECG'],
+	// 		},
+	// 		uploaded: Date,
+	// 		file: Buffer,
+	// 	},
+	// ],
 	presentingComplaint: [
 		{
 			date: Date,
@@ -129,7 +128,12 @@ const patientSchema = new Schema({
 	},
 });
 
-// Adds new Presenting Complaint
+/**
+ * @description Adds new Presenting Complaint
+ * @param {string} _id Patient Id 
+ * @param {object} presentingComplaint 
+ * @returns {Promise<object>} Updated presenting complaint object with additional details
+ */
 patientSchema.statics.updatePresentingComplaint = async function ({
 	_id = '',
 	presentingComplaint = {},
@@ -170,7 +174,12 @@ patientSchema.statics.updatePresentingComplaint = async function ({
 	return newPresentingComplaint;
 };
 
-// Edit Presenting Complaint
+/**
+ * @description Edit Presenting Complaint
+ * @param {string} patientId 
+ * @param {string} _id Id of Presenting Complaint to be updated
+ * @param {object} presentingComplaint details of the presenting complaint
+ */
 patientSchema.statics.editPresentingComplaint = async function ({
 	patientId = '',
 	_id = '',
@@ -211,10 +220,14 @@ patientSchema.statics.editPresentingComplaint = async function ({
 	await patient.save();
 };
 
-// Delete Presenting Complaint
+/**
+ * @description Delete Presenting Complaint
+ * @param {string} patientId
+ * @param {string} _id Presenting complaint id 
+ */
 patientSchema.statics.deletePresentingComplaint = async function ({
-	patientId,
-	_id,
+	patientId = '',
+	_id = '',
 }) {
 	// Type Checks
 	patientId =
@@ -240,7 +253,13 @@ patientSchema.statics.deletePresentingComplaint = async function ({
 	await patient.save();
 };
 
-// Adds new History for the given details
+/**
+ * @description Adds new History for the given details
+ * @param {string} historyFor Which History needs to be updated
+ * @param {string} _id Id of Patient
+ * @param {object} details Details associated with that history
+ * @returns {Promise<object>} Updated History Object
+ */
 patientSchema.statics.updateHistoryDetails = async function ({
 	historyFor = '',
 	_id = '',
@@ -298,7 +317,13 @@ patientSchema.statics.updateHistoryDetails = async function ({
 	return newHistory;
 };
 
-// Edit Patient History Details
+/**
+ * @description Edit Patient History Details
+ * @param {string} historyFor Which History needs to be updated 
+ * @param {string} patientId 
+ * @param {string} _id Id of the History object
+ * @param {object} details Details that needs to be updated 
+ */
 patientSchema.statics.editHistoryDetails = async function ({
 	historyFor = '',
 	patientId = '',
@@ -351,7 +376,12 @@ patientSchema.statics.editHistoryDetails = async function ({
 	await patient.save();
 };
 
-// Delete Patient History Details
+/**
+ * @description Delete Patient History Details
+ * @param {string} historyFor Which History needs to be deleted 
+ * @param {string} patientId 
+ * @param {string} _id Id of the History object
+ */
 patientSchema.statics.deleteHistoryDetails = async function ({
 	historyFor = '',
 	patientId = '',
@@ -398,6 +428,7 @@ patientSchema.statics.deleteHistoryDetails = async function ({
 	await patient.save();
 };
 
+// Get all patients with required data
 patientSchema.statics.getAllPatients = async function () {
 	const patients = await Patient.find().select({
 		history: 0,

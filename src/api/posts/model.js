@@ -6,6 +6,7 @@
 
 // Dependencies
 const { Schema, model } = require('mongoose');
+const { backendAppUrl } = require('../../helper/config');
 
 // Creating Posts schema
 const postsSchema = new Schema(
@@ -25,13 +26,7 @@ const postsSchema = new Schema(
 		},
 		type: {
 			type: String,
-			enum: [
-				'Job Opening',
-				'Offer',
-				'New Service',
-				'General',
-				'Emergency',
-			],
+			enum: ['Job', 'Offer', 'Service', 'General', 'Emergency'],
 			default: 'General',
 		},
 		isPublished: {
@@ -48,6 +43,18 @@ const postsSchema = new Schema(
 	}
 );
 
+// Assign a default cover Image depending on the type of the post
+postsSchema.methods.assignCoverImage = async function() {
+	const type = this.type;
+	const consistsMultipleImages = type === 'General' || type === 'Service';
+	if (consistsMultipleImages) {
+		this.coverImage = `${backendAppUrl}/assets/post/${type}${Math.ceil(Math.random() * 2)}.gif`;
+		return;
+	}
+	this.coverImage = `${backendAppUrl}/assets/post/${type}.gif`;
+};
+
+// Populate the Posts with the name of the admin who created and last edited it
 postsSchema.pre('find', function (next) {
 	if (this.options._recursed) {
 		return next();
@@ -59,6 +66,12 @@ postsSchema.pre('find', function (next) {
 	});
 	next();
 });
+
+// Assign Cover Image before Saving
+postsSchema.pre('save', async function (next){
+	await this.assignCoverImage();
+	next();
+})
 
 // Creating Model from Schema
 const Posts = model('Posts', postsSchema);

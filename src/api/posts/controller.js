@@ -127,13 +127,14 @@ exports.editPost = async (req, res) => {
 		}
 
 		// Update Post
-		await post.updateOne({ ...details });
+		await post.assignCoverImage();
+		await post.updateOne({ ...details, coverImage: post.coverImage, });
 
 		// Response after successfully updating post
 		return res.status(200).json({
 			message: 'Post Edited Successfully',
 			data: {
-				post,
+				post: {...post.toObject(), ...details},
 			},
 			success: true,
 		});

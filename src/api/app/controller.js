@@ -5,7 +5,7 @@
 'use strict';
 
 // Dependencies
-const { reactAppUrl, appId, apiKeys } = require('../../helper/config');
+const { appId, apiKeys } = require('../../helper/config');
 const App = require('./model');
 
 /* ================================
@@ -126,6 +126,9 @@ exports.editOwnerDetails = async (req, res) => {
 		owner.clinic.documents = documents
 			? documents
 			: ownerDetails.clinic.documents;
+
+		// Update App Owner Details
+		await app.updateOne({owner});
 
 		// Response after successfully updating owner details
 		return res.status(200).json({

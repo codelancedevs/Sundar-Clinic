@@ -7,9 +7,6 @@
 // Dependencies
 const nodemailer = require('nodemailer');
 const path = require('path');
-const ejs = require('ejs');
-const juice = require('juice');
-const { htmlToText } = require('html-to-text');
 const {
 	reactAppUrl,
 	mail: { email, password },
@@ -44,7 +41,7 @@ exports.sendWelcomeAndVerifyAccountEmail = async ({
 	// Creating Verification Token
 	const token = createAccountVerificationToken({ _id });
 
-	const { html, text } = await generateHtmlAndText('welcomeAndVerify', {
+	const { html, text } = generateHtmlAndText('welcome', {
 		reactAppUrl,
 		token,
 		fullName,

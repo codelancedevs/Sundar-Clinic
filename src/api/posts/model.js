@@ -6,6 +6,8 @@
 
 // Dependencies
 const { Schema, model } = require('mongoose');
+const path = require('path');
+const { backendAppUrl } = require('../../helper/config');
 
 // Creating Posts schema
 const postsSchema = new Schema(
@@ -25,13 +27,7 @@ const postsSchema = new Schema(
 		},
 		type: {
 			type: String,
-			enum: [
-				'Job Opening',
-				'Offer',
-				'New Service',
-				'General',
-				'Emergency',
-			],
+			enum: ['Job', 'Offer', 'Service', 'General', 'Emergency'],
 			default: 'General',
 		},
 		isPublished: {
@@ -47,6 +43,16 @@ const postsSchema = new Schema(
 		strict: true,
 	}
 );
+
+postsSchema.methods.assignCoverImage = async function() {
+	const type = this.type;
+	const consistsMultipleImages = type === 'General' || type === 'Service';
+	if (consistsMultipleImages) {
+		this.coverImage = `${backendAppUrl}/assets/post/${type}${Math.ceil(Math.random() * 2)}.gif`;
+		return;
+	}
+	this.coverImage = `${backendAppUrl}/assets/post/${type}.gif`;
+};
 
 postsSchema.pre('find', function (next) {
 	if (this.options._recursed) {

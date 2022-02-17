@@ -1,4 +1,12 @@
 /**
+ * Mail Functions
+ */
+
+// Dependencies
+const { htmlToText } = require('html-to-text');
+const templates = require('./templates');
+
+/**
  * @description Callback function after sending email
  * @param {object} error Error object, in case of error while sending mail
  * @param {object} data Success object
@@ -27,16 +35,12 @@ exports.mailConfig = ({ to = '', subject = '', html = '' }) => {
 
 /**
  * @description Takes a file, converts to html and text
- * @param {string} filename File that needs to be rendered
+ * @param {string} template Template that needs to be rendered
  * @param {object} options Rendering Options
- * @returns {Promise<object>} {html, text}
+ * @returns {object} {html, text}
  */
-exports.generateHtmlAndText = async (filename = '', options = {}) => {
-	const renderedHtml = await ejs.renderFile(
-		path.join(__dirname, '../../../views/email', `${filename}.ejs`),
-		options
-	);
-	const html = juice(renderedHtml);
+exports.generateHtmlAndText = (template = '', options = {}) => {
+	const html = templates[template](options)
 	const text = htmlToText(html);
 	return { html, text };
 };

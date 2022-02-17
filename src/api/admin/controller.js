@@ -85,7 +85,6 @@ exports.loginAdmin = async (req, res) => {
  * @route GET /api/admin?_id=<patient id>&searchByFullName=<patient name>
  * @data No data required for all admins or specify {_id} in Request Query for specific user, search admins if {searchByFullName} is present Request Query
  * @access Admin
- * ! To be Tested
  */
 exports.fetchAdmins = async (req, res) => {
 	// Collecting Required Data from Request Query

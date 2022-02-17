@@ -5,7 +5,7 @@
 'use strict';
 
 // Dependencies
-const { reactAppUrl, appId, apiKeys } = require('../../helper/config');
+const { appId, apiKeys } = require('../../helper/config');
 const App = require('./model');
 
 /* ================================

@@ -6,7 +6,6 @@
 
 // Dependencies
 const { Schema, model } = require('mongoose');
-const path = require('path');
 const { backendAppUrl } = require('../../helper/config');
 
 // Creating Posts schema
@@ -44,6 +43,7 @@ const postsSchema = new Schema(
 	}
 );
 
+// Assign a default cover Image depending on the type of the post
 postsSchema.methods.assignCoverImage = async function() {
 	const type = this.type;
 	const consistsMultipleImages = type === 'General' || type === 'Service';
@@ -54,6 +54,7 @@ postsSchema.methods.assignCoverImage = async function() {
 	this.coverImage = `${backendAppUrl}/assets/post/${type}.gif`;
 };
 
+// Populate the Posts with the name of the admin who created and last edited it
 postsSchema.pre('find', function (next) {
 	if (this.options._recursed) {
 		return next();
@@ -66,6 +67,7 @@ postsSchema.pre('find', function (next) {
 	next();
 });
 
+// Assign Cover Image before Saving
 postsSchema.pre('save', async function (next){
 	await this.assignCoverImage();
 	next();

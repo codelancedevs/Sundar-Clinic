@@ -6,7 +6,7 @@
 
 // Dependencies
 const User = require('./model');
-const { isEmail } = require('validator');
+const { isEmail, isStrongPassword } = require('validator');
 const {
 	authenticateVerifyAuthToken,
 	authenticateResetPasswordAuthToken,
@@ -310,6 +310,8 @@ exports.resetUserPassword = async (req, res) => {
 		const isOldPassword = user.authenticatePassword({ password });
 		if (isOldPassword)
 			throw new Error('Old Password cannot be same as Reset Password');
+
+		if(!isStrongPassword(password)) throw new Error('Password is not Strong!')
 
 		// If new Password
 		// Hashing new password and updating User

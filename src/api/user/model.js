@@ -78,7 +78,11 @@ userSchema.methods.generateHashedPassword = async function () {
 	this.password = await bcrypt.hash(this.password, saltRounds);
 };
 
-// Return a hashed password
+/**
+ * @description Return a hashed password
+ * @param {string} password Password that needs to be hashed  
+ * @returns {Promise<string>} Hashed Password
+ */
 userSchema.methods.returnHashedPassword = async function ({ password = '' }) {
 	const hashedPassword = await bcrypt.hash(password, saltRounds);
 	return hashedPassword;
@@ -119,7 +123,11 @@ userSchema.methods.generateDefaultUsername = async function () {
 	}
 };
 
-// Authenticate a user's password
+/**
+ * @description Authenticate a user's password
+ * @param {string} password Password that needs to be authenticated 
+ * @returns {Promise<boolean>} true (if valid) || false (if invalid)
+ */
 userSchema.methods.authenticatePassword = async function ({ password }) {
 	try {
 		const isUserPassword = await bcrypt.compare(password, this.password);
@@ -145,7 +153,11 @@ userSchema.statics.createRandomPassword = function ({ fullName = '' }) {
 	return password;
 };
 
-// Authenticate a User Token using Model Method
+/**
+ * @description Authenticate a User Token using Model Method
+ * @param {string} token 
+ * @returns {Promise<object>} User Object
+ */
 userSchema.statics.authenticateAdminAuthToken = async function ({ token }) {
 	const secret = this.role === 'admin' ? adminSecret : patientSecret;
 	let user;

@@ -10,11 +10,9 @@ const bcrypt = require('bcryptjs');
 const Admin = require('../../api/admin/model');
 const Patient = require('../../api/patient/model');
 const {
-	reactAppUrl,
 	secrets: {
 		adminSecret,
 		patientSecret,
-		superAdminSecret,
 		superAdminPassword,
 	},
 	apiKeys,

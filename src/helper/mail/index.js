@@ -6,7 +6,6 @@
 
 // Dependencies
 const nodemailer = require('nodemailer');
-const path = require('path');
 const {
 	reactAppUrl,
 	mail: { email, password },
@@ -31,6 +30,12 @@ const mailTransporter = nodemailer.createTransport({
 	from: `Sundar Clinic <${email}>`,
 });
 
+/**
+ * @description Sends a welcome Email to new user and Prompts them to verify their account
+ * @param {string} _id
+ * @param {string} to 
+ * @param {string} fullName 
+ */
 exports.sendWelcomeAndVerifyAccountEmail = async ({
 	_id = '',
 	to = '',
@@ -63,6 +68,12 @@ exports.sendWelcomeAndVerifyAccountEmail = async ({
 	mailTransporter.sendMail(config, mailCallback);
 };
 
+/**
+ * @description Sends a verify account link to the user who requested for one
+ * @param {string} _id
+ * @param {string} to 
+ * @param {string} fullName 
+ */
 exports.sendVerifyAccountEmail = async ({
 	_id = '',
 	to = '',
@@ -95,11 +106,18 @@ exports.sendVerifyAccountEmail = async ({
 	mailTransporter.sendMail(config, mailCallback);
 };
 
+/**
+ * @description Sends a reset password link to allow user to reset their account password
+ * @param {string} _id
+ * @param {string} to 
+ * @param {string} fullName 
+ */
 exports.sendResetPasswordEmail = async ({
 	_id = '',
 	to = '',
 	fullName = '',
 }) => {
+	// Pre Checks
 	if (!to || !fullName || !_id)
 		throw new Error(
 			'{to, fullName, _id} : String is Required to send email!'

@@ -41,6 +41,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser(cookieSecret));
 app.use(logger(loggingOptions));
 
+// Disabling App Header
 app.disable('x-powered-by');
 
 // Connecting App to MongoDB

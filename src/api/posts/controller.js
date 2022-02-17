@@ -134,7 +134,7 @@ exports.editPost = async (req, res) => {
 		return res.status(200).json({
 			message: 'Post Edited Successfully',
 			data: {
-				post,
+				post: {...post.toObject(), ...details},
 			},
 			success: true,
 		});

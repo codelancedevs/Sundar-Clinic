@@ -55,7 +55,7 @@ const verifyAccountTemplate = ({ fullName, url, reactAppUrl }) => {
                               <header class="text-center" style="text-align: center !important; box-sizing: border-box; margin: 0; padding: 0;">
                                 <h1 class="text-center" style="font-weight: 500; vertical-align: baseline; font-size: 36px; line-height: 43.2px; box-sizing: border-box; margin: 0; padding: 0;" align="center">Verify You Account</h1>
                                 <p class="text-center" style="line-height: 24px; font-size: 16px; width: 100%; box-sizing: border-box; margin: 0; padding: 0;" align="center">Hey ${fullName}!</p>
-                                <p class="text-center" style="line-height: 24px; font-size: 16px; width: 100%; box-sizing: border-box; margin: 0; padding: 0;" align="center">Your request for verifying your account was noted.</p>
+                                <p class="text-center" style="line-height: 24px; font-size: 16px; width: 100%; box-sizing: border-box; margin: 0; padding: 0;" align="center">Your request to verify your email was noted or either you have to verify your new email!</p>
                                 <p class="text-center" style="line-height: 24px; font-size: 16px; width: 100%; box-sizing: border-box; margin: 0; padding: 0;" align="center">Please confirm your email to verify your account.</p>
                               </header>
                               <table class="s-5 w-full" role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%; box-sizing: border-box; margin: 0; padding: 0;" width="100%">

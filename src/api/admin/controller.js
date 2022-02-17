@@ -9,7 +9,10 @@ const { isValidObjectId } = require('mongoose');
 const { isEmail, isStrongPassword } = require('validator');
 const Admin = require('./model');
 const Patient = require('../patient/model');
-const { sendWelcomeAndVerifyAccountEmail } = require('../../helper/mail');
+const {
+	sendWelcomeAndVerifyAccountEmail,
+	sendVerifyAccountEmail,
+} = require('../../helper/mail');
 const {
 	expireDurations: { tokenExpireAt },
 } = require('../../helper/config');
@@ -169,7 +172,7 @@ exports.createAdmin = async (req, res) => {
 
 		// Sending Admin Welcome email and verify account
 		sendWelcomeAndVerifyAccountEmail({
-			_id: admin._id,
+			_id: admin._id.toString(),
 			fullName: admin.fullName,
 			to: admin.email,
 		});
@@ -244,6 +247,23 @@ exports.editAdminDetails = async (req, res) => {
 			address: address || admin.address,
 			adminDetails: { ...admin.adminDetails, ...adminDetails },
 		};
+
+		// If Admin Changed Email, then email should be reverified
+		if (email !== admin.email) {
+			details.verification = {
+				isVerified: false,
+				verifiedAt: null,
+			};
+
+			// Prompt User to Verify Their Account
+			await sendVerifyAccountEmail({
+				_id: admin._id.toString(),
+				to: email,
+				fullName: fullName,
+			});
+		}
+
+		// Update Admin Details
 		await admin.updateOne({ ...details });
 
 		// Response after all updating all admin details
@@ -792,9 +812,8 @@ exports.deletePatient = async (req, res) => {
 		if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
 
 		// Delete Patient
-		Patient.findByIdAndDelete(_id).exec((err, data) => {
-			if (!err) throw new Error('Unable to find Patient');
-		});
+		const response = await Patient.findByIdAndDelete(_id);
+		if (!response) throw new Error('Unable to find Patient');
 
 		// Response after successfully deleting patient account
 		// ? Implement Feature to Email Patient that account has been deleted

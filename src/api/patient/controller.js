@@ -7,7 +7,7 @@
 // Dependencies
 const Patient = require('./model');
 const { isEmail, isStrongPassword } = require('validator');
-const { sendWelcomeAndVerifyAccountEmail } = require('../../helper/mail');
+const { sendWelcomeAndVerifyAccountEmail, sendVerifyAccountEmail } = require('../../helper/mail');
 const {
 	expireDurations: { tokenExpireAt },
 } = require('../../helper/config');
@@ -56,7 +56,7 @@ exports.createPatient = async (req, res) => {
 
 		// Sending Patient Welcome email and verify account
 		sendWelcomeAndVerifyAccountEmail({
-			_id: patient._id,
+			_id: patient._id.toString(),
 			fullName: patient.fullName,
 			to: patient.email,
 		});
@@ -190,6 +190,23 @@ exports.editPatientAccountDetails = async (req, res) => {
 			phone: phone || patient.phone,
 			address: address || patient.address,
 		};
+
+		// If Patient Changed Email, then email should be reverified
+		if (email !== patient.email) {
+			details.verification = {
+				isVerified: false,
+				verifiedAt: null,
+			};
+
+			// Prompt User to Verify Their Account
+			await sendVerifyAccountEmail({
+				_id: patient._id.toString(),
+				to: email,
+				fullName: fullName,
+			});
+		}
+
+		// Update Patient Account Details
 		await patient.updateOne({ ...details });
 
 		// Response after all updating patient account details

@@ -127,6 +127,9 @@ exports.editOwnerDetails = async (req, res) => {
 			? documents
 			: ownerDetails.clinic.documents;
 
+		// Update App Owner Details
+		await app.updateOne({owner});
+
 		// Response after successfully updating owner details
 		return res.status(200).json({
 			message: 'Owner Details Updated Successfully',

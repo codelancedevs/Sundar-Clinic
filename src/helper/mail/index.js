@@ -54,7 +54,7 @@ exports.sendWelcomeAndVerifyAccountEmail = async ({
 	// Creating Mail Config
 	const config = mailConfig({
 		to,
-		subject: 'Verify Your Account',
+		subject: 'Welcome to Sundar Clinic!',
 		html,
 		text,
 	});
@@ -77,13 +77,18 @@ exports.sendVerifyAccountEmail = async ({
 	// Creating Verification Token
 	const token = createAccountVerificationToken({ _id });
 	const url = `${reactAppUrl}/verifyAccount/authToken=${token}`;
-	const { html, text } = generateHtmlAndText('verify', { fullName, url });
+	const { html, text } = generateHtmlAndText('verify', {
+		fullName,
+		url,
+		reactAppUrl,
+	});
 
 	// Creating Mail Config
 	const config = mailConfig({
 		to,
 		subject: 'Verify Your Account',
-		html: `Click to verify your account ${url}`,
+		html,
+		text,
 	});
 
 	// Sending Email
@@ -103,13 +108,18 @@ exports.sendResetPasswordEmail = async ({
 	// Creating Verification Token
 	const token = createResetPasswordToken({ _id });
 	const url = `${reactAppUrl}/resetPassword/authToken=${token}`;
-	const { html, text } = generateHtmlAndText('verify', { fullName, url });
+	const { html, text } = generateHtmlAndText('verify', {
+		fullName,
+		url,
+		reactAppUrl,
+	});
 
 	// Creating Mail Config
 	const config = mailConfig({
 		to,
 		subject: 'Reset Your Password',
-		html: `Click to reset your password ${url}`,
+		html,
+		text,
 	});
 
 	// Sending Email

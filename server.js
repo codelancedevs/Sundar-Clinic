@@ -18,7 +18,7 @@ const {
 	loggingOptions,
 	backendAppUrl,
 } = require('./src/helper/config');
-const { preventXST } = require('./src/helper/middleware');
+const { preventXST, errorHandler } = require('./src/helper/middleware');
 
 // Importing App Router
 const appRouter = require('./src/api/app');
@@ -53,19 +53,14 @@ app.use(appRouter);
 // Handling 404 Error
 app.use((req, res, next) => {
 	const error = new Error(
-		`Can't find Request: '${req.originalUrl}' on the server! ❌`
+		`Can't find '${req.originalUrl}' on this server!`
 	);
 	error.status = 404;
 	return next(error);
 });
 
 // Handling Server Error
-app.use((error, req, res, next) => {
-	console.log(error.stack);
-	const status = error.status || 500;
-	const message = error.message || 'Internal Server Error! 🚫';
-	return res.status(status).json({ error: { message }, success: false });
-});
+app.use(errorHandler);
 
 // Run Server
 app.listen(port, () => {

@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Admin = require('../../api/admin/model');
 const Patient = require('../../api/patient/model');
+const errorHandler = require('./error');
 const {
 	secrets: {
 		adminSecret,
@@ -18,7 +19,10 @@ const {
 	apiKeys,
 } = require('../config');
 
-exports.generalAuth = async (req, res, next) => {
+// Middleware Container
+const middleware = {};
+
+middleware.generalAuth = async (req, res, next) => {
 	// Collecting Tokens from Request Cookies
 	const { adminToken, patientToken } = req.signedCookies;
 	try {
@@ -57,7 +61,7 @@ exports.generalAuth = async (req, res, next) => {
 };
 
 // Authorize Admins
-exports.authAdmin = async (req, res, next) => {
+middleware.authAdmin = async (req, res, next) => {
 	// Collecting Tokens from Request Cookies
 	const token = req.signedCookies.adminToken;
 	try {
@@ -77,7 +81,7 @@ exports.authAdmin = async (req, res, next) => {
 };
 
 // Authorize Patients
-exports.authPatient = async (req, res, next) => {
+middleware.authPatient = async (req, res, next) => {
 	// Collecting Tokens from Request Cookies
 	const token = req.signedCookies.patientToken;
 	try {
@@ -97,7 +101,7 @@ exports.authPatient = async (req, res, next) => {
 };
 
 // Authorize Super Admins
-exports.authSuperAdmin = async (req, res, next) => {
+middleware.authSuperAdmin = async (req, res, next) => {
 	let { superPassword } = req.body;
 	try {
 		superPassword =
@@ -122,7 +126,7 @@ exports.authSuperAdmin = async (req, res, next) => {
 };
 
 // Authorize API Related Requests
-exports.authApiKey = (req, res, next) => {
+middleware.authApiKey = (req, res, next) => {
 	const providedKey = req.headers['x-api-key'];
 	const isFromSDK = req.headers['x-sdk-req'] === 'SDK-SS';
 	try {
@@ -140,7 +144,7 @@ exports.authApiKey = (req, res, next) => {
 };
 
 // Prevent Cross Site Trace and track attacks.
-exports.preventXST = (req, res, next) => {
+middleware.preventXST = (req, res, next) => {
 	// NOTE: Exclude TRACE and TRACK methods to avoid XST attacks.
 	const allowedMethods = [
 		'OPTIONS',
@@ -160,4 +164,6 @@ exports.preventXST = (req, res, next) => {
 	return next();
 };
 
-exports.errorHandler = (err, req, res, next) => { };
+middleware.errorHandler = errorHandler;
+
+module.exports = middleware;

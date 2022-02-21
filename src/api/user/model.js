@@ -13,6 +13,7 @@ const {
 	secrets: { saltRounds, adminSecret, patientSecret },
 	expireDurations: { tokenExpireAt },
 } = require('../../helper/config');
+const {sendWelcomeAndVerifyAccountEmail} = require('../../helper/mail')
 
 const userSchema = new Schema(
 	{
@@ -98,7 +99,7 @@ userSchema.methods.createDefaultAvatar = async function () {
 };
 
 // Get JWT Token for a particular User Instance
-userSchema.methods.generateAuthToken = async function () {
+userSchema.methods.generateAuthToken = function () {
 	const secret = this.role === 'Admin' ? adminSecret : patientSecret;
 	const token = jwt.sign({ _id: this._id.toString() }, secret, {
 		expiresIn: tokenExpireAt,
@@ -128,9 +129,9 @@ userSchema.methods.generateDefaultUsername = async function () {
  * @param {string} password Password that needs to be authenticated 
  * @returns {Promise<boolean>} true (if valid) || false (if invalid)
  */
-userSchema.methods.authenticatePassword = async function ({ password }) {
+userSchema.methods.authenticatePassword = function ({ password }) {
 	try {
-		const isUserPassword = await bcrypt.compare(password, this.password);
+		const isUserPassword = bcrypt.compareSync(password, this.password);
 		return isUserPassword;
 	} catch (error) {
 		console.log(error);
@@ -180,6 +181,12 @@ userSchema.pre('save', async function (next) {
 		await this.generateHashedPassword();
 		await this.createDefaultAvatar();
 		await this.generateDefaultUsername();
+		// Send the User Welcome and Verify Upon Account Creation
+		sendWelcomeAndVerifyAccountEmail({
+			_id: this._id.toString(),
+			fullName: this.fullName,
+			to: this.email,
+		});
 	}
 	next();
 });

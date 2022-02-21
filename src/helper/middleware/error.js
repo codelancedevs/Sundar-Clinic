@@ -7,7 +7,7 @@ const handleDuplicateKeyError = (err, res) => {
 	const field = Object.keys(err.keyValue);
 	const code = 409;
 	const error = `An account with that ${field} already exists`;
-	return res.status(code).json({ message: error, fields: field });
+	return res.status(code).json({ message: error, data: {fields: field}, success: false });
 };
 
 // Handle Validation Errors
@@ -27,18 +27,23 @@ const handleValidationError = (err, res) => {
 	}
 };
 
-const sendErrorProd = (err, res) => {
-    res.status(err.statusCode).json({})
-}
+const handleGeneralError = (err, res) => {
+	const code = 400;
+	return res
+		.status(code)
+		.json({ message: err.message, data: {}, success: false });
+};
 
 const errHandler = (err, req, res, next) => {
 	try {
+		console.log(err);
 		if (err.name === 'ValidationError')
-			return (err = handleDuplicateKeyError(err, res));
+			return (err = handleValidationError(err, res));
 		if (err.code && err.code === 11000)
 			return (err = handleDuplicateKeyError(err, res));
 		if (err.status && err.status === 404)
 			return (err = handle404Error(err, res));
+		handleGeneralError(err, res);
 	} catch (error) {
 		res.status(500).json({
 			message: 'An unknown error occurred.',

@@ -9,10 +9,7 @@ const { isValidObjectId } = require('mongoose');
 const { isEmail, isStrongPassword } = require('validator');
 const Admin = require('./model');
 const Patient = require('../patient/model');
-const {
-	sendWelcomeAndVerifyAccountEmail,
-	sendVerifyAccountEmail,
-} = require('../../helper/mail');
+const { sendVerifyAccountEmail } = require('../../helper/mail');
 const {
 	expireDurations: { tokenExpireAt },
 } = require('../../helper/config');
@@ -27,7 +24,7 @@ const {
  * @data {email, password} : 'String' in Request Body
  * @access Public
  */
-exports.loginAdmin = async (req, res) => {
+exports.loginAdmin = (req, res, next) => {
 	// Collecting Required Data from Request Data
 	let { email, password } = req.body;
 	try {
@@ -43,37 +40,35 @@ exports.loginAdmin = async (req, res) => {
 		if (!isEmail(email)) throw new Error('Given email is not valid');
 
 		// Finding Admin From Database
-		const admin = await Admin.findOne({ email });
-		if (!admin) throw new Error('No Admin account found');
+		Admin.findOne({ email })
+			.then((admin) => {
+				// Authenticating Admin Password
+				const validated = admin.authenticatePassword({ password });
+				if (!validated) throw new Error('Wrong Password');
 
-		// Authenticating Admin Password
-		const validated = await admin.authenticatePassword({ password });
-		if (!validated) throw new Error('Wrong Password');
+				// Creating Admin Auth Token
+				const adminToken = admin.generateAuthToken();
 
-		// Creating Admin Auth Token
-		const adminToken = await admin.generateAuthToken();
+				// Sending Admin Auth Token
+				res.cookie('adminToken', adminToken, {
+					httpOnly: true,
+					signed: true,
+					maxAge: tokenExpireAt,
+				});
 
-		// Sending Admin Auth Token
-		res.cookie('adminToken', adminToken, {
-			httpOnly: true,
-			signed: true,
-			maxAge: tokenExpireAt,
-		});
-
-		// Responding with admin details
-		return res.status(200).json({
-			message: 'Login Successful',
-			data: {
-				admin: admin.sanitizeAndReturnUser(),
-				token: adminToken,
-			},
-			success: true,
-		});
+				// Responding with admin details
+				return res.status(200).json({
+					message: 'Login Successful',
+					data: {
+						admin: admin.sanitizeAndReturnUser(),
+						token: adminToken,
+					},
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -89,7 +84,7 @@ exports.loginAdmin = async (req, res) => {
  * @data No data required for all admins or specify {_id} in Request Query for specific user, search admins if {searchByFullName} is present Request Query
  * @access Admin
  */
-exports.fetchAdmins = async (req, res) => {
+exports.fetchAdmins = async (req, res, next) => {
 	// Collecting Required Data from Request Query
 	let { _id, searchByFullName } = req.query;
 	try {
@@ -126,10 +121,7 @@ exports.fetchAdmins = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -140,7 +132,7 @@ exports.fetchAdmins = async (req, res) => {
  * @data {superPassword}: 'String' in Request Body
  * @access Super Admin
  */
-exports.createAdmin = async (req, res) => {
+exports.createAdmin = (req, res, next) => {
 	// Collecting Required Data from Request Body and Middleware
 	let { fullName, email, password, tosAgreement } = req.body;
 	const isSuperAdminAuthenticated = req.superAdminAuthenticated;
@@ -158,9 +150,6 @@ exports.createAdmin = async (req, res) => {
 			);
 
 		// Details Validity Check
-		if (!isEmail(email)) throw new Error('Given Email is not valid');
-		if (!isStrongPassword(password))
-			throw new Error('Password is not strong enough');
 		if (!tosAgreement)
 			throw new Error(
 				'Account Cannot be created without agreeing to Terms of Service'
@@ -168,39 +157,32 @@ exports.createAdmin = async (req, res) => {
 
 		// Creating New Admin
 		const admin = new Admin({ fullName, email, password, tosAgreement });
-		await admin.save();
+		admin
+			.save()
+			.then((saved) => {
+				// Creating Admin Auth Token
+				const adminToken = saved.generateAuthToken();
 
-		// Sending Admin Welcome email and verify account
-		sendWelcomeAndVerifyAccountEmail({
-			_id: admin._id.toString(),
-			fullName: admin.fullName,
-			to: admin.email,
-		});
+				// Sending Admin Auth Token
+				res.cookie('adminToken', adminToken, {
+					httpOnly: true,
+					signed: true,
+					maxAge: tokenExpireAt,
+				});
 
-		// Creating Admin Auth Token
-		const adminToken = await admin.generateAuthToken();
-
-		// Sending Admin Auth Token
-		res.cookie('adminToken', adminToken, {
-			httpOnly: true,
-			signed: true,
-			maxAge: tokenExpireAt,
-		});
-
-		// Response after successful creation with admin details
-		return res.status(201).json({
-			message: 'Admin Account Created Successfully',
-			data: {
-				admin: admin.sanitizeAndReturnUser(),
-				token: adminToken,
-			},
-			success: true,
-		});
+				// Response after successful creation with admin details
+				return res.status(201).json({
+					message: 'Admin Account Created Successfully',
+					data: {
+						admin: saved.sanitizeAndReturnUser(),
+						token: adminToken,
+					},
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -211,7 +193,7 @@ exports.createAdmin = async (req, res) => {
  * @access <Access Level>
  * ! To be Tested
  */
-exports.adminEmailAvailable = async (req, res) => { };
+exports.adminEmailAvailable = async (req, res) => {};
 
 /**
  * @description <Controller description here>
@@ -220,7 +202,7 @@ exports.adminEmailAvailable = async (req, res) => { };
  * @access <Access Level>
  * ! To be Tested
  */
-exports.adminUsernameAvailable = async (req, res) => { };
+exports.adminUsernameAvailable = async (req, res) => {};
 
 /**
  * @description Edit Admin Account Details
@@ -228,7 +210,7 @@ exports.adminUsernameAvailable = async (req, res) => { };
  * @data {fullName, username, email, phone, address}: 'String' in Request Body
  * @access Admin
  */
-exports.editAdminDetails = async (req, res) => {
+exports.editAdminDetails = async (req, res, next) => {
 	// Collecting Required Data from Request Body and Middleware
 	const { _id } = req.admin;
 	let { fullName, username, email, phone, address, adminDetails } = req.body;
@@ -273,10 +255,7 @@ exports.editAdminDetails = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -286,7 +265,7 @@ exports.editAdminDetails = async (req, res) => {
  * @data {password, newPassword}: 'String' in Request Body
  * @access Admin
  */
-exports.editAdminPassword = async (req, res) => {
+exports.editAdminPassword = async (req, res, next) => {
 	// Collecting Required Data from Request Body and Middleware
 	const { _id } = req.admin;
 	let { password, newPassword } = req.body;
@@ -330,10 +309,7 @@ exports.editAdminPassword = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -343,7 +319,7 @@ exports.editAdminPassword = async (req, res) => {
  * @data {password}: 'String' in Request Body
  * @access Admin
  */
-exports.deleteAdminAccount = async (req, res) => {
+exports.deleteAdminAccount = async (req, res, next) => {
 	// Collecting Required Data from Request Body and Middleware
 	const { _id } = req.admin;
 	let { password } = req.body;
@@ -375,10 +351,7 @@ exports.deleteAdminAccount = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -388,15 +361,9 @@ exports.deleteAdminAccount = async (req, res) => {
  * @data No data to be passed
  * @access Admin
  */
-exports.logoutAdmin = async (req, res) => {
-	// Collecting Required Data from Middleware
-	const { _id } = req.admin;
+exports.logoutAdmin = (req, res, next) => {
 	try {
-		// Admin Check
-		const admin = await Admin.findById(_id);
-		if (!admin) throw new Error('Unable to find admin');
-
-		// Respond with Logout
+		// Response with Logout
 		res.clearCookie('adminToken');
 		return res.status(200).json({
 			message: 'Logged Out Successfully',
@@ -404,10 +371,7 @@ exports.logoutAdmin = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -420,7 +384,7 @@ exports.logoutAdmin = async (req, res) => {
  * @access Admin
  * ? Add Feature to Email the Password to Patient after successful account creation
  */
-exports.createNewPatient = async (req, res) => {
+exports.createNewPatient = async (req, res, next) => {
 	// Collecting Required Data from Request Body
 	let { fullName, email, tosAgreement } = req.body;
 	try {
@@ -434,7 +398,6 @@ exports.createNewPatient = async (req, res) => {
 			);
 		}
 		// Details Check
-		if (!isEmail(email)) throw new Error('{email} should be valid!');
 		if (!tosAgreement) {
 			throw new Error(
 				'Cannot create account without agreeing to Terms of Service'
@@ -464,10 +427,7 @@ exports.createNewPatient = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -477,7 +437,7 @@ exports.createNewPatient = async (req, res) => {
  * @data No data required for all patients or specify {_id} in Request Query for specific user, search patients if {searchByFullName} is present Request Query
  * @access Admin
  */
-exports.fetchPatients = async (req, res) => {
+exports.fetchPatients = async (req, res, next) => {
 	// Collecting Required Data from Request Query
 	let { _id, searchByFullName } = req.query;
 	try {
@@ -515,10 +475,7 @@ exports.fetchPatients = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -528,7 +485,7 @@ exports.fetchPatients = async (req, res) => {
  * @data { fullName, username, email, phone, address, _id } : 'String' in Request Body
  * @access Admin
  */
-exports.editPatientAccountDetails = async (req, res) => {
+exports.editPatientAccountDetails = async (req, res, next) => {
 	// Collecting Required Data from Request Body
 	let { fullName, username, email, phone, address, _id } = req.body;
 	try {
@@ -560,10 +517,7 @@ exports.editPatientAccountDetails = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		next(error);
 	}
 };
 
@@ -574,7 +528,7 @@ exports.editPatientAccountDetails = async (req, res) => {
  * @access Admin
  * ? Additional Discussion for Passing Date, Object Id's in maritalStatus and kidsDetails should be included until necessary
  */
-exports.editPatientGeneralDetails = async (req, res) => {
+exports.editPatientGeneralDetails = async (req, res, next) => {
 	// Collecting Required data from Request
 	let { dateOfBirth, gender, maritalStatus, kidsDetails, _id } = req.body;
 	try {
@@ -605,10 +559,7 @@ exports.editPatientGeneralDetails = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -618,7 +569,7 @@ exports.editPatientGeneralDetails = async (req, res) => {
  * @data { presentingComplaint: {complaint, duration}, _id } : 'String' in Request Body
  * @access Admin
  */
-exports.updatePatientPresentingComplaint = async (req, res) => {
+exports.updatePatientPresentingComplaint = async (req, res, next) => {
 	// Collecting Required data from Request Body
 	let { presentingComplaint, _id } = req.body;
 	try {
@@ -635,10 +586,7 @@ exports.updatePatientPresentingComplaint = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -648,7 +596,7 @@ exports.updatePatientPresentingComplaint = async (req, res) => {
  * @data {presentingComplaint: {complaint, duration}, patientId, _id} : String in the Request Body
  * @access Admin
  */
-exports.editPatientPresentingComplaint = async (req, res) => {
+exports.editPatientPresentingComplaint = async (req, res, next) => {
 	// Collecting Required data from Request Body
 	let { presentingComplaint, _id, patientId } = req.body;
 	try {
@@ -666,10 +614,7 @@ exports.editPatientPresentingComplaint = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -679,7 +624,7 @@ exports.editPatientPresentingComplaint = async (req, res) => {
  * @data {_id, patientId} : String in the Request Body
  * @access Admin
  */
-exports.deletePatientPresentingComplaint = async (req, res) => {
+exports.deletePatientPresentingComplaint = async (req, res, next) => {
 	// Collecting Required data from Request Body
 	let { _id, patientId } = req.body;
 	try {
@@ -696,10 +641,7 @@ exports.deletePatientPresentingComplaint = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		next(error);
 	}
 };
 
@@ -709,7 +651,7 @@ exports.deletePatientPresentingComplaint = async (req, res) => {
  * @data {historyFor: 'String', _id: 'String', details: 'Object'} in the Request Body
  * @access Admin
  */
-exports.updatePatientHistory = async (req, res) => {
+exports.updatePatientHistory = async (req, res, next) => {
 	// Collecting Required Data from Request Body
 	const { _id, historyFor, details } = req.body;
 	try {
@@ -726,10 +668,7 @@ exports.updatePatientHistory = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -739,7 +678,7 @@ exports.updatePatientHistory = async (req, res) => {
  * @data {historyFor: 'String', details: 'Object', _id: 'String', patientId: 'String'} in the Request Body
  * @access Admin
  */
-exports.editPatientHistory = async (req, res) => {
+exports.editPatientHistory = async (req, res, next) => {
 	// Collecting Required data from Request Body
 	const { historyFor, details, _id, patientId } = req.body;
 	try {
@@ -757,10 +696,7 @@ exports.editPatientHistory = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -770,7 +706,7 @@ exports.editPatientHistory = async (req, res) => {
  * @data {historyFor, _id, patientId} : 'String' in the Request Body
  * @access Patient
  */
-exports.deletePatientHistory = async (req, res) => {
+exports.deletePatientHistory = async (req, res, next) => {
 	// Collecting Required data from Request Body
 	const { historyFor, _id, patientId } = req.body;
 	try {
@@ -787,10 +723,7 @@ exports.deletePatientHistory = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -801,7 +734,7 @@ exports.deletePatientHistory = async (req, res) => {
  * @access Admin
  * ? Add Feature To Email Patient When Account is deleted
  */
-exports.deletePatient = async (req, res) => {
+exports.deletePatient = async (req, res, next) => {
 	// Collecting Required Data from Request Body
 	let { _id } = req.body;
 	try {
@@ -823,9 +756,6 @@ exports.deletePatient = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };

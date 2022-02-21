@@ -7,7 +7,7 @@
 // Dependencies
 const Patient = require('./model');
 const { isEmail, isStrongPassword } = require('validator');
-const { sendWelcomeAndVerifyAccountEmail, sendVerifyAccountEmail } = require('../../helper/mail');
+const { sendVerifyAccountEmail } = require('../../helper/mail');
 const {
 	expireDurations: { tokenExpireAt },
 } = require('../../helper/config');
@@ -53,13 +53,6 @@ exports.createPatient = async (req, res) => {
 			tosAgreement,
 		});
 		await patient.save();
-
-		// Sending Patient Welcome email and verify account
-		sendWelcomeAndVerifyAccountEmail({
-			_id: patient._id.toString(),
-			fullName: patient.fullName,
-			to: patient.email,
-		});
 
 		// Creating Patient Auth Token
 		const patientToken = await patient.generateAuthToken();
@@ -371,14 +364,8 @@ exports.deletePatientAccount = async (req, res) => {
  * @data No date to be passed
  * @access Patient
  */
-exports.logoutPatient = async (req, res) => {
-	// Collecting Required Data from Middleware
-	const { _id } = req.patient;
+exports.logoutPatient = (req, res, next) => {
 	try {
-		// Patient Check
-		const patient = await Patient.findById(_id);
-		if (!patient) throw new Error('Unable to find patient');
-
 		// Respond with Logout
 		res.clearCookie('patientToken');
 		return res.status(200).json({
@@ -387,10 +374,7 @@ exports.logoutPatient = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 

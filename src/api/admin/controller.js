@@ -42,6 +42,8 @@ exports.loginAdmin = (req, res, next) => {
 		// Finding Admin From Database
 		Admin.findOne({ email })
 			.then((admin) => {
+				if (!admin) throw new Error('Unable to find admin account');
+
 				// Authenticating Admin Password
 				const validated = admin.authenticatePassword({ password });
 				if (!validated) throw new Error('Wrong Password');
@@ -210,15 +212,11 @@ exports.adminUsernameAvailable = async (req, res) => {};
  * @data {fullName, username, email, phone, address}: 'String' in Request Body
  * @access Admin
  */
-exports.editAdminDetails = async (req, res, next) => {
+exports.editAdminDetails = (req, res, next) => {
 	// Collecting Required Data from Request Body and Middleware
-	const { _id } = req.admin;
+	const { admin } = req;
 	let { fullName, username, email, phone, address, adminDetails } = req.body;
 	try {
-		// Finding Admin
-		const admin = await Admin.findById(_id);
-		if (!admin) throw new Error('Unable to find admin');
-
 		// Updating admin details
 		// If details are not given, then existing details are passed back
 		const details = {
@@ -238,7 +236,7 @@ exports.editAdminDetails = async (req, res, next) => {
 			};
 
 			// Prompt User to Verify Their Account
-			await sendVerifyAccountEmail({
+			sendVerifyAccountEmail({
 				_id: admin._id.toString(),
 				to: email,
 				fullName: fullName,
@@ -246,14 +244,16 @@ exports.editAdminDetails = async (req, res, next) => {
 		}
 
 		// Update Admin Details
-		await admin.updateOne({ ...details });
-
-		// Response after all updating all admin details
-		return res.status(200).json({
-			message: 'Details Updated Successfully',
-			data: { ...details },
-			success: true,
-		});
+		Admin.updateOne({ _id: admin._id }, { ...details })
+			.then(() => {
+				// Response after all updating all admin details
+				return res.status(200).json({
+					message: 'Details Updated Successfully',
+					data: { ...details },
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
 		return next(error);
 	}
@@ -265,9 +265,9 @@ exports.editAdminDetails = async (req, res, next) => {
  * @data {password, newPassword}: 'String' in Request Body
  * @access Admin
  */
-exports.editAdminPassword = async (req, res, next) => {
+exports.editAdminPassword = (req, res, next) => {
 	// Collecting Required Data from Request Body and Middleware
-	const { _id } = req.admin;
+	const { admin } = req;
 	let { password, newPassword } = req.body;
 	try {
 		// Pre Checks
@@ -279,35 +279,33 @@ exports.editAdminPassword = async (req, res, next) => {
 			);
 		}
 
-		// Finding Admin Account
-		const admin = await Admin.findById(_id);
-		if (!admin) throw new Error('Unable to find admin');
-
 		// Validate Password
-		const validated = await admin.authenticatePassword({ password });
+		const validated = admin.authenticatePassword({ password });
 		if (!validated) throw new Error('Wrong Password');
 
 		// Check if old password is the same as new Password
-		const isSamePassword = await admin.authenticatePassword({
+		const isSamePassword = admin.authenticatePassword({
 			password: newPassword,
 		});
 		if (isSamePassword)
 			throw new Error('Old Password and New Password cannot be same');
 
 		// Generate New Password
-		const hashedPassword = await admin.returnHashedPassword({
+		const hashedPassword = admin.returnHashedPassword({
 			password: newPassword,
 		});
 
 		// Update Password for Admin
-		await admin.updateOne({ password: hashedPassword });
-
-		// Response after successfully updating password
-		return res.status(200).json({
-			message: 'Password Updated Successfully',
-			data: {},
-			success: true,
-		});
+		Admin.updateOne({ _id: admin._id }, { password: hashedPassword })
+			.then(() => {
+				// Response after successfully updating password
+				return res.status(200).json({
+					message: 'Password Updated Successfully',
+					data: {},
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
 		return next(error);
 	}
@@ -319,15 +317,11 @@ exports.editAdminPassword = async (req, res, next) => {
  * @data {password}: 'String' in Request Body
  * @access Admin
  */
-exports.deleteAdminAccount = async (req, res, next) => {
+exports.deleteAdminAccount = (req, res, next) => {
 	// Collecting Required Data from Request Body and Middleware
-	const { _id } = req.admin;
+	const { admin } = req;
 	let { password } = req.body;
 	try {
-		// Admin Check
-		const admin = await Admin.findById(_id);
-		if (!admin) throw new Error('Unable to find admin');
-
 		// Password Check
 		password = typeof password === 'string' ? password : false;
 		if (!password)
@@ -336,20 +330,23 @@ exports.deleteAdminAccount = async (req, res, next) => {
 			);
 
 		// Validate Password
-		const validated = await admin.authenticatePassword({ password });
+		const validated = admin.authenticatePassword({ password });
 		if (!validated) throw new Error('Wrong Password');
 
 		// Delete Admin Account
-		await admin.delete();
-
-		// Sending Response upon successful deletion of admin account
-		// Clearing Cookie (Essentially Logout Admin)
-		res.clearCookie('adminToken');
-		return res.status(200).json({
-			message: 'Admin Deleted Successfully',
-			data: {},
-			success: true,
-		});
+		admin
+			.delete()
+			.then(() => {
+				// Sending Response upon successful deletion of admin account
+				// Clearing Cookie (Essentially Logout Admin)
+				res.clearCookie('adminToken');
+				return res.status(200).json({
+					message: 'Admin Deleted Successfully',
+					data: {},
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
 		return next(error);
 	}
@@ -412,20 +409,24 @@ exports.createNewPatient = async (req, res, next) => {
 			password,
 			tosAgreement,
 		};
-		const patient = await Patient({ ...patientDetails });
-		await patient.save();
+		const patient = new Patient({ ...patientDetails });
+		patient
+			.save()
+			.then((saved) => {
+				patientDetails._id = saved._id;
+				// Response Upon Successful creation of patient by admin
+				// Sending Password to share with Patient
+				// ? Can Later be implemented to send the password directly to Patient as well
+				return res.status(200).json({
+					message: 'Patient Created Successfully',
+					data: {
+						patient: patientDetails,
+					},
+					success: true,
+				});
+			})
+			.catch(next);
 
-		patientDetails._id = patient._id;
-		// Response Upon Successful creation of patient by admin
-		// Sending Password to share with Patient
-		// ? Can Later be implemented to send the password directly to Patient as well
-		return res.status(200).json({
-			message: 'Patient Created Successfully',
-			data: {
-				patient: patientDetails,
-			},
-			success: true,
-		});
 	} catch (error) {
 		return next(error);
 	}
@@ -569,22 +570,24 @@ exports.editPatientGeneralDetails = async (req, res, next) => {
  * @data { presentingComplaint: {complaint, duration}, _id } : 'String' in Request Body
  * @access Admin
  */
-exports.updatePatientPresentingComplaint = async (req, res, next) => {
+exports.updatePatientPresentingComplaint = (req, res, next) => {
 	// Collecting Required data from Request Body
 	let { presentingComplaint, _id } = req.body;
 	try {
 		// Adding new Presenting Complaint
-		const newPresentingComplaint = await Patient.updatePresentingComplaint({
+		Patient.updatePresentingComplaint({
 			_id: _id.toString(),
 			presentingComplaint,
-		});
-
-		// Response after updating Presenting Complaint
-		return res.status(200).json({
-			message: 'Patient Presenting Complaint Added Successfully',
-			data: { ...newPresentingComplaint },
-			success: true,
-		});
+		})
+			.then((newPresentingComplaint) => {
+				// Response after updating Presenting Complaint
+				return res.status(200).json({
+					message: 'Patient Presenting Complaint Added Successfully',
+					data: { ...newPresentingComplaint },
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
 		return next(error);
 	}
@@ -596,23 +599,25 @@ exports.updatePatientPresentingComplaint = async (req, res, next) => {
  * @data {presentingComplaint: {complaint, duration}, patientId, _id} : String in the Request Body
  * @access Admin
  */
-exports.editPatientPresentingComplaint = async (req, res, next) => {
+exports.editPatientPresentingComplaint = (req, res, next) => {
 	// Collecting Required data from Request Body
 	let { presentingComplaint, _id, patientId } = req.body;
 	try {
 		// Updating Presenting Complaint Details
-		await Patient.editPresentingComplaint({
+		Patient.editPresentingComplaint({
 			patientId,
 			_id,
 			presentingComplaint,
-		});
-
-		// Response after updating Presenting Complaint
-		return res.status(200).json({
-			message: 'Patient Presenting Complaint Edited Successfully',
-			data: { presentingComplaint },
-			success: true,
-		});
+		})
+			.then(() => {
+				// Response after updating Presenting Complaint
+				return res.status(200).json({
+					message: 'Patient Presenting Complaint Edited Successfully',
+					data: { presentingComplaint },
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
 		return next(error);
 	}
@@ -624,22 +629,25 @@ exports.editPatientPresentingComplaint = async (req, res, next) => {
  * @data {_id, patientId} : String in the Request Body
  * @access Admin
  */
-exports.deletePatientPresentingComplaint = async (req, res, next) => {
+exports.deletePatientPresentingComplaint = (req, res, next) => {
 	// Collecting Required data from Request Body
 	let { _id, patientId } = req.body;
 	try {
 		// Deleting Presenting Complaint
-		await Patient.deletePresentingComplaint({
+		Patient.deletePresentingComplaint({
 			_id,
 			patientId,
-		});
-
-		// Response after deleting Presenting Complaint
-		return res.status(200).json({
-			message: 'Patient Presenting Complaint Deleted Successfully',
-			data: {},
-			success: true,
-		});
+		})
+			.then(() => {
+				// Response after deleting Presenting Complaint
+				return res.status(200).json({
+					message:
+						'Patient Presenting Complaint Deleted Successfully',
+					data: {},
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
 		next(error);
 	}
@@ -651,22 +659,24 @@ exports.deletePatientPresentingComplaint = async (req, res, next) => {
  * @data {historyFor: 'String', _id: 'String', details: 'Object'} in the Request Body
  * @access Admin
  */
-exports.updatePatientHistory = async (req, res, next) => {
+exports.updatePatientHistory = (req, res, next) => {
 	// Collecting Required Data from Request Body
 	const { _id, historyFor, details } = req.body;
 	try {
-		const newHistory = await Patient.updateHistoryDetails({
+		Patient.updateHistoryDetails({
 			historyFor,
 			_id,
 			details,
-		});
-
-		// Response Upon Successful History Update
-		return res.status(200).json({
-			message: `History for ${historyFor} Updated Successfully`,
-			data: { ...newHistory },
-			success: true,
-		});
+		})
+			.then((newHistory) => {
+				// Response Upon Successful History Update
+				return res.status(200).json({
+					message: `History for ${historyFor} Updated Successfully`,
+					data: { ...newHistory },
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
 		return next(error);
 	}
@@ -678,23 +688,25 @@ exports.updatePatientHistory = async (req, res, next) => {
  * @data {historyFor: 'String', details: 'Object', _id: 'String', patientId: 'String'} in the Request Body
  * @access Admin
  */
-exports.editPatientHistory = async (req, res, next) => {
+exports.editPatientHistory = (req, res, next) => {
 	// Collecting Required data from Request Body
 	const { historyFor, details, _id, patientId } = req.body;
 	try {
 		// Editing Patient History
-		await Patient.editHistoryDetails({
+		Patient.editHistoryDetails({
 			patientId: patientId.toString(),
 			_id,
 			historyFor,
 			details,
-		});
-
-		return res.status(200).json({
-			message: `History for ${historyFor} Updated Successfully`,
-			data: { ...details },
-			success: true,
-		});
+		})
+			.then(() => {
+				return res.status(200).json({
+					message: `History for ${historyFor} Updated Successfully`,
+					data: { ...details },
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
 		return next(error);
 	}
@@ -706,22 +718,24 @@ exports.editPatientHistory = async (req, res, next) => {
  * @data {historyFor, _id, patientId} : 'String' in the Request Body
  * @access Patient
  */
-exports.deletePatientHistory = async (req, res, next) => {
+exports.deletePatientHistory = (req, res, next) => {
 	// Collecting Required data from Request Body
 	const { historyFor, _id, patientId } = req.body;
 	try {
 		// Deleting Patient History
-		await Patient.deleteHistoryDetails({
+		Patient.deleteHistoryDetails({
 			patientId,
 			_id,
 			historyFor,
-		});
-
-		return res.status(200).json({
-			message: `History for ${historyFor} Deleted Successfully`,
-			data: {},
-			success: true,
-		});
+		})
+			.then(() => {
+				return res.status(200).json({
+					message: `History for ${historyFor} Deleted Successfully`,
+					data: {},
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
 		return next(error);
 	}
@@ -734,7 +748,7 @@ exports.deletePatientHistory = async (req, res, next) => {
  * @access Admin
  * ? Add Feature To Email Patient When Account is deleted
  */
-exports.deletePatient = async (req, res, next) => {
+exports.deletePatient = (req, res, next) => {
 	// Collecting Required Data from Request Body
 	let { _id } = req.body;
 	try {
@@ -745,16 +759,18 @@ exports.deletePatient = async (req, res, next) => {
 		if (!isValidObjectId(_id)) throw new Error('Invalid Patient Id');
 
 		// Delete Patient
-		const response = await Patient.findByIdAndDelete(_id);
-		if (!response) throw new Error('Unable to find Patient');
-
-		// Response after successfully deleting patient account
-		// ? Implement Feature to Email Patient that account has been deleted
-		return res.status(200).json({
-			message: 'Patient Account Deleted Successfully',
-			data: {},
-			success: true,
-		});
+		Patient.findByIdAndDelete(_id)
+			.then((response) => {
+				if (!response) throw new Error('Unable to find patient');
+				// Response after successfully deleting patient account
+				// ? Implement Feature to Email Patient that account has been deleted
+				return res.status(200).json({
+					message: 'Patient Account Deleted Successfully',
+					data: {},
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
 		return next(error);
 	}

@@ -5,8 +5,9 @@
 'use strict';
 
 // Dependencies
-const { appId, apiKeys } = require('../../helper/config');
 const App = require('./model');
+const { sundarClinicCache } = require('../../helper/functions');
+const { appId, apiKeys } = require('../../helper/config');
 
 /* ================================
 	UNAUTHENTICATED CONTROLLERS
@@ -18,8 +19,10 @@ const App = require('./model');
  * @data No data required
  * @access Public
  */
-exports.sendSiteDetails = async (req, res) => {
+exports.sendSiteDetails = (req, res, next) => {
 	try {
+		const message =
+			'API created for Sundar Clinic By Codelance Devs, made with 💖 by Kunal Keshan';
 		if (!appId) {
 			return res.status(200).json({
 				message: 'App Details being Updated',
@@ -27,17 +30,40 @@ exports.sendSiteDetails = async (req, res) => {
 				success: true,
 			});
 		}
-		const appDetails = await App.findById(appId).select({
-			_id: 0,
-			__v: 0,
-			owner: { clinic: { doctors: 0, documents: 0 } },
-		});
-		return res.status(200).json({
-			message:
-				'API created for Sundar Clinic By Codelance Devs, made with 💖 by Kunal Keshan',
-			data: { ...appDetails.toObject() },
-			success: true,
-		});
+
+		// Check if Cache is available
+		const appDetails = sundarClinicCache.get('appDetails');
+		if (!appDetails) {
+			App.findById(appId)
+				.select({
+					_id: 0,
+					__v: 0,
+					owner: { clinic: { doctors: 0, documents: 0 } },
+				})
+				.then((response) => {
+					// Create Cache
+					const SECONDS_IN_WEEK = 60 * 60 * 24 * 7;
+					sundarClinicCache.set(
+						'appDetails',
+						response.toObject(),
+						SECONDS_IN_WEEK
+					);
+					// Response with App Details
+					return res.status(200).json({
+						message,
+						data: { ...response.toObject() },
+						success: true,
+					});
+				})
+				.catch(next);
+		} else {
+			// Response with App Details
+			return res.status(200).json({
+				message,
+				data: { ...appDetails },
+				success: true,
+			});
+		}
 	} catch (error) {
 		console.log(error);
 		return res
@@ -128,7 +154,7 @@ exports.editOwnerDetails = async (req, res) => {
 			: ownerDetails.clinic.documents;
 
 		// Update App Owner Details
-		await app.updateOne({owner});
+		await app.updateOne({ owner });
 
 		// Response after successfully updating owner details
 		return res.status(200).json({

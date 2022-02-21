@@ -84,8 +84,8 @@ userSchema.methods.generateHashedPassword = async function () {
  * @param {string} password Password that needs to be hashed  
  * @returns {Promise<string>} Hashed Password
  */
-userSchema.methods.returnHashedPassword = async function ({ password = '' }) {
-	const hashedPassword = await bcrypt.hash(password, saltRounds);
+userSchema.methods.returnHashedPassword = function ({ password = '' }) {
+	const hashedPassword = bcrypt.hashSync(password, saltRounds);
 	return hashedPassword;
 };
 

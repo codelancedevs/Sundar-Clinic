@@ -69,7 +69,7 @@ middleware.authAdmin = async (req, res, next) => {
 		const decoded = jwt.verify(token, adminSecret);
 		const admin = await Admin.findById(decoded._id);
 		if (!admin) throw new Error('Unable to find Admin');
-		req.admin = admin.toObject();
+		req.admin = admin;
 		return next();
 	} catch (error) {
 		console.log(error);

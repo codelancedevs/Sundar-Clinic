@@ -7,17 +7,25 @@
 // Dependencies
 const jwt = require('jsonwebtoken');
 const {isValidObjectId} = require('mongoose')
+const NodeCache = require('node-cache');
 const {
 	expireDurations: { verificationExpireAt, passwordResetExpireAt },
 	secrets: { verificationSecret, passwordResetSecret, deleteAccountSecret },
 } = require('../config');
+
+const sundarClinicCache = new NodeCache();
+
+// Functions Container
+const functions = {};
+
+functions.sundarClinicCache = sundarClinicCache;
 
 /**
  * @description Creates a verify account token
  * @param {string} _id User Id
  * @returns JWT Token
  */
-exports.createAccountVerificationToken = ({ _id = '' }) => {
+functions.createAccountVerificationToken = ({ _id = '' }) => {
 	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false
 	if (!_id) throw new Error('_id : String is Required or is Invalid!');
 	return jwt.sign({ _id }, verificationSecret, {
@@ -30,7 +38,7 @@ exports.createAccountVerificationToken = ({ _id = '' }) => {
  * @param {string} _id User Id
  * @returns JWT Token
  */
-exports.createResetPasswordToken = ({ _id = '' }) => {
+functions.createResetPasswordToken = ({ _id = '' }) => {
 	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false
 	if (!_id) throw new Error('_id : String is Required or is Invalid!');
 	return jwt.sign({ _id }, passwordResetSecret, {
@@ -43,7 +51,7 @@ exports.createResetPasswordToken = ({ _id = '' }) => {
  * @param {string} _id User Id
  * @returns JWT Token
  */
-exports.createDeleteAccountToken = ({ _id = '' }) => {
+functions.createDeleteAccountToken = ({ _id = '' }) => {
 	_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false
 	if (!_id) throw new Error('_id : String is Required or is Invalid!');
 	return jwt.sign({ _id }, deleteAccountSecret, {
@@ -56,7 +64,7 @@ exports.createDeleteAccountToken = ({ _id = '' }) => {
  * @param {string} authToken
  * @returns {string} _id (if valid authToken)
  */
-exports.authenticateVerifyAuthToken = ({ authToken = '' }) => {
+functions.authenticateVerifyAuthToken = ({ authToken = '' }) => {
 	try {
 		const decoded = jwt.verify(authToken, verificationSecret);
 		if (!decoded._id) throw new Error();
@@ -71,7 +79,7 @@ exports.authenticateVerifyAuthToken = ({ authToken = '' }) => {
  * @param {string} authToken
  * @returns {string} _id (if valid authToken)
  */
-exports.authenticateResetPasswordAuthToken = ({ authToken = '' }) => {
+functions.authenticateResetPasswordAuthToken = ({ authToken = '' }) => {
 	try {
 		const decoded = jwt.verify(authToken, passwordResetSecret);
 		if (!decoded._id) throw new Error();
@@ -82,9 +90,9 @@ exports.authenticateResetPasswordAuthToken = ({ authToken = '' }) => {
 };
 
 // Authenticate Delete account Token
-exports.authenticateDeleteAccountToken = () => { };
+functions.authenticateDeleteAccountToken = () => { };
 
-exports.createApp = async ({ id, App }) => {
+functions.createApp = async ({ id, App }) => {
 	if (id) return;
 	try {
 		const app = new App({
@@ -100,3 +108,5 @@ exports.createApp = async ({ id, App }) => {
 		console.log(error);
 	}
 };
+
+module.exports = functions;

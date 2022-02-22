@@ -44,7 +44,7 @@ const postsSchema = new Schema(
 );
 
 // Assign a default cover Image depending on the type of the post
-postsSchema.methods.assignCoverImage = async function() {
+postsSchema.methods.assignCoverImage = function () {
 	const type = this.type;
 	const consistsMultipleImages = type === 'General' || type === 'Service';
 	if (consistsMultipleImages) {
@@ -68,7 +68,7 @@ postsSchema.pre('find', function (next) {
 });
 
 // Assign Cover Image before Saving
-postsSchema.pre('save', async function (next){
+postsSchema.pre('save', async function (next) {
 	await this.assignCoverImage();
 	next();
 })

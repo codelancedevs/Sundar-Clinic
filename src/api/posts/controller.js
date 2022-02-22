@@ -18,36 +18,35 @@ const Post = require('./model');
  * @data If no data, all posts are fetched else if {postId} in Request Query, it will fetch that post
  * @access Public
  */
-exports.fetchPosts = async (req, res) => {
+exports.fetchPosts = async (req, res, next) => {
 	// Collecting Required data from Request Query
-	const { postId: _id } = req.query;
+	const { postId: _id = '' } = req.query;
 	try {
 		// Posts Container
 		const posts = [];
-		// Checking type of Request
-		if (_id) {
-			if (!isValidObjectId(_id)) throw new Error('Invalid Post Id');
-			const post = await Post.findById(_id);
-			if (!post) throw new Error('Unable to find post');
-			posts.push(post);
-		} else {
-			const allPosts = await Post.find();
-			if (!allPosts) throw new Error('No Posts Created');
-			posts.push(...allPosts);
-		}
 
-		return res.status(200).json({
-			message: 'Fetched Post/s Successfully',
-			data: {
-				posts,
-			},
-			success: true,
-		});
+		// Checking type of Request
+		const query = {
+			_id: _id,
+		};
+		isValidObjectId(_id) ? null : delete query._id;
+		// Cache for all Posts
+
+		Post.find(query)
+			.then((allPosts) => {
+				posts.push(...allPosts);
+
+				return res.status(200).json({
+					message: 'Fetched Post/s Successfully',
+					data: {
+						posts,
+					},
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -60,29 +59,27 @@ exports.fetchPosts = async (req, res) => {
  * @data No data required
  * @access Admin
  */
-exports.createNewPost = async (req, res) => {
+exports.createNewPost = async (req, res, next) => {
 	// Collecting Required Data from Middleware
 	const { _id } = req.admin;
 	try {
 		// Creating New Post and saving
 		const newPost = new Post({ createdBy: _id, lastEditedBy: _id });
-		await newPost.save();
-
-		const post = await Post.findById({ _id: newPost._id.toString() });
-
-		// Response after creating Post with Post Id
-		return res.status(200).json({
-			message: 'Post Created Successfully',
-			data: {
-				post
-			},
-			success: true,
-		});
+		newPost
+			.save()
+			.then((post) => {
+				// Response after creating Post with Post Id
+				return res.status(200).json({
+					message: 'Post Created Successfully',
+					data: {
+						post: post.toObject(),
+					},
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -92,57 +89,62 @@ exports.createNewPost = async (req, res) => {
  * @data {title, body, type, _id, isPublished} : 'String' of post in Request body
  * @access Admins
  */
-exports.editPost = async (req, res) => {
+exports.editPost = async (req, res, next) => {
 	// Collecting Required Data from Request Body and Middleware
 	const { _id: adminId } = req.admin;
 	let { title, body, type, _id, isPublished } = req.body;
 	try {
 		// Type Check
-		_id = typeof _id === 'string' ? _id : false;
+		_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
 		if (!_id)
 			throw new Error(
 				"{title, body, type, isPublished, _id} : 'String' is required in Request body"
 			);
-		if (!isValidObjectId(_id)) throw new Error('Invalid Post Id');
 
 		isPublished = typeof isPublished === 'boolean' ? isPublished : false;
 
 		// Find Post
-		const post = await Post.findById(_id)
-		if (!post) throw new Error('Unable to Find Post');
+		Post.findById(_id)
+			.then((post) => {
+				if (!post) throw new Error('Unable to Find Post');
 
-		// Updating Post details
-		// If data is not there, update with Previous values
-		const details = {
-			title: title || post.title,
-			body: body || post.body,
-			type: type || post.type,
-			lastEditedBy: adminId,
-		};
-		if (isPublished) {
-			details.isPublished = isPublished;
-			details.publishedAt = Date.now();
-		} else {
-			details.publishedAt = null;
-		}
+				// Updating Post details
+				// If data is not there, update with Previous values
+				const details = {
+					title: title || post.title,
+					body: body || post.body,
+					type: type || post.type,
+					lastEditedBy: adminId,
+				};
 
-		// Update Post
-		await post.assignCoverImage();
-		await post.updateOne({ ...details, coverImage: post.coverImage, });
+				if (isPublished) {
+					details.isPublished = isPublished;
+					details.publishedAt = Date.now();
+				} else {
+					details.publishedAt = null;
+				}
 
-		// Response after successfully updating post
-		return res.status(200).json({
-			message: 'Post Edited Successfully',
-			data: {
-				post: {...post.toObject(), ...details},
-			},
-			success: true,
-		});
+				// Update Post
+				post.assignCoverImage();
+				post.updateOne({
+					...details,
+					coverImage: post.coverImage,
+				})
+					.then(() => {
+						// Response after successfully updating post
+						return res.status(200).json({
+							message: 'Post Edited Successfully',
+							data: {
+								post: { ...post.toObject(), ...details },
+							},
+							success: true,
+						});
+					})
+					.catch(next);
+			})
+			.catch(next);
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -152,33 +154,31 @@ exports.editPost = async (req, res) => {
  * @data {_id} : 'String' in Request Body
  * @access Admin
  */
-exports.deletePost = async (req, res) => {
+exports.deletePost = (req, res, next) => {
 	// Collecting Required Data from Request Body
 	let { _id } = req.body;
 	try {
 		// Type Checks
-		_id = typeof _id === 'string' ? _id : false;
+		_id = typeof _id === 'string' && isValidObjectId(_id) ? _id : false;
 		if (!_id)
-			throw new Error("{_id} : 'String' is required in Request body");
-		if (!isValidObjectId(_id)) throw new Error('Invalid Post Id');
+			throw new Error(
+				"{_id} : 'String' is required in Request body or is invalid"
+			);
 
 		// Finding Post
-		const post = await Post.findById(_id);
-		if (!post) throw new Error('Unable to find Post');
-
-		// Deleting Post
-		await post.delete();
-
-		// Response after Deleting Post Successfully
-		return res.status(200).json({
-			message: 'Post Deleted Successfully',
-			data: {},
-			success: true,
-		});
+		Post.findByIdAndDelete(_id)
+			.then((post) => {
+				console.log(post);
+				if (!post) throw new Error('Unable to find Post');
+				// Response after Deleting Post Successfully
+				return res.status(200).json({
+					message: 'Post Deleted Successfully',
+					data: {},
+					success: true,
+				});
+			})
+			.catch(next);
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };

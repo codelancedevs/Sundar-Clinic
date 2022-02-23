@@ -48,7 +48,9 @@ postsSchema.methods.assignCoverImage = function () {
 	const type = this.type;
 	const consistsMultipleImages = type === 'General' || type === 'Service';
 	if (consistsMultipleImages) {
-		this.coverImage = `${backendAppUrl}/assets/post/${type}${Math.ceil(Math.random() * 2)}.gif`;
+		this.coverImage = `${backendAppUrl}/assets/post/${type}${Math.ceil(
+			Math.random() * 2
+		)}.gif`;
 		return;
 	}
 	this.coverImage = `${backendAppUrl}/assets/post/${type}.gif`;
@@ -71,7 +73,7 @@ postsSchema.pre('find', function (next) {
 postsSchema.pre('save', async function (next) {
 	await this.assignCoverImage();
 	next();
-})
+});
 
 // Creating Model from Schema
 const Posts = model('Posts', postsSchema);

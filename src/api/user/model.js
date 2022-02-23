@@ -13,7 +13,7 @@ const {
 	secrets: { saltRounds, adminSecret, patientSecret },
 	expireDurations: { tokenExpireAt },
 } = require('../../helper/config');
-const {sendWelcomeAndVerifyAccountEmail} = require('../../helper/mail')
+const { sendWelcomeAndVerifyAccountEmail } = require('../../helper/mail');
 
 const userSchema = new Schema(
 	{
@@ -21,6 +21,8 @@ const userSchema = new Schema(
 			type: String,
 			required: true,
 			trim: true,
+			minlength: [2, 'Name should be minimum 3 characters'],
+			maxlength: [80, 'Name should be maximum 80 characters'],
 		},
 		password: {
 			type: String,
@@ -48,9 +50,11 @@ const userSchema = new Schema(
 		},
 		defaultAvatar: {
 			type: String,
+			trim: true,
 		},
 		avatar: {
 			type: String,
+			trim: true,
 		},
 		address: {
 			type: String,
@@ -63,9 +67,7 @@ const userSchema = new Schema(
 			},
 			verifiedAt: Date,
 		},
-		tosAgreement: {
-			type: Boolean,
-		},
+		tosAgreement: Boolean,
 	},
 	{
 		timestamps: true,
@@ -81,7 +83,7 @@ userSchema.methods.generateHashedPassword = async function () {
 
 /**
  * @description Return a hashed password
- * @param {string} password Password that needs to be hashed  
+ * @param {string} password Password that needs to be hashed
  * @returns {Promise<string>} Hashed Password
  */
 userSchema.methods.returnHashedPassword = function ({ password = '' }) {
@@ -126,7 +128,7 @@ userSchema.methods.generateDefaultUsername = async function () {
 
 /**
  * @description Authenticate a user's password
- * @param {string} password Password that needs to be authenticated 
+ * @param {string} password Password that needs to be authenticated
  * @returns {Promise<boolean>} true (if valid) || false (if invalid)
  */
 userSchema.methods.authenticatePassword = function ({ password }) {
@@ -156,7 +158,7 @@ userSchema.statics.createRandomPassword = function ({ fullName = '' }) {
 
 /**
  * @description Authenticate a User Token using Model Method
- * @param {string} token 
+ * @param {string} token
  * @returns {Promise<object>} User Object
  */
 userSchema.statics.authenticateAdminAuthToken = async function ({ token }) {

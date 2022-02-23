@@ -19,6 +19,9 @@ const {
 	expireDurations: { tokenExpireAt },
 } = require('../../helper/config');
 
+// User Controller Container
+const userController = {};
+
 /* ================================
 	UNAUTHENTICATED CONTROLLERS
 ================================ */
@@ -29,7 +32,7 @@ const {
  * @data {email: 'String' } in Request Body
  * @access Public
  */
-exports.isEmailUnique = async (req, res) => {
+userController.isEmailUnique = async (req, res, next) => {
 	const { email } = req.body;
 	try {
 		if (!email)
@@ -46,10 +49,7 @@ exports.isEmailUnique = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -59,13 +59,11 @@ exports.isEmailUnique = async (req, res) => {
  * @data {username: 'String' } in Request Body
  * @access Public
  */
-exports.isUsernameUnique = async (req, res) => {
+userController.isUsernameUnique = async (req, res, next) => {
 	const { username } = req.body;
 	try {
 		if (!username)
-			throw new Error(
-				"{username: 'String'} is required in the Request Body"
-			);
+			throw new Error("{username: 'String'} is required in the Request Body");
 		if (typeof username !== 'string')
 			throw new Error('{username} should be a string');
 		const usernameCount = await User.countDocuments({ username });
@@ -76,10 +74,7 @@ exports.isUsernameUnique = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -89,7 +84,7 @@ exports.isUsernameUnique = async (req, res) => {
  * @data {email} : 'String' in Request Body
  * @access Public
  */
-exports.sendResetPasswordMail = async (req, res) => {
+userController.sendResetPasswordMail = async (req, res, next) => {
 	// Collecting Required data from Request Body
 	let { email } = req.body;
 	try {
@@ -118,10 +113,7 @@ exports.sendResetPasswordMail = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -135,7 +127,7 @@ exports.sendResetPasswordMail = async (req, res) => {
  * @data No data to be sent
  * @access Patient || Admin
  */
-exports.sendVerifyUserMail = async (req, res) => {
+userController.sendVerifyUserMail = async (req, res, next) => {
 	// Collecting Required Data from Middleware
 	const {
 		user: { _id },
@@ -162,10 +154,7 @@ exports.sendVerifyUserMail = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -175,16 +164,14 @@ exports.sendVerifyUserMail = async (req, res) => {
  * @data {authToken} : 'String' in Request Body
  * @access Public
  */
-exports.verifyUser = async (req, res) => {
+userController.verifyUser = async (req, res, next) => {
 	// Collecting Required data from Request Body
 	let { authToken } = req.body;
 	try {
 		// Type Check
 		authToken = typeof authToken === 'string' ? authToken : false;
 		if (!authToken)
-			throw new Error(
-				"{authToken} : 'String' is required in Request Body"
-			);
+			throw new Error("{authToken} : 'String' is required in Request Body");
 
 		const userId = authenticateVerifyAuthToken({ authToken });
 		if (!userId)
@@ -230,10 +217,7 @@ exports.verifyUser = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -243,16 +227,14 @@ exports.verifyUser = async (req, res) => {
  * @data {authToken} : 'String' in Request Body
  * @access Public
  */
-exports.verifyResetPasswordMail = async (req, res) => {
+userController.verifyResetPasswordMail = async (req, res, next) => {
 	// Collecting Required data from Request Body
 	let { authToken } = req.body;
 	try {
 		// Type Check
 		authToken = typeof authToken === 'string' ? authToken : false;
 		if (!authToken)
-			throw new Error(
-				"{authToken} : 'String' is required in Request Body"
-			);
+			throw new Error("{authToken} : 'String' is required in Request Body");
 
 		// Checking validity of given Token
 		const userId = authenticateResetPasswordAuthToken({ authToken });
@@ -272,10 +254,7 @@ exports.verifyResetPasswordMail = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -285,7 +264,7 @@ exports.verifyResetPasswordMail = async (req, res) => {
  * @data {authToken, password} : 'String' in Request Body
  * @access Public
  */
-exports.resetUserPassword = async (req, res) => {
+userController.resetUserPassword = async (req, res, next) => {
 	// Collecting Required data from Request Body
 	let { authToken, password } = req.body;
 	try {
@@ -311,7 +290,7 @@ exports.resetUserPassword = async (req, res) => {
 		if (isOldPassword)
 			throw new Error('Old Password cannot be same as Reset Password');
 
-		if(!isStrongPassword(password)) throw new Error('Password is not Strong!')
+		if (!isStrongPassword(password)) throw new Error('Password is not Strong!');
 
 		// If new Password
 		// Hashing new password and updating User
@@ -325,9 +304,29 @@ exports.resetUserPassword = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
+
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
+userController.isEmailAvailable = async (req, res, next) => {};
+
+/**
+* @description <Controller description here>
+* @route METHOD <Route>
+* @data <Data either in body, params, or query>
+* @access <Access Level>
+* ! To be Tested
+*/
+userController.isUsernameAvailable = async (req, res, next) => {};
+
+// Exporting User Controller
+module.exports = userController;
+
+

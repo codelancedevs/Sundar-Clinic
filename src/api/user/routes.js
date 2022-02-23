@@ -17,18 +17,22 @@ Router.get('/isEmailUnique', userController.isEmailUnique);
 
 Router.get('/isUsernameUnique', userController.isUsernameUnique);
 
-Router.post('/email/verify', generalAuth, userController.sendVerifyUserMail);
-
 Router.post('/email/password', userController.sendResetPasswordMail);
 
 /* ================================
-    AUTHENTICATED ROUTES
+AUTHENTICATED ROUTES
 ================================ */
+
+Router.post('/email/verify', generalAuth, userController.sendVerifyUserMail);
 
 Router.patch('/email/verify', userController.verifyUser);
 
 Router.patch('/email/password', userController.verifyResetPasswordMail);
 
 Router.patch('/resetPassword', userController.resetUserPassword);
+
+Router.post('/isEmailAvailable', generalAuth, userController.isEmailAvailable);
+
+Router.post('/isUsernameAvailable', generalAuth, userController.isUsernameAvailable);
 
 module.exports = Router;

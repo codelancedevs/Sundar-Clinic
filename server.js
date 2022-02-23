@@ -55,7 +55,7 @@ app.use((req, res, next) => {
 	const error = new Error(
 		`Can't find '${req.originalUrl}' on this server!`
 	);
-	error.status = 404;
+	error.statusCode = 404;
 	return next(error);
 });
 

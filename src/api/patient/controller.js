@@ -22,7 +22,7 @@ const {
  * @data {fullName, email, password, tosAgreement: 'Boolean'}: 'String' in Request body
  * @access Public
  */
-exports.createPatient = async (req, res) => {
+exports.createPatient = async (req, res, next) => {
 	// Collecting Required Data from Request Body
 	let { fullName, email, password, tosAgreement } = req.body;
 	try {
@@ -74,10 +74,7 @@ exports.createPatient = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -87,7 +84,7 @@ exports.createPatient = async (req, res) => {
  * @data {email, password} : 'String' in Request Body
  * @access Public
  */
-exports.loginPatient = async (req, res) => {
+exports.loginPatient = async (req, res, next) => {
 	// Collecting Required Data from Request Body
 	let { email, password } = req.body;
 	try {
@@ -95,9 +92,7 @@ exports.loginPatient = async (req, res) => {
 		email = typeof email === 'string' ? email : false;
 		password = typeof password === 'string' ? password : false;
 		if (!email || !password)
-			throw new Error(
-				"{email, password} : 'String' required in Request body"
-			);
+			throw new Error("{email, password} : 'String' required in Request body");
 
 		// Details Validity Check
 		if (!isEmail(email)) throw new Error('Given email is not valid');
@@ -130,10 +125,7 @@ exports.loginPatient = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -142,30 +134,12 @@ exports.loginPatient = async (req, res) => {
 ================================ */
 
 /**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.patientEmailAvailable = async (req, res) => { };
-
-/**
- * @description <Controller description here>
- * @route METHOD <Route>
- * @data <Data either in body, params, or query>
- * @access <Access Level>
- * ! To be Tested
- */
-exports.patientUsernameAvailable = async (req, res) => { };
-
-/**
  * @description Edit Patient Account Details
  * @route PATCH /api/patient/accountDetails
  * @data {fullName, username, email, phone, address}: 'String' in Request Body
  * @access Patient
  */
-exports.editPatientAccountDetails = async (req, res) => {
+exports.editPatientAccountDetails = async (req, res, next) => {
 	// Collecting Required Data from Request Body and Middleware
 	const { _id } = req.patient;
 	let { fullName, username, email, phone, address } = req.body;
@@ -209,10 +183,7 @@ exports.editPatientAccountDetails = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -223,7 +194,7 @@ exports.editPatientAccountDetails = async (req, res) => {
  * @access Patient
  * ? Additional Discussion for Passing Date, Object Id's in maritalStatus and kidsDetails should be included until necessary
  */
-exports.editPatientGeneralDetails = async (req, res) => {
+exports.editPatientGeneralDetails = async (req, res, next) => {
 	// Collecting Required data from Request Body and Middleware
 	const { _id } = req.patient;
 	let { dateOfBirth, gender, maritalStatus, kidsDetails } = req.body;
@@ -249,10 +220,7 @@ exports.editPatientGeneralDetails = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -262,7 +230,7 @@ exports.editPatientGeneralDetails = async (req, res) => {
  * @data {password, newPassword}: 'String' in Request Body
  * @access Patient
  */
-exports.editPatientPassword = async (req, res) => {
+exports.editPatientPassword = async (req, res, next) => {
 	// Collecting Required Data from Request Body and Middleware
 	const { _id } = req.patient;
 	let { password, newPassword } = req.body;
@@ -306,10 +274,7 @@ exports.editPatientPassword = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -319,7 +284,7 @@ exports.editPatientPassword = async (req, res) => {
  * @data {password: 'String'} in Request Body
  * @access Patient
  */
-exports.deletePatientAccount = async (req, res) => {
+exports.deletePatientAccount = async (req, res, next) => {
 	// Collecting Required Data from Request Body and Middleware
 	const { _id } = req.patient;
 	let { password } = req.body;
@@ -331,9 +296,7 @@ exports.deletePatientAccount = async (req, res) => {
 		// Password Check
 		password = typeof password === 'string' ? password : false;
 		if (!password)
-			throw new Error(
-				"{password} : 'String' should be there in Request Body."
-			);
+			throw new Error("{password} : 'String' should be there in Request Body.");
 
 		// Validate Password
 		const validated = await patient.authenticatePassword({ password });
@@ -351,10 +314,7 @@ exports.deletePatientAccount = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -386,7 +346,7 @@ exports.logoutPatient = (req, res, next) => {
  * @data {historyFor: 'String', details: 'Object'} in the Request Body
  * @access Patient
  */
-exports.updateHistoryDetails = async (req, res) => {
+exports.updateHistoryDetails = async (req, res, next) => {
 	// Collecting Required data from Request Body and Middleware
 	const { _id } = req.patient;
 	const { historyFor, details } = req.body;
@@ -405,10 +365,7 @@ exports.updateHistoryDetails = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -418,7 +375,7 @@ exports.updateHistoryDetails = async (req, res) => {
  * @data {historyFor: 'String', details: 'Object', _id: 'String'} in the Request Body
  * @access Patient
  */
-exports.editHistoryDetails = async (req, res) => {
+exports.editHistoryDetails = async (req, res, next) => {
 	// Collecting Required data from Request Body and Middleware
 	const { _id: patientId } = req.patient;
 	const { historyFor, details, _id } = req.body;
@@ -437,10 +394,7 @@ exports.editHistoryDetails = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -450,7 +404,7 @@ exports.editHistoryDetails = async (req, res) => {
  * @data {historyFor: 'String', _id: 'String'} in the Request Body
  * @access Patient
  */
-exports.deleteHistoryDetails = async (req, res) => {
+exports.deleteHistoryDetails = async (req, res, next) => {
 	// Collecting Required data from Request Body and Middleware
 	const { _id: patientId } = req.patient;
 	const { historyFor, _id } = req.body;
@@ -468,10 +422,7 @@ exports.deleteHistoryDetails = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -481,7 +432,7 @@ exports.deleteHistoryDetails = async (req, res) => {
  * @data {presentingComplaint: {complaint, duration} : String} in the Request Body
  * @access Patient
  */
-exports.updatePresentingComplaint = async (req, res) => {
+exports.updatePresentingComplaint = async (req, res, next) => {
 	// Collecting Required data from Request Body and Middleware
 	const { _id } = req.patient;
 	let { presentingComplaint } = req.body;
@@ -499,10 +450,7 @@ exports.updatePresentingComplaint = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -512,7 +460,7 @@ exports.updatePresentingComplaint = async (req, res) => {
  * @data {presentingComplaint: {complaint, duration}, _id} : String in the Request Body
  * @access Patient
  */
-exports.editPresentingComplaint = async (req, res) => {
+exports.editPresentingComplaint = async (req, res, next) => {
 	// Collecting Required data from Request Body and Middleware
 	const { _id: patientId } = req.patient;
 	let { presentingComplaint, _id } = req.body;
@@ -531,10 +479,7 @@ exports.editPresentingComplaint = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };
 
@@ -544,7 +489,7 @@ exports.editPresentingComplaint = async (req, res) => {
  * @data {_id} : String in the Request Body
  * @access Patient
  */
-exports.deletePresentingComplaint = async (req, res) => {
+exports.deletePresentingComplaint = async (req, res, next) => {
 	// Collecting Required data from Request Body and Middleware
 	const { _id: patientId } = req.patient;
 	let { _id } = req.body;
@@ -562,9 +507,6 @@ exports.deletePresentingComplaint = async (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(400)
-			.json({ message: error.message, data: {}, success: false });
+		return next(error);
 	}
 };

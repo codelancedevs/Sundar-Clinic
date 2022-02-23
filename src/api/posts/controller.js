@@ -30,21 +30,15 @@ exports.fetchPosts = async (req, res, next) => {
 			_id: _id,
 		};
 		isValidObjectId(_id) ? null : delete query._id;
-		// Cache for all Posts
 
-		Post.find(query)
-			.then((allPosts) => {
-				posts.push(...allPosts);
-
-				return res.status(200).json({
-					message: 'Fetched Post/s Successfully',
-					data: {
-						posts,
-					},
-					success: true,
-				});
-			})
-			.catch(next);
+		// Getting Post/s
+		const allPosts = await Post.find(query);
+		posts.push(...allPosts);
+		return res.status(200).json({
+			message: 'Fetched Post/s Successfully',
+			data: { posts },
+			success: true,
+		});
 	} catch (error) {
 		return next(error);
 	}
@@ -64,20 +58,13 @@ exports.createNewPost = async (req, res, next) => {
 	const { _id } = req.admin;
 	try {
 		// Creating New Post and saving
-		const newPost = new Post({ createdBy: _id, lastEditedBy: _id });
-		newPost
-			.save()
-			.then((post) => {
-				// Response after creating Post with Post Id
-				return res.status(200).json({
-					message: 'Post Created Successfully',
-					data: {
-						post: post.toObject(),
-					},
-					success: true,
-				});
-			})
-			.catch(next);
+		const post = new Post({ createdBy: _id, lastEditedBy: _id });
+		await post.save();
+		return res.status(200).json({
+			message: 'Post Created Successfully',
+			data: { post: post.toObject() },
+			success: true,
+		});
 	} catch (error) {
 		return next(error);
 	}
@@ -100,49 +87,37 @@ exports.editPost = async (req, res, next) => {
 			throw new Error(
 				"{title, body, type, isPublished, _id} : 'String' is required in Request body"
 			);
-
 		isPublished = typeof isPublished === 'boolean' ? isPublished : false;
 
-		// Find Post
-		Post.findById(_id)
-			.then((post) => {
-				if (!post) throw new Error('Unable to Find Post');
+		// Finding Post
+		const post = await Post.findById(_id);
+		if (!post) throw new Error('Unable to Find Post');
 
-				// Updating Post details
-				// If data is not there, update with Previous values
-				const details = {
-					title: title || post.title,
-					body: body || post.body,
-					type: type || post.type,
-					lastEditedBy: adminId,
-				};
+		// Updating Post details
+		// If data is not there, update with Previous values
+		const details = {
+			title: title || post.title,
+			body: body || post.body,
+			type: type || post.type,
+			lastEditedBy: adminId,
+		};
+		post.assignCoverImage();
+		if (isPublished) {
+			details.isPublished = isPublished;
+			details.publishedAt = Date.now();
+		} else {
+			details.publishedAt = null;
+		}
 
-				if (isPublished) {
-					details.isPublished = isPublished;
-					details.publishedAt = Date.now();
-				} else {
-					details.publishedAt = null;
-				}
+		// Update Post
+		await post.updateOne({ ...details, coverImage: post.coverImage });
 
-				// Update Post
-				post.assignCoverImage();
-				post.updateOne({
-					...details,
-					coverImage: post.coverImage,
-				})
-					.then(() => {
-						// Response after successfully updating post
-						return res.status(200).json({
-							message: 'Post Edited Successfully',
-							data: {
-								post: { ...post.toObject(), ...details },
-							},
-							success: true,
-						});
-					})
-					.catch(next);
-			})
-			.catch(next);
+		// Response after successfully updating post
+		return res.status(200).json({
+			message: 'Post Edited Successfully',
+			data: { post: { ...post.toObject(), ...details } },
+			success: true,
+		});
 	} catch (error) {
 		return next(error);
 	}
@@ -154,7 +129,7 @@ exports.editPost = async (req, res, next) => {
  * @data {_id} : 'String' in Request Body
  * @access Admin
  */
-exports.deletePost = (req, res, next) => {
+exports.deletePost = async (req, res, next) => {
 	// Collecting Required Data from Request Body
 	let { _id } = req.body;
 	try {
@@ -166,18 +141,13 @@ exports.deletePost = (req, res, next) => {
 			);
 
 		// Finding Post
-		Post.findByIdAndDelete(_id)
-			.then((post) => {
-				console.log(post);
-				if (!post) throw new Error('Unable to find Post');
-				// Response after Deleting Post Successfully
-				return res.status(200).json({
-					message: 'Post Deleted Successfully',
-					data: {},
-					success: true,
-				});
-			})
-			.catch(next);
+		const post = await Post.findByIdAndDelete(_id);
+		if (!post) throw new Error('Unable to find Post');
+		return res.status(200).json({
+			message: 'Post Deleted Successfully',
+			data: {},
+			success: true,
+		});
 	} catch (error) {
 		return next(error);
 	}

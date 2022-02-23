@@ -19,7 +19,7 @@ const { appId, apiKeys } = require('../../helper/config');
  * @data No data required
  * @access Public
  */
-exports.sendSiteDetails = (req, res, next) => {
+exports.sendSiteDetails = async (req, res, next) => {
 	try {
 		const message =
 			'API created for Sundar Clinic By Codelance Devs, made with 💖 by Kunal Keshan';
@@ -30,45 +30,35 @@ exports.sendSiteDetails = (req, res, next) => {
 				success: true,
 			});
 		}
-
+		
 		// Check if Cache is available
 		const appDetails = sundarClinicCache.get('appDetails');
-		if (!appDetails) {
-			App.findById(appId)
-				.select({
-					_id: 0,
-					__v: 0,
-					owner: { clinic: { doctors: 0, documents: 0 } },
-				})
-				.then((response) => {
-					// Create Cache
-					const SECONDS_IN_WEEK = 60 * 60 * 24 * 7;
-					sundarClinicCache.set(
-						'appDetails',
-						response.toObject(),
-						SECONDS_IN_WEEK
-					);
-					// Response with App Details
-					return res.status(200).json({
-						message,
-						data: { ...response.toObject() },
-						success: true,
-					});
-				})
-				.catch(next);
-		} else {
-			// Response with App Details
+		if (appDetails) {
 			return res.status(200).json({
 				message,
 				data: { ...appDetails },
 				success: true,
 			});
+		} else {
+			const details = await App.findById(appId).select({
+				_id: 0,
+				__v: 0,
+				owner: { clinic: { doctors: 0, documents: 0 } },
+			});
+
+			// Create Cache
+			const SECONDS_IN_WEEK = 60 * 60 * 24 * 7;
+			sundarClinicCache.set('appDetails', details.toObject(), SECONDS_IN_WEEK);
+
+			// Response with App Details
+			return res.status(200).json({
+				message,
+				data: { ...details.toObject() },
+				success: true,
+			});
 		}
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(401)
-			.json({ message: error.message, data: {}, success: false });
+		next(error);
 	}
 };
 
@@ -88,7 +78,7 @@ exports.redirectToIndex = (req, res) => {
  * @data API key in headers and additional sdk details in headers
  * @access Public
  */
-exports.verifyApiKey = (req, res) => {
+exports.verifyApiKey = (req, res, next) => {
 	const providedKey = req.headers['x-api-key'];
 	const isFromSDK = req.headers['x-sdk-req'] === 'SDK-SS';
 	try {
@@ -104,10 +94,8 @@ exports.verifyApiKey = (req, res) => {
 			success: true,
 		});
 	} catch (error) {
-		console.log(error);
-		return res
-			.status(401)
-			.json({ message: error.message, data: {}, success: false });
+		error.statusCode = 401;
+		next(error)
 	}
 };
 

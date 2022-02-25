@@ -3,32 +3,12 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        accentP: {
-          50: '',
-          100: '',
-          200: '',
-          300: '',
-          400: '',
-          500: '',
-          600: '',
-          700: '',
-          800: '',
-          900: '#5299d3ff'
-        },
-        accentS: {
-          50: '',
-          100: '',
-          200: '',
-          300: '',
-          400: '',
-          500: '',
-          600: '',
-          700: '',
-          800: '',
-          900: '#9381ffff'
-        }
+        primary: '#ff0000ff',
+        secondary: '#ffffffff',
+        accentP: '#5299d3ff',
+        accentS: '#9381ffff'
       },
     },
   },
-  plugins: [],
+  plugins: [require('prettier-plugin-tailwindcss')],
 };

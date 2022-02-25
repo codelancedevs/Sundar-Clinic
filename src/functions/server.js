@@ -6,15 +6,12 @@
 import axios from "axios";
 import config from "../config";
 
-axios.defaults.baseURL = config.backendUrl;
-
-export default axios;
-
 // Axios Client
 const client = axios.create({ baseURL: config.backendUrl });
 
 // Custom Axios Interceptor
-export const server = ({ ...options }) => {
+
+const server = ({ ...options }) => {
     client.defaults.headers.common.Authorization = "Bearer {Token}"; //Fetch from local storage
     const onSuccess = (response) => response.data;
     const onError = (error) => {
@@ -28,3 +25,4 @@ export const server = ({ ...options }) => {
     };
     return client(options).then(onSuccess).catch(onError);
 };
+export default server; 

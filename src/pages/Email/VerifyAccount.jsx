@@ -9,8 +9,7 @@ import { useDispatch } from "react-redux";
 
 // Actions
 import {
-    enableLoading,
-    disableLoading,
+    loading,
     showSnackbar,
 } from "../../store/features/app";
 import { login } from "../../store/features/user";
@@ -26,25 +25,23 @@ function VerifyAccount() {
 
     // Function to Verify link validity
     const authenticateVerifyUser = async () => {
-        dispatch(enableLoading());
+        dispatch(loading(true));
         try {
-            const response = await authenticateVerifyAccountLink({ authToken });
-            if (!response.success) throw response;
+            const {success, message, data} = await authenticateVerifyAccountLink({ authToken });
+            if (!success) throw new Error(message);
             setAuthenticated(true);
-            dispatch(showSnackbar({ message: response.message, type: "success" }));
+            dispatch(showSnackbar({ message: message, type: "success" }));
             dispatch(
-                login({ user: response.data.user, loggedInAs: response.data.user.role })
+                login({ user: data.user, loggedInAs: data.user.role })
             );
         } catch (error) {
             dispatch(showSnackbar({ message: error.message }));
         } finally {
-            dispatch(disableLoading());
+            dispatch(loading(false));
         }
     };
 
     useEffect(() => {
-        // ? Logic that checks is user is logged in and user account is already verified
-        // ? If user account is not logged in or not verified then call the below function
         authenticateVerifyUser();
     }, []);
 

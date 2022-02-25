@@ -9,8 +9,7 @@ import { useDispatch } from "react-redux";
 
 // Actions
 import {
-    enableLoading,
-    disableLoading,
+    loading,
     showSnackbar,
 } from "../../store/features/app";
 
@@ -27,7 +26,7 @@ function ResetPassword() {
 
     // Function to Verify link validity
     const authenticateResetPassword = async () => {
-        dispatch(enableLoading());
+        dispatch(loading(true));
         try {
             const response = await authenticateResetPasswordLink({ authToken });
             if (!response.success) throw response;
@@ -36,14 +35,14 @@ function ResetPassword() {
         } catch (error) {
             dispatch(showSnackbar({ message: error.message }));
         } finally {
-            dispatch(disableLoading());
+            dispatch(loading(false));
         }
     };
 
     // Handle Reset Password Submission
     const handleResetPassword = async (e) => {
         e.preventDefault();
-        dispatch(enableLoading());
+        dispatch(loading(true));
 
         try {
             if (password !== reenterPassword) {
@@ -58,7 +57,7 @@ function ResetPassword() {
         } catch (error) {
             dispatch(showSnackbar({ message: error.message }));
         } finally {
-            dispatch(disableLoading());
+            dispatch(loading(false));
         }
     };
 

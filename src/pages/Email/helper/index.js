@@ -3,7 +3,7 @@
  */
 
 // Dependencies
-import { server } from "../../../functions/server";
+import server from "../../../functions/server";
 import routes from "../../../config/routes";
 
 // Getting Required Rotes

@@ -4,7 +4,7 @@
 
 // Dependencies
 import React from "react";
-import Snackbar from "@mui/material/Snackbar";
+import Main from "@mui/material/Snackbar";
 import { Alert } from "@mui/material";
 import Slide from '@mui/material/Slide';
 import { useSelector, useDispatch } from "react-redux";
@@ -12,7 +12,7 @@ import { useSelector, useDispatch } from "react-redux";
 // Actions
 import { hideSnackbar } from "../../store/features/app";
 
-function SnackbarComponent() {
+function Snackbar() {
     const dispatch = useDispatch();
     const { snackbar } = useSelector((state) => state.app.value);
 
@@ -21,7 +21,7 @@ function SnackbarComponent() {
         dispatch(hideSnackbar());
     };
     return (
-        <Snackbar
+        <Main
             open={snackbar.display}
             autoHideDuration={6000} // 6 Seconds before Hiding the Snackbar
             onClose={handleSnackbarClose}
@@ -36,8 +36,8 @@ function SnackbarComponent() {
             >
                 {snackbar.message}
             </Alert>
-        </Snackbar>
+        </Main>
     );
 }
 
-export default SnackbarComponent;
+export default Snackbar;

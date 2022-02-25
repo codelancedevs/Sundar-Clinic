@@ -5,38 +5,35 @@
 'use strict';
 
 // Dependencies
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
+
 const {
 	reactAppUrl,
+	sendGridApiKey,
 	mail: { email, password },
 } = require('../config');
 const {
 	createAccountVerificationToken,
 	createResetPasswordToken,
 } = require('../functions');
-const {
-	mailCallback,
-	mailConfig,
-	generateHtmlAndText,
-} = require('./functions');
 
-// Mail Transporter
-const mailTransporter = nodemailer.createTransport({
-	service: 'gmail',
-	auth: {
-		user: email,
-		pass: password,
-	},
-	from: `Sundar Clinic <${email}>`,
-});
+// Configure SendGrid 
+sgMail.setApiKey(sendGridApiKey);
+const sgMailDefaults = {
+	from: `Sundar Clinic ${email}`,
+	replyTo: email,
+};
+
+// Mailer Container
+const mailer = {};
 
 /**
  * @description Sends a welcome Email to new user and Prompts them to verify their account
  * @param {string} _id
- * @param {string} to 
- * @param {string} fullName 
+ * @param {string} to
+ * @param {string} fullName
  */
-exports.sendWelcomeAndVerifyAccountEmail = async ({
+mailer.sendWelcomeAndVerifyAccountEmail = async ({
 	_id = '',
 	to = '',
 	fullName = '',
@@ -49,32 +46,23 @@ exports.sendWelcomeAndVerifyAccountEmail = async ({
 
 	// Creating Verification Token
 	const token = createAccountVerificationToken({ _id });
+	const url = `${reactAppUrl}/verifyAccount/authToken=${token}`;
 
-	const { html, text } = generateHtmlAndText('welcome', {
-		reactAppUrl,
-		token,
-		fullName,
-	});
-
-	// Creating Mail Config
-	const config = mailConfig({
+	// Sending Welcome and Verify Email
+	sgMail.send({
+		...sgMailDefaults,
 		to,
-		subject: 'Welcome to Sundar Clinic!',
-		html,
-		text,
+		dynamicTemplateData: { fullName, url },
 	});
-
-	// Sending Email
-	mailTransporter.sendMail(config, mailCallback);
 };
 
 /**
  * @description Sends a verify account link to the user who requested for one
  * @param {string} _id
- * @param {string} to 
- * @param {string} fullName 
+ * @param {string} to
+ * @param {string} fullName
  */
-exports.sendVerifyAccountEmail = async ({
+mailer.sendVerifyAccountEmail = async ({
 	_id = '',
 	to = '',
 	fullName = '',
@@ -94,25 +82,21 @@ exports.sendVerifyAccountEmail = async ({
 		reactAppUrl,
 	});
 
-	// Creating Mail Config
-	const config = mailConfig({
+	// Sending Verify Account Email
+	sgMail.send({
+		...sgMailDefaults,
 		to,
-		subject: 'Verify Your Account',
-		html,
-		text,
+		dynamicTemplateData: { fullName, url },
 	});
-
-	// Sending Email
-	mailTransporter.sendMail(config, mailCallback);
 };
 
 /**
  * @description Sends a reset password link to allow user to reset their account password
  * @param {string} _id
- * @param {string} to 
- * @param {string} fullName 
+ * @param {string} to
+ * @param {string} fullName
  */
-exports.sendResetPasswordEmail = async ({
+mailer.sendResetPasswordEmail = async ({
 	_id = '',
 	to = '',
 	fullName = '',
@@ -132,14 +116,12 @@ exports.sendResetPasswordEmail = async ({
 		reactAppUrl,
 	});
 
-	// Creating Mail Config
-	const config = mailConfig({
+	// Sending Reset Password Email
+	sgMail.send({
+		...sgMailDefaults,
 		to,
-		subject: 'Reset Your Password',
-		html,
-		text,
+		dynamicTemplateData: { fullName, url },
 	});
-
-	// Sending Email
-	mailTransporter.sendMail(config, mailCallback);
 };
+
+module.exports = mailer;

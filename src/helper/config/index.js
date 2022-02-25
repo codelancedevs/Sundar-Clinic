@@ -38,6 +38,7 @@ const configuration = {
 	loggingOptions,
 	backendAppUrl: process.env.BACKEND_APP_URL || `http://localhost:${port}`,
 	appId: process.env.MONGODB_APP_ID,
+	sendGridApiKey: process.env.SENDGRID_API_KEY,
 	expireDurations: {
 		tokenExpireAt: 8.64e7 * 30, // 30 Days
 		verificationExpireAt: 8.64e7 * 7, // 7 Days

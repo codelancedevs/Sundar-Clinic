@@ -59,7 +59,7 @@ const errHandler = (err, req, res, next) => {
 			return (err = handle404Error(err, res));
 		else if (err.statusCode && err.statusCode === 401)
 			return (err = handleUnauthorizedError(err, res));
-		else handleGeneralError(err, res);
+		return err = handleGeneralError(err, res);
 	} catch (error) {
 		res.status(500).json({
 			message: 'An unknown error occurred.',

@@ -15,13 +15,19 @@ const adminSchema = new Schema({
         degrees: [],
         role: {
             type: String,
-            enum: ['Manager', 'Medical Staff', 'Developer']
+            enum: {
+                values: ['Manager', 'Medical Staff', 'Developer'],
+                message: '{VALUE} is an invalid admin role'
+            },
         },
         medicalStaffDetails: {
             registrationNo: String,
             role: {
                 type: String,
-                enum: ['Head Doctor', 'Intern', 'Nurse'],
+                enum: {
+                    values: ['Head Doctor', 'Intern', 'Nurse'],
+                    message: '{VALUE} is an invalid medical staff role'
+                },
             },
         },
     },

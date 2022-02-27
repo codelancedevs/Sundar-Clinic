@@ -21,7 +21,10 @@ const patientSchema = new Schema({
 	},
 	gender: {
 		type: String,
-		enum: ['Male', 'Female', 'Other'],
+		enum: {
+			values: ['Male', 'Female', 'Other'],
+			message: '{VALUE} is not a valid gender'
+		},
 	},
 	// files: [
 	// 	{
@@ -275,24 +278,7 @@ patientSchema.statics.updateHistoryDetails = async function ({
 			"{historyFor: 'String', _id : 'String', details: 'Object'} are missing or invalid"
 		);
 
-	const historyKeys = [
-		'comorbidity',
-		'drug',
-		'allergies',
-		'family',
-		'food',
-		'sanitary',
-		'occupation',
-		'surgical',
-		'pregnancy',
-		'menstrual',
-		'vasectomy',
-	];
-
-	if (!historyKeys.includes(historyFor))
-		throw new Error(
-			`History key is wrong, should include ${historyKeys.join(', ')}`
-		);
+		validateHistoryKey(historyFor);
 
 	// Getting the specific patient
 	const patient = await Patient.findById(_id);
@@ -343,24 +329,7 @@ patientSchema.statics.editHistoryDetails = async function ({
 	if (!isValidObjectId(patientId)) throw new Error('Invalid Patient Id');
 	if (!isValidObjectId(_id)) throw new Error('Invalid History Id');
 
-	const historyKeys = [
-		'comorbidity',
-		'drug',
-		'allergies',
-		'family',
-		'food',
-		'sanitary',
-		'occupation',
-		'surgical',
-		'pregnancy',
-		'menstrual',
-		'vasectomy',
-	];
-
-	if (!historyKeys.includes(historyFor))
-		throw new Error(
-			`History key is wrong, should include ${historyKeys.join(', ')}`
-		);
+	validateHistoryKey(historyFor);
 
 	// Finding Patient
 	const patient = await Patient.findById({ _id: patientId });
@@ -399,24 +368,7 @@ patientSchema.statics.deleteHistoryDetails = async function ({
 	if (!isValidObjectId(patientId)) throw new Error('Invalid Patient Id');
 	if (!isValidObjectId(_id)) throw new Error('Invalid History Id');
 
-	const historyKeys = [
-		'comorbidity',
-		'drug',
-		'allergies',
-		'family',
-		'food',
-		'sanitary',
-		'occupation',
-		'surgical',
-		'pregnancy',
-		'menstrual',
-		'vasectomy',
-	];
-
-	if (!historyKeys.includes(historyFor))
-		throw new Error(
-			`History key is wrong, should include ${historyKeys.join(', ')}`
-		);
+	validateHistoryKey(historyFor);
 
 	// Finding Patient 
 	const patient = await Patient.findOne({ _id: patientId });
@@ -448,3 +400,25 @@ const Patient = User.discriminator('Patient', patientSchema);
 
 // Exporting Model
 module.exports = Patient;
+
+// Custom Validation Function
+function validateHistoryKey(key) {
+	const HISTORY_KEYS = [
+		'comorbidity',
+		'drug',
+		'allergies',
+		'family',
+		'food',
+		'sanitary',
+		'occupation',
+		'surgical',
+		'pregnancy',
+		'menstrual',
+		'vasectomy',
+	];
+
+	if (!HISTORY_KEYS.includes(key))
+		throw new Error(
+			`History key is wrong, should include ${HISTORY_KEYS.join(', ')}`
+		);
+}

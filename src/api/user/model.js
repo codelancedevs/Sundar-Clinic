@@ -19,14 +19,13 @@ const userSchema = new Schema(
 	{
 		fullName: {
 			type: String,
-			required: true,
+			required: [true, 'Cannot create account without name'],
 			trim: true,
-			minlength: [2, 'Name should be minimum 3 characters'],
-			maxlength: [80, 'Name should be maximum 80 characters'],
+			minLength: [2, 'Name should be minimum 3 characters, got {VALUE}'],
+			maxLength: [80, 'Name cannot cross 80 characters, got {VALUE}'],
 		},
 		password: {
 			type: String,
-			required: 'Password is Required',
 			validate: [isStrongPassword, 'Please Enter a strong password'],
 		},
 		username: {
@@ -37,8 +36,8 @@ const userSchema = new Schema(
 		},
 		email: {
 			type: String,
-			required: 'Email Address is Required',
-			validate: [isEmail, 'Please Enter a valid Email Address'],
+			required: [true, 'Cannot create account without email'],
+			validate: [isEmail, '{VALUE} is not a valid email'],
 			trim: true,
 			unique: true,
 			lowercase: true,
@@ -46,7 +45,8 @@ const userSchema = new Schema(
 		phone: {
 			type: String,
 			trim: true,
-			validate: [isMobilePhone, 'Please Enter a valid Phone Number'],
+			length: 10,
+			validate: [isMobilePhone, '{VALUE} is not a valid phone number'],
 		},
 		defaultAvatar: {
 			type: String,
@@ -67,7 +67,13 @@ const userSchema = new Schema(
 			},
 			verifiedAt: Date,
 		},
-		tosAgreement: Boolean,
+		tosAgreement: {
+			type: Boolean,
+			validate: {
+				validator:  function(value){return value;},
+				message: 'Cannot create account without agreeing to Terms of Service'
+			}
+		},
 	},
 	{
 		timestamps: true,
@@ -132,12 +138,10 @@ userSchema.methods.generateDefaultUsername = async function () {
  * @returns {Promise<boolean>} true (if valid) || false (if invalid)
  */
 userSchema.methods.authenticatePassword = function ({ password }) {
-	try {
-		const isUserPassword = bcrypt.compareSync(password, this.password);
-		return isUserPassword;
-	} catch (error) {
-		console.log(error);
-	}
+	if (!password) throw new Error('Cannot Authenticate without password')
+	const isUserPassword = bcrypt.compareSync(password, this.password);
+	return isUserPassword;
+
 };
 
 // Sanitize User Details
@@ -184,7 +188,7 @@ userSchema.pre('save', async function (next) {
 		await this.createDefaultAvatar();
 		await this.generateDefaultUsername();
 		// Send the User Welcome and Verify Upon Account Creation
-		sendWelcomeAndVerifyAccountEmail({
+		await sendWelcomeAndVerifyAccountEmail({
 			_id: this._id.toString(),
 			fullName: this.fullName,
 			to: this.email,

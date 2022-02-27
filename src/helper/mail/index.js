@@ -24,6 +24,18 @@ const sgMailDefaults = {
 	replyTo: email,
 };
 
+const sendMail = async (options = {}) => {
+	const DEFAULTS = {
+		from: `Sundar Clinic ${email}`,
+		replyTo: email,
+	};
+
+	const onError = (err) => err;
+	const onSuccess = (response) => response;
+
+	return sgMail.send({ ...DEFAULTS, ...options }).then(onSuccess).catch(onError);
+}
+
 // Mailer Container
 const mailer = {};
 
@@ -49,10 +61,9 @@ mailer.sendWelcomeAndVerifyAccountEmail = async ({
 	const url = `${reactAppUrl}/verifyAccount/authToken=${token}`;
 
 	// Sending Welcome and Verify Email
-	sgMail.send({
-		...sgMailDefaults,
+	await sendMail({
 		to,
-		dynamicTemplateData: { fullName, url },
+		dynamicTemplateData: { fullName, url }
 	});
 };
 
@@ -76,17 +87,11 @@ mailer.sendVerifyAccountEmail = async ({
 	// Creating Verification Token
 	const token = createAccountVerificationToken({ _id });
 	const url = `${reactAppUrl}/verifyAccount/authToken=${token}`;
-	const { html, text } = generateHtmlAndText('verify', {
-		fullName,
-		url,
-		reactAppUrl,
-	});
 
 	// Sending Verify Account Email
-	sgMail.send({
-		...sgMailDefaults,
+	await sendMail({
 		to,
-		dynamicTemplateData: { fullName, url },
+		dynamicTemplateData: { fullName, url }
 	});
 };
 
@@ -110,17 +115,11 @@ mailer.sendResetPasswordEmail = async ({
 	// Creating Verification Token
 	const token = createResetPasswordToken({ _id });
 	const url = `${reactAppUrl}/resetPassword/authToken=${token}`;
-	const { html, text } = generateHtmlAndText('verify', {
-		fullName,
-		url,
-		reactAppUrl,
-	});
 
 	// Sending Reset Password Email
-	sgMail.send({
-		...sgMailDefaults,
+	await sendMail({
 		to,
-		dynamicTemplateData: { fullName, url },
+		dynamicTemplateData: { fullName, url }
 	});
 };
 

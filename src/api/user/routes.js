@@ -31,8 +31,8 @@ Router.patch('/email/password', userController.verifyResetPasswordMail);
 
 Router.patch('/resetPassword', userController.resetUserPassword);
 
-Router.post('/isEmailAvailable', generalAuth, userController.isEmailAvailable);
+Router.get('/isEmailAvailable', generalAuth, userController.isEmailAvailable);
 
-Router.post('/isUsernameAvailable', generalAuth, userController.isUsernameAvailable);
+Router.get('/isUsernameAvailable', generalAuth, userController.isUsernameAvailable);
 
 module.exports = Router;

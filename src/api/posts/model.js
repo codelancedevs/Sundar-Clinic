@@ -7,6 +7,7 @@
 // Dependencies
 const { Schema, model } = require('mongoose');
 const { backendAppUrl } = require('../../helper/config');
+const {isURL} = require('validator')
 
 // Creating Posts schema
 const postsSchema = new Schema(
@@ -14,8 +15,8 @@ const postsSchema = new Schema(
 		title: {
 			type: String,
 			trim: true,
-			minLength: [10, 'Min 10 characters required for title'],
-			maxLength: [100, 'Title Cannot cross 100 Characters'],
+			minLength: [10, 'Title should be minimum 10 Characters, got {VALUE}'],
+			maxLength: [100, 'Title Cannot cross 100 Characters, got {VALUE}'],
 		},
 		body: {
 			type: String,
@@ -23,10 +24,14 @@ const postsSchema = new Schema(
 		},
 		coverImage: {
 			type: String,
+			validate: [isURL, '{VALUE} is not a supported cover image']
 		},
 		type: {
 			type: String,
-			enum: ['Job', 'Offer', 'Service', 'General', 'Emergency'],
+			enum: {
+				values: ['Job', 'Offer', 'Service', 'General', 'Emergency'],
+				message: '{VALUE} is not a valid post type'
+			},
 			default: 'General',
 		},
 		isPublished: {

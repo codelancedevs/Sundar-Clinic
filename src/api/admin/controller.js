@@ -21,24 +21,23 @@ const {
 /**
  * @description Login Admin with Credentials
  * @route POST /api/admin/login
- * @data {email, password} : 'String' in Request Body
+ * @data {email || username, password} : 'String' in Request Body
  * @access Public
  */
 exports.loginAdmin = async (req, res, next) => {
 	// Collecting Required Data from Request Data
-	let { email, password } = req.body;
+	let { email, password, username } = req.body;
 	try {
 		// Type Check
-		email = typeof email === 'string' ? email : false;
 		password = typeof password === 'string' ? password : false;
-		if (!email || !password)
-			throw new Error("{email, password} : 'String' required in Request body");
+		if (!password)
+			throw new Error("{email || username, password} : 'String' required in Request body");
 
 		// Details Validity Check
-		if (!isEmail(email)) throw new Error('Given email is not valid');
+		if (email && !isEmail(email)) throw new Error('Given email is not valid');
 
 		// Finding Admin From Database
-		const admin = await Admin.findOne({ email });
+		const admin = await Admin.findOne({ '$or': [{ email }, { username }] });
 		if (!admin) throw new Error('Unable to find admin account');
 
 		// Authenticating Admin Password
@@ -137,20 +136,6 @@ exports.createAdmin = async (req, res, next) => {
 		// Type Check
 		if (!isSuperAdminAuthenticated)
 			throw new Error('Requires Super Admin Auth');
-		fullName = typeof fullName === 'string' ? fullName : false;
-		email = typeof email === 'string' ? email : false;
-		password = typeof password === 'string' ? password : false;
-		tosAgreement = typeof tosAgreement === 'boolean' ? tosAgreement : false;
-		if (!fullName || !email || !password)
-			throw new Error(
-				"{fullName, email, password, tosAgreement: 'Boolean'} ; 'String' are required in the Request Body"
-			);
-
-		// Details Validity Check
-		if (!tosAgreement)
-			throw new Error(
-				'Account Cannot be created without agreeing to Terms of Service'
-			);
 
 		// Creating New Admin
 		const admin = new Admin({ fullName, email, password, tosAgreement });
@@ -192,6 +177,7 @@ exports.editAdminDetails = async (req, res, next) => {
 	let { fullName, username, email, phone, address, adminDetails } = req.body;
 	try {
 		// Updating admin details
+		// const details = { ...admin.toObject(), fullName, username, email, phone, address, adminDetails }
 		// If details are not given, then existing details are passed back
 		const details = {
 			fullName: fullName || admin.fullName,
@@ -218,7 +204,7 @@ exports.editAdminDetails = async (req, res, next) => {
 		}
 
 		// Update Admin Details
-		await admin.updateOne({ _id: admin._id }, { ...details });
+		await admin.updateOne({ ...details });
 		// Response after all updating all admin details
 		return res.status(200).json({
 			message: 'Details Updated Successfully',
@@ -242,9 +228,8 @@ exports.editAdminPassword = async (req, res, next) => {
 	let { password, newPassword } = req.body;
 	try {
 		// Pre Checks
-		password = typeof password === 'string' ? password : false;
 		newPassword = typeof newPassword === 'string' ? newPassword : false;
-		if (!password || !newPassword) {
+		if (!newPassword) {
 			throw new Error(
 				"{password, newPassword} : 'String' is Required in Request Body"
 			);
@@ -261,7 +246,7 @@ exports.editAdminPassword = async (req, res, next) => {
 		if (isSamePassword)
 			throw new Error('Old Password and New Password cannot be same');
 
-		if (!isSamePassword(newPassword)) throw new Error('Password is weak');
+		if (!isStrongPassword(newPassword)) throw new Error('Password is weak');
 
 		// Generate New Password
 		const hashedPassword = admin.returnHashedPassword({
@@ -292,11 +277,6 @@ exports.deleteAdminAccount = async (req, res, next) => {
 	const { admin } = req;
 	let { password } = req.body;
 	try {
-		// Password Check
-		password = typeof password === 'string' ? password : false;
-		if (!password)
-			throw new Error("{password} : 'String' should be there in Request Body.");
-
 		// Validate Password
 		const validated = admin.authenticatePassword({ password });
 		if (!validated) throw new Error('Wrong Password');
@@ -349,30 +329,9 @@ exports.createNewPatient = async (req, res, next) => {
 	// Collecting Required Data from Request Body
 	let { fullName, email, tosAgreement } = req.body;
 	try {
-		// Type Check
-		fullName = typeof fullName === 'string' ? fullName : false;
-		email = typeof email === 'string' ? email : false;
-		tosAgreement = typeof tosAgreement === 'boolean' ? tosAgreement : false;
-		if (!fullName || !email) {
-			throw new Error(
-				"{fullName, email} : 'String' and {tosAgreement} : 'Boolean' are required in Request Body"
-			);
-		}
-		// Details Check
-		if (!tosAgreement) {
-			throw new Error(
-				'Cannot create account without agreeing to Terms of Service'
-			);
-		}
-
 		// Creating New Patient
 		const password = Patient.createRandomPassword({ fullName });
-		const patientDetails = {
-			fullName,
-			email,
-			password,
-			tosAgreement,
-		};
+		const patientDetails = { fullName, email, password, tosAgreement };
 		const patient = new Patient({ ...patientDetails });
 		await patient.save();
 		patientDetails._id = saved._id;
@@ -457,12 +416,12 @@ exports.editPatientAccountDetails = async (req, res, next) => {
 
 		// Updating patient details
 		// If details are not given, then existing details are passed back
+		// const details = { ...patient.toObject(), fullName, username, email, phone, address }
 		const details = {
 			fullName: fullName || patient.fullName,
 			username: username || patient.username,
 			email: email || patient.email,
 			phone: phone || patient.phone,
-			address: address || patient.address,
 		};
 		await patient.updateOne({ ...details });
 
@@ -505,6 +464,7 @@ exports.editPatientGeneralDetails = async (req, res, next) => {
 			maritalStatus: maritalStatus || patient.maritalStatus,
 			kidsDetails: kidsDetails || kidsDetails,
 		};
+		// const details = { ...patient.toObject(), dateOfBirth, gender, maritalStatus, kidsDetails }
 		await patient.updateOne({ ...details });
 
 		// Response after updating Patient General Details

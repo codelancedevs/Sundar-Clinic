@@ -33,14 +33,11 @@ const userController = {};
  * @access Public
  */
 userController.isEmailUnique = async (req, res, next) => {
-	const { email } = req.body;
+	let { email } = req.body;
 	try {
+		email = typeof email === 'string' && isEmail(email) ? email : false;
 		if (!email)
-			throw new Error("{email: 'String'} is required in Request Body");
-		if (typeof email !== 'string')
-			throw new Error('{email} should be a string');
-		if (!isEmail(email))
-			throw new Error('Given Email is not a valid Email Address');
+			throw new Error("Email is either missing or invalid");
 		const emailCount = await User.countDocuments({ email });
 		const isEmailUnique = !emailCount;
 		return res.status(200).json({
@@ -60,12 +57,11 @@ userController.isEmailUnique = async (req, res, next) => {
  * @access Public
  */
 userController.isUsernameUnique = async (req, res, next) => {
-	const { username } = req.body;
+	let { username } = req.body;
 	try {
+		username = typeof username === 'string' ? username : false;
 		if (!username)
-			throw new Error("{username: 'String'} is required in the Request Body");
-		if (typeof username !== 'string')
-			throw new Error('{username} should be a string');
+			throw new Error("Username is missing or is invalid");
 		const usernameCount = await User.countDocuments({ username });
 		const isUsernameUnique = !usernameCount;
 		return res.status(200).json({
@@ -92,7 +88,7 @@ userController.sendResetPasswordMail = async (req, res, next) => {
 		email = typeof email === 'string' && isEmail(email) ? email : false;
 		if (!email)
 			throw new Error(
-				"{email} : 'String' is required in Request body or is invalid"
+				"Email is either missing or invalid"
 			);
 
 		// Checking if user with given email exists
@@ -171,7 +167,7 @@ userController.verifyUser = async (req, res, next) => {
 		// Type Check
 		authToken = typeof authToken === 'string' ? authToken : false;
 		if (!authToken)
-			throw new Error("{authToken} : 'String' is required in Request Body");
+			throw new Error("authToken is either missing or invalid");
 
 		const userId = authenticateVerifyAuthToken({ authToken });
 		if (!userId)
@@ -185,9 +181,7 @@ userController.verifyUser = async (req, res, next) => {
 		const { isVerified } = user.verification;
 
 		// If User is Verified, then notify account is already verified.
-		if (isVerified) {
-			throw new Error('Account Already Verified!');
-		}
+		if (isVerified) throw new Error('Account Already Verified!');
 
 		// Verify User Account and Login User
 		const verifiedAt = Date.now();
@@ -234,7 +228,7 @@ userController.verifyResetPasswordMail = async (req, res, next) => {
 		// Type Check
 		authToken = typeof authToken === 'string' ? authToken : false;
 		if (!authToken)
-			throw new Error("{authToken} : 'String' is required in Request Body");
+			throw new Error("authToken is either missing or invalid");
 
 		// Checking validity of given Token
 		const userId = authenticateResetPasswordAuthToken({ authToken });
@@ -309,24 +303,55 @@ userController.resetUserPassword = async (req, res, next) => {
 };
 
 /**
-* @description <Controller description here>
-* @route METHOD <Route>
-* @data <Data either in body, params, or query>
-* @access <Access Level>
-* ! To be Tested
+* @description Check is Email is available for a logged in User
+* @route GET /api/user/isEmailAvailable
+* @data {email} : 'String' in Request Body
+* @access User
 */
-userController.isEmailAvailable = async (req, res, next) => {};
+userController.isEmailAvailable = async (req, res, next) => {
+	// Collecting Required Data from Middleware and Request Body
+	const { user } = req.user;
+	const { email } = req.body;
+	try {
+		const emailCount = await User.countDocuments({ '$or': [{ email: user.email }, { email }] });
+		const isEmailAvailable = emailCount === 1;
+		return res
+			.status(200)
+			.json({
+				message: `Email is ${isEmailAvailable ? '' : 'not '}available`,
+				data: { isEmailAvailable },
+				success: true,
+			});
+	} catch (error) {
+		return next(error);
+	}
+};
 
 /**
-* @description <Controller description here>
-* @route METHOD <Route>
-* @data <Data either in body, params, or query>
-* @access <Access Level>
-* ! To be Tested
+* @description Check is Username is available for a logged in User
+* @route GET /api/user/isUsernameAvailable
+* @data {username} : 'String' in Request Body
+* @access User
 */
-userController.isUsernameAvailable = async (req, res, next) => {};
+userController.isUsernameAvailable = async (req, res, next) => {
+	// Collecting Required Data from Middleware and Request Body
+	const { user } = req.user;
+	const { username } = req.body;
+	try {
+		const usernameCount = await User.countDocuments({ '$or': [{ username: user.username }, { username }] });
+		const isUsernameAvailable = usernameCount === 1;
+		return res
+			.status(200)
+			.json({
+				message: `Username is ${isUsernameAvailable ? '' : 'not '}available`,
+				data: { isUsernameAvailable },
+				success: true,
+			});
+	} catch (error) {
+		return next(error);
+	}
+};
 
 // Exporting User Controller
 module.exports = userController;
-
 

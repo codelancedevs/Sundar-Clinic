@@ -26,32 +26,8 @@ exports.createPatient = async (req, res, next) => {
 	// Collecting Required Data from Request Body
 	let { fullName, email, password, tosAgreement } = req.body;
 	try {
-		// Type Checks
-		fullName = typeof fullName === 'string' ? fullName : false;
-		email = typeof email === 'string' ? email : false;
-		password = typeof password === 'string' ? password : false;
-		tosAgreement = typeof tosAgreement === 'boolean' ? tosAgreement : false;
-		if (!fullName || !email || !password)
-			throw new Error(
-				"{fullName, email, password, tosAgreement: 'Boolean'} ; 'String' are required in the Request Body"
-			);
-
-		// Details Validity Check
-		if (!isEmail(email)) throw new Error('Given Email is not valid');
-		if (!isStrongPassword(password))
-			throw new Error('Password is not strong enough');
-		if (!tosAgreement)
-			throw new Error(
-				'Account Cannot be created without agreeing to Terms of Service'
-			);
-
 		// Creating New Patient
-		const patient = new Patient({
-			fullName,
-			email,
-			password,
-			tosAgreement,
-		});
+		const patient = new Patient({ fullName, email, password, tosAgreement, });
 		await patient.save();
 
 		// Creating Patient Auth Token
@@ -81,24 +57,23 @@ exports.createPatient = async (req, res, next) => {
 /**
  * @description Login into Patient Account
  * @route POST /api/patient/login
- * @data {email, password} : 'String' in Request Body
+ * @data {email || username, password} : 'String' in Request Body
  * @access Public
  */
 exports.loginPatient = async (req, res, next) => {
 	// Collecting Required Data from Request Body
-	let { email, password } = req.body;
+	let { email, password, username } = req.body;
 	try {
 		// Type Check
-		email = typeof email === 'string' ? email : false;
 		password = typeof password === 'string' ? password : false;
 		if (!email || !password)
 			throw new Error("{email, password} : 'String' required in Request body");
 
 		// Details Validity Check
-		if (!isEmail(email)) throw new Error('Given email is not valid');
+		if (email && !isEmail(email)) throw new Error('Given email is not valid');
 
 		// Finding Patient From Database
-		const patient = await Patient.findOne({ email });
+		const patient = await Patient.findOne({ '$or': [{ email }, { username }] });
 		if (!patient) throw new Error('No Patient account found');
 
 		// Validating Patient
@@ -236,7 +211,6 @@ exports.editPatientPassword = async (req, res, next) => {
 	let { password, newPassword } = req.body;
 	try {
 		// Pre Checks
-		password = typeof password === 'string' ? password : false;
 		newPassword = typeof newPassword === 'string' ? newPassword : false;
 		if (!password || !newPassword) {
 			throw new Error(
@@ -292,11 +266,6 @@ exports.deletePatientAccount = async (req, res, next) => {
 		// Patient Check
 		const patient = await Patient.findById(_id);
 		if (!patient) throw new Error('Unable to find patient');
-
-		// Password Check
-		password = typeof password === 'string' ? password : false;
-		if (!password)
-			throw new Error("{password} : 'String' should be there in Request Body.");
 
 		// Validate Password
 		const validated = await patient.authenticatePassword({ password });

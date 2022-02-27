@@ -17,16 +17,13 @@ const handleValidationError = (err, res) => {
 	const errors = Object.values(err.errors).map((el) => el.message);
 	const fields = Object.values(err.errors).map((el) => el.path);
 	const code = 400;
-	if (errors.length > 1) {
-		const formattedErrors = errors.join(' ');
-		return res.status(code).json({ message: formattedErrors, fields });
-	} else {
-		return res.status(code).json({
-			message: errors,
-			data: { fields },
-			success: false,
-		});
-	}
+	if (errors.length > 1) return res.status(code).json({ message: errors, data: { fields }, success: false });
+	return res.status(code).json({
+		message: errors.join(''),
+		data: { fields },
+		success: false,
+	});
+
 };
 
 const handle404Error = (err, res) => {

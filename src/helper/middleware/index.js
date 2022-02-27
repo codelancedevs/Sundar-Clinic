@@ -33,7 +33,7 @@ middleware.generalAuth = async (req, res, next) => {
 			if (!admin) throw new Error('Unable to find Admin');
 			req.user = {
 				type: 'Admin',
-				user: admin.toObject(),
+				user: admin,
 			};
 			return next();
 		} else if (!adminToken && patientToken) {
@@ -42,7 +42,7 @@ middleware.generalAuth = async (req, res, next) => {
 			if (!patient) throw new Error('Unable to find Patient');
 			req.user = {
 				type: 'Patient',
-				user: patient.toObject(),
+				user: patient,
 			};
 			return next();
 		} else {

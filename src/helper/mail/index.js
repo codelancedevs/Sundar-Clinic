@@ -19,10 +19,12 @@ const {
 
 // Configure SendGrid 
 sgMail.setApiKey(sendGridApiKey);
-const sgMailDefaults = {
-	from: `Sundar Clinic ${email}`,
-	replyTo: email,
-};
+
+const TEMPLATE_ID = {
+	welcomeAndVerify: 'd-094c1bf65e8d4caab54815145597b89f',
+	verifyAccount: 'd-2fb893052ee14b93a79f8261dc7268d5',
+	resetPassword: 'd-7c2dba6f14554396b3cf997feea7e5c1',
+}
 
 const sendMail = async (options = {}) => {
 	const DEFAULTS = {
@@ -33,7 +35,7 @@ const sendMail = async (options = {}) => {
 	const onError = (err) => err;
 	const onSuccess = (response) => response;
 
-	return sgMail.send({ ...DEFAULTS, ...options }).then(onSuccess).catch(onError);
+	return sgMail.send({ ...DEFAULTS, ...options, }).then(onSuccess).catch(onError);
 }
 
 // Mailer Container
@@ -63,6 +65,7 @@ mailer.sendWelcomeAndVerifyAccountEmail = async ({
 	// Sending Welcome and Verify Email
 	await sendMail({
 		to,
+		templateId: TEMPLATE_ID.welcomeAndVerify,
 		dynamicTemplateData: { fullName, url }
 	});
 };
@@ -91,6 +94,7 @@ mailer.sendVerifyAccountEmail = async ({
 	// Sending Verify Account Email
 	await sendMail({
 		to,
+		templateId: TEMPLATE_ID.verifyAccount,
 		dynamicTemplateData: { fullName, url }
 	});
 };
@@ -119,6 +123,7 @@ mailer.sendResetPasswordEmail = async ({
 	// Sending Reset Password Email
 	await sendMail({
 		to,
+		templateId: TEMPLATE_ID.resetPassword,
 		dynamicTemplateData: { fullName, url }
 	});
 };

@@ -27,6 +27,7 @@ const appRouter = require('./src/api/app');
 const app = express();
 
 // Using Middleware
+app.use("view engine", "ejs")
 app.use(express.json());
 app.use(preventXST);
 app.use(
